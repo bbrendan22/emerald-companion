@@ -2875,3 +2875,120 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline-color:var(
     height:calc(100dvh - 72px - env(safe-area-inset-top))!important;
   }
 }
+
+/* v86 — stable My Pokémon scroll grid */
+.pokemon-page .pokedex-grid{
+  display:grid!important;
+  align-content:start!important;
+  grid-auto-rows:max-content!important;
+  flex:1 1 0!important;
+  min-height:0!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+}
+
+.pokemon-page .pokemon-tile{
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  align-self:start!important;
+}
+
+/* v86 — tighter Battle top area */
+.battle-control-row{
+  margin-bottom:4px!important;
+}
+
+.battle-searches{
+  gap:4px!important;
+}
+
+.trainer-search-wrap .trainer-search,
+.trainer-search{
+  height:26px!important;
+  min-height:26px!important;
+  padding-top:2px!important;
+  padding-bottom:2px!important;
+  border-radius:7px!important;
+}
+
+@media(max-width:600px){
+  .battle-control-row{
+    margin-bottom:2px!important;
+  }
+
+  .trainer-search-wrap .trainer-search,
+  .trainer-search{
+    height:25px!important;
+    min-height:25px!important;
+  }
+
+  .battle-team-row{
+    padding-top:2px!important;
+  }
+}
+
+/* v87 — Battle page stays locked to the viewport */
+.battle-page{
+  height:100%!important;
+  max-height:100%!important;
+  min-height:0!important;
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+  touch-action:pan-x!important;
+}
+
+.persistent-page.active{
+  height:100%!important;
+  min-height:0!important;
+  overflow:hidden!important;
+}
+
+@media(max-width:600px){
+  .battle-page{
+    overflow:hidden!important;
+  }
+}
+
+/* v88 — lock the actual app containers while Battle is visible.
+   iOS Safari can scroll an ancestor even when .battle-page itself is hidden. */
+html:has(.persistent-page.active),
+body:has(.persistent-page.active),
+#root:has(.persistent-page.active),
+.app-shell:has(.persistent-page.active),
+.app-content:has(.persistent-page.active){
+  height:100dvh!important;
+  max-height:100dvh!important;
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+}
+
+.app-content:has(.persistent-page.active){
+  min-height:0!important;
+}
+
+.persistent-page.active{
+  height:100%!important;
+  max-height:100%!important;
+  min-height:0!important;
+  overflow:hidden!important;
+}
+
+.persistent-page.active .battle-page{
+  height:100%!important;
+  max-height:100%!important;
+  min-height:0!important;
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+}
+
+/* Pickers/results remain the only independently scrollable Battle elements. */
+.persistent-page.active .battle-picker,
+.persistent-page.active .battle-search-popup,
+.persistent-page.active .opponent-picker,
+.persistent-page.active .trainer-results,
+.persistent-page.active .opponent-results{
+  overflow-y:auto!important;
+  overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch!important;
+}
