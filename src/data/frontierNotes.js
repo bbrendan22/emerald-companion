@@ -1,0 +1,2 @@
+// Notes copied from the source workbook.
+export const frontierDataNotes = ["*All instances of Frustration* were listed as Return in the ROM. However, in the Factory Frustration replaces Return.", "†Placeholder only. Noland`s team is subject to the same restrictions as regular trainers - sets 565-660 in Open Level the first time with IVs of 15s, and sets 373-882 for the second time with IVs of 31s."]

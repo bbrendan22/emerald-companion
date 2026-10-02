@@ -6,7 +6,9 @@ import {
 
 import SaveLoader from './components/SaveLoader'
 import { pokemonMeta } from './data/pokemonMeta'
-import { speciesInfo, moveInfo, itemNames } from './data/emeraldData'
+import { speciesInfo, moveInfo, moveNames, itemNames } from './data/emeraldData'
+import { frontierTrainers } from './data/frontierTrainers'
+import { frontierPokemon } from './data/frontierPokemon'
 
 const SAVE_STORAGE_KEY =
   'emerald-companion-save-v1'
@@ -584,7 +586,6 @@ function getCurrentStats(pokemon) {
   }
 }
 
-
 const NATURE_MODIFIERS = {
   Hardy: [null, null], Lonely: ['attack', 'defense'], Brave: ['attack', 'speed'],
   Adamant: ['attack', 'spAttack'], Naughty: ['attack', 'spDefense'],
@@ -618,7 +619,6 @@ const TYPE_CHART = {
   DARK: { FIGHTING: .5, PSYCHIC: 2, GHOST: 2, DARK: .5, STEEL: .5 },
   STEEL: { FIRE: .5, WATER: .5, ELECTRIC: .5, ICE: 2, ROCK: 2, STEEL: .5 },
 }
-
 
 function expForLevel(level, growthRate) {
   const n = level
@@ -685,13 +685,11 @@ function getTypeMatchups(types) {
   }
 }
 
-
 function getMoveMaxPp(basePp, ppBonuses, slot) {
   if (basePp == null) return null
   const ups = ppBonuses == null ? 0 : (Number(ppBonuses) >> (slot * 2)) & 0x3
   return Math.floor(Number(basePp) * (5 + ups) / 5)
 }
-
 
 function TypeIcon({ type, compact = false }) {
   const key = String(type || 'NORMAL').toUpperCase()
@@ -713,12 +711,27 @@ function assetSlug(value) {
     .replace(/^-|-$/g, '')
 }
 
+const ITEM_ICON_SLUG_OVERRIDES = {
+  blackglasses: 'black-glasses',
+  nevermeltice: 'never-melt-ice',
+  silverpowder: 'silver-powder',
+  twistedspoon: 'twisted-spoon',
+}
+
+function itemIconSlug(name) {
+  const compact = String(name || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '')
+
+  return ITEM_ICON_SLUG_OVERRIDES[compact] || assetSlug(name)
+}
+
 function ItemIcon({ name }) {
   if (!name || name === 'None' || name === '—') return null
   return (
     <img
       className="held-item-icon"
-      src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${assetSlug(name)}.png`}
+      src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${itemIconSlug(name)}.png`}
       alt=""
       onError={(e) => { e.currentTarget.style.display = 'none' }}
     />
@@ -888,7 +901,7 @@ function PokemonDetail({
                   const maxPp = getMoveMaxPp(info.pp ?? move.maxPp, pokemon.ppBonuses, index)
                   return <div className={`exact-move type-border-${String(type).toLowerCase()}`} key={`${move.id}-${index}`}>
                     <TypeIcon type={type} />
-                    <div><b>{move.name}</b><span>PP {move.pp}{maxPp != null ? `/${maxPp}` : ''}</span></div>
+                    <div><b>{move.name}</b><span>PP {maxPp ?? '—'}</span></div>
                   </div>
                 })}
               </div>
@@ -1061,17 +1074,10 @@ function MyPokemonPage({
               query &&
               !pokemon.speciesName
                 .toLowerCase()
-                .includes(
-                  query
-                ) &&
+                .startsWith(query) &&
               !pokemon.nickname
                 ?.toLowerCase()
-                .includes(
-                  query
-                ) &&
-              !String(
-                meta.dex
-              ).includes(query)
+                .startsWith(query)
             ) {
               return false
             }
@@ -1202,7 +1208,7 @@ function MyPokemonPage({
   }
 
   return (
-    <div className="page">
+    <div className="page pokemon-page">
       <header className="collection-header">
         <div>
           <p className="page-eyebrow">
@@ -1226,7 +1232,10 @@ function MyPokemonPage({
         <input
           className="pokemon-search"
           type="search"
-          placeholder="Search name, nickname or Dex #..."
+            spellCheck={false}
+            autoCorrect="off"
+            autoCapitalize="none"
+          placeholder="Search name or nickname..."
           value={search}
           onChange={(event) =>
             setSearch(
@@ -1323,25 +1332,21 @@ function MyPokemonPage({
             </option>
           </SelectFilter>
 
-          <SelectFilter
-            label="SHINY"
-            value={shininess}
-            onChange={
-              setShininess
+          <button
+            className={`shiny-filter-toggle ${shininess === 'shiny' ? 'active' : ''}`}
+            type="button"
+            aria-label={shininess === 'shiny' ? 'Show all Pokémon' : 'Show shiny Pokémon only'}
+            title={shininess === 'shiny' ? 'Shiny only' : 'All Pokémon'}
+            onClick={() =>
+              setShininess(
+                shininess === 'shiny'
+                  ? 'all'
+                  : 'shiny'
+              )
             }
           >
-            <option value="all">
-              All
-            </option>
-
-            <option value="shiny">
-              Shiny
-            </option>
-
-            <option value="normal">
-              Non-Shiny
-            </option>
-          </SelectFilter>
+            {shininess === 'shiny' ? '★' : '☆'}
+          </button>
         </div>
 
         <button
@@ -1372,8 +1377,7 @@ function MyPokemonPage({
 
       {!filteredPokemon.length && (
         <div className="empty-results">
-          No Pokémon match
-          these filters.
+          No results
         </div>
       )}
 
@@ -1398,6 +1402,988 @@ function MyPokemonPage({
           )
         }
       />
+    </div>
+  )
+}
+
+const DUPLICATE_MOVE_CLASSES = [
+  'duplicate-move-1',
+  'duplicate-move-2',
+  'duplicate-move-3',
+  'duplicate-move-4',
+  'duplicate-move-5',
+  'duplicate-move-6',
+]
+
+function getDuplicateMoveColors(pokemonSets) {
+  const moveCounts = new Map()
+
+  pokemonSets.forEach((pokemon) => {
+    pokemon.moves.forEach((move) => {
+      moveCounts.set(move, (moveCounts.get(move) || 0) + 1)
+    })
+  })
+
+  const duplicateMoves = new Map()
+  let duplicateIndex = 0
+
+  moveCounts.forEach((count, move) => {
+    if (count > 1) {
+      duplicateMoves.set(
+        move,
+        DUPLICATE_MOVE_CLASSES[
+          duplicateIndex % DUPLICATE_MOVE_CLASSES.length
+        ]
+      )
+      duplicateIndex += 1
+    }
+  })
+
+  return duplicateMoves
+}
+
+const BATTLE_SETTINGS_KEY = 'emerald-companion-battle-settings-v1'
+
+function loadBattleSettings() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(BATTLE_SETTINGS_KEY) || '{}')
+    return {
+      level: saved.level === 100 ? 100 : 50,
+      facility: saved.facility === 'Dome' ? 'Dome' : 'Tower',
+      format: saved.format === 'Doubles' ? 'Doubles' : 'Singles',
+      streak: 0,
+    }
+  } catch {
+    return { level: 50, facility: 'Tower', format: 'Singles', streak: 0 }
+  }
+}
+
+function formatMatchupEvs(evs, frontier = false) {
+  if (!evs) return '0 EVs'
+
+  const rows = frontier
+    ? [
+        ['HP', 'hp'], ['Atk', 'atk'], ['Def', 'def'],
+        ['SpA', 'spa'], ['SpD', 'spd'], ['Spe', 'spe'],
+      ]
+    : [
+        ['HP', 'hp'], ['Atk', 'attack'], ['Def', 'defense'],
+        ['SpA', 'spAttack'], ['SpD', 'spDefense'], ['Spe', 'speed'],
+      ]
+
+  const active = rows
+    .map(([label, key]) => [label, Number(evs[key] ?? 0)])
+    .filter(([, value]) => value > 0)
+
+  if (!active.length) return '0 EVs'
+  return active.map(([label, value]) => `${label} ${value}`).join(' · ')
+}
+
+function getBattleTypeMatchupRows(types) {
+  if (!types?.length) return []
+  const matchups = getTypeMatchups(types)
+  const rows = new Map()
+
+  ;[...matchups.weak, ...matchups.advantage].forEach(({ type, multiplier }) => {
+    if (!rows.has(multiplier)) rows.set(multiplier, [])
+    rows.get(multiplier).push(type)
+  })
+
+  return [4, 2, 0.5, 0.25, 0]
+    .filter((multiplier) => rows.has(multiplier))
+    .map((multiplier) => ({ multiplier, types: rows.get(multiplier) }))
+}
+
+function formatBattleMultiplier(multiplier) {
+  if (multiplier === 0.5) return '½×'
+  if (multiplier === 0.25) return '¼×'
+  return `${multiplier}×`
+}
+
+function MatchupTypeAdvantages({ types }) {
+  const rows = getBattleTypeMatchupRows(types)
+  if (!rows.length) return null
+
+  return (
+    <div className="matchup-type-advantages">
+      {rows.map(({ multiplier, types: rowTypes }) => (
+        <div className="matchup-type-advantage-row" key={multiplier}>
+          <span className={`matchup-multiplier matchup-multiplier-${String(multiplier).replace('.', '-')}`}>
+            {formatBattleMultiplier(multiplier)}
+          </span>
+          <div className="matchup-advantage-icons">
+            {rowTypes.map((type) => (
+              <TypeIcon type={type} compact key={`${multiplier}-${type}`} />
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function getFrontierMoveInfo(moveName) {
+  const normalize = (value) =>
+    String(value || '').toLowerCase().replace(/[^a-z0-9]/g, '')
+
+  const wanted = normalize(moveName)
+  const moveId = Object.entries(moveNames || {}).find(
+    ([, name]) => normalize(name) === wanted
+  )?.[0]
+
+  return moveId != null ? moveInfo?.[moveId] ?? null : null
+}
+
+function getMatchupCurrentStats(pokemon) {
+  if (!pokemon) return null
+  const profile = speciesInfo?.[pokemon.species] ?? null
+  const level =
+    pokemon.level ??
+    levelFromExperience(pokemon.experience, profile?.growthRate)
+  const calculated = calculateStats(pokemon, profile, level)
+  const live = getCurrentStats(pokemon)
+
+  return {
+    hp: live.maxHp ?? calculated?.maxHp ?? live.hp ?? calculated?.hp ?? null,
+    attack: live.attack ?? calculated?.attack ?? null,
+    defense: live.defense ?? calculated?.defense ?? null,
+    spAttack: live.spAttack ?? calculated?.spAttack ?? null,
+    spDefense: live.spDefense ?? calculated?.spDefense ?? null,
+    speed: live.speed ?? calculated?.speed ?? null,
+  }
+}
+
+function calculateFrontierMatchupStats(pokemon, level, iv) {
+  if (!pokemon) return null
+
+  const metaEntry = Object.entries(pokemonMeta).find(
+    ([, entry]) =>
+      entry.name.toLowerCase() === pokemon.species.toLowerCase()
+  )
+  const speciesId = metaEntry?.[0]
+  const profile = speciesId ? speciesInfo?.[speciesId] : null
+  const base = profile?.baseStats
+  if (!base) return null
+
+  const evs = pokemon.evs || {}
+  const frontierEv = (key) => Number(evs[key] ?? 0)
+  const core = (baseStat, evKey) =>
+    Math.floor(
+      ((2 * Number(baseStat ?? 0) +
+        Number(iv) +
+        Math.floor(frontierEv(evKey) / 4)) *
+        Number(level)) /
+        100
+    )
+
+  const hp =
+    pokemon.species === 'Shedinja'
+      ? 1
+      : core(base.hp, 'hp') + Number(level) + 10
+
+  const stat = (baseStat, evKey, natureKey) =>
+    Math.floor(
+      (core(baseStat, evKey) + 5) *
+        natureMultiplier(pokemon.nature, natureKey)
+    )
+
+  return {
+    hp,
+    attack: stat(base.attack, 'atk', 'attack'),
+    defense: stat(base.defense, 'def', 'defense'),
+    spAttack: stat(base.spAttack, 'spa', 'spAttack'),
+    spDefense: stat(base.spDefense, 'spd', 'spDefense'),
+    speed: stat(base.speed, 'spe', 'speed'),
+  }
+}
+
+function BattlePage({ collection, designations }) {
+  const [battleSettings, setBattleSettings] = useState(loadBattleSettings)
+  const [trainerSearch, setTrainerSearch] = useState('')
+  const [selectedTrainer, setSelectedTrainer] = useState(null)
+  const [opponentSearch, setOpponentSearch] = useState('')
+  const [selectedOpponent, setSelectedOpponent] = useState(null)
+  const [hiddenOpponentSetIds, setHiddenOpponentSetIds] = useState(new Set())
+  const [myTeam, setMyTeam] = useState([])
+  const [opponentTeam, setOpponentTeam] = useState([])
+  const [activeMySlot, setActiveMySlot] = useState(null)
+  const [activeOpponentSlot, setActiveOpponentSlot] = useState(null)
+  const [matchupMyPokemon, setMatchupMyPokemon] = useState(null)
+  const [matchupOpponentPokemon, setMatchupOpponentPokemon] = useState(null)
+
+  const teamSize = battleSettings.format === 'Doubles' ? 4 : 3
+
+  const battleFrontierPokemon = useMemo(() => {
+    const selectedSpecies = new Set(
+      myTeam
+        .filter(Boolean)
+        .map((pokemon) => pokemon.species)
+    )
+
+    return collection
+      .filter(
+        (pokemon) =>
+          getRole(pokemon, designations) === 'bf' &&
+          !selectedSpecies.has(pokemon.species)
+      )
+      .sort((a, b) => {
+        const aDex = pokemonMeta[a.species]?.dex ?? 999
+        const bDex = pokemonMeta[b.species]?.dex ?? 999
+        return aDex - bDex
+      })
+  }, [collection, designations, myTeam])
+
+  function frontierSpritePath(pokemon) {
+    const meta = Object.values(pokemonMeta).find(
+      (entry) => entry.name.toLowerCase() === pokemon.species.toLowerCase()
+    )
+    return meta
+      ? `${import.meta.env.BASE_URL}sprites/emerald/${meta.dex}.png`
+      : ''
+  }
+
+  useEffect(() => {
+    setMyTeam((current) => current.slice(0, teamSize))
+    setOpponentTeam((current) => current.slice(0, teamSize))
+    setActiveMySlot(null)
+    setActiveOpponentSlot(null)
+  }, [teamSize])
+
+  const trainerMatches = useMemo(() => {
+    const query = trainerSearch.trim().toLowerCase()
+
+    if (!query) {
+      return []
+    }
+
+    return frontierTrainers.filter((trainer) =>
+      trainer.name.toLowerCase().startsWith(query)
+    )
+  }, [trainerSearch])
+
+  const availableOpponentSets = useMemo(() => {
+    if (!selectedTrainer) {
+      return frontierPokemon
+    }
+
+    const allowedSetIds = new Set(selectedTrainer.pokemonSetIds)
+
+    return frontierPokemon.filter((pokemon) =>
+      allowedSetIds.has(pokemon.id)
+    )
+  }, [selectedTrainer])
+
+  const opponentMatches = useMemo(() => {
+    const query = opponentSearch.trim().toLowerCase()
+
+    if (!query) {
+      return []
+    }
+
+    const selectedSpecies = new Set(
+      opponentTeam
+        .filter(Boolean)
+        .map((pokemon) => pokemon.species.toLowerCase())
+    )
+
+    return availableOpponentSets.filter((pokemon) =>
+      pokemon.species.toLowerCase().startsWith(query) &&
+      !selectedSpecies.has(pokemon.species.toLowerCase()) &&
+      !hiddenOpponentSetIds.has(pokemon.id)
+    )
+  }, [
+    availableOpponentSets,
+    opponentSearch,
+    hiddenOpponentSetIds,
+    opponentTeam,
+  ])
+
+  const duplicateMoveColors = useMemo(
+    () => getDuplicateMoveColors(opponentMatches),
+    [opponentMatches]
+  )
+
+  function chooseTrainer(trainer) {
+    setSelectedTrainer(trainer)
+    setTrainerSearch(trainer.name)
+    setOpponentSearch('')
+    setSelectedOpponent(null)
+    setHiddenOpponentSetIds(new Set())
+  }
+
+  function clearTrainer() {
+    setSelectedTrainer(null)
+    setTrainerSearch('')
+    setOpponentSearch('')
+    setSelectedOpponent(null)
+    setHiddenOpponentSetIds(new Set())
+  }
+
+  function chooseOpponent(pokemon) {
+    if (activeOpponentSlot === null) return
+
+    setOpponentTeam((current) => {
+      const next = [...current]
+      next[activeOpponentSlot] = pokemon
+      return next
+    })
+    setSelectedOpponent(pokemon)
+    setOpponentSearch('')
+    setHiddenOpponentSetIds(new Set())
+    setActiveOpponentSlot(null)
+  }
+
+  function chooseMyPokemon(pokemon) {
+    if (activeMySlot === null) return
+
+    setMyTeam((current) => {
+      const next = [...current]
+      next[activeMySlot] = pokemon
+      return next
+    })
+    setActiveMySlot(null)
+  }
+
+  function removeMyPokemon(index) {
+    setMyTeam((current) => {
+      const removed = current[index]
+      const next = [...current]
+      next[index] = null
+
+      if (
+        removed &&
+        matchupMyPokemon &&
+        removed.companionId === matchupMyPokemon.companionId
+      ) {
+        setMatchupMyPokemon(null)
+      }
+
+      return next
+    })
+  }
+
+  function removeOpponentPokemon(index) {
+    setOpponentTeam((current) => {
+      const removed = current[index]
+      const next = [...current]
+      next[index] = null
+
+      if (
+        removed &&
+        matchupOpponentPokemon &&
+        removed.id === matchupOpponentPokemon.id
+      ) {
+        setMatchupOpponentPokemon(null)
+      }
+
+      return next
+    })
+  }
+
+  function closeOpponentPicker() {
+    setActiveOpponentSlot(null)
+    setOpponentSearch('')
+    setSelectedOpponent(null)
+    setHiddenOpponentSetIds(new Set())
+  }
+
+  function hideOpponentSet(event, pokemonId) {
+    event.stopPropagation()
+    setHiddenOpponentSetIds((current) => {
+      const next = new Set(current)
+      next.add(pokemonId)
+      return next
+    })
+  }
+
+  useEffect(() => {
+    const { streak, ...persistentSettings } = battleSettings
+    localStorage.setItem(
+      BATTLE_SETTINGS_KEY,
+      JSON.stringify(persistentSettings)
+    )
+  }, [battleSettings])
+
+  function updateBattleSetting(key, value) {
+    setBattleSettings((current) => ({
+      ...current,
+      [key]: value,
+    }))
+  }
+
+  function changeStreak(amount) {
+    setBattleSettings((current) => ({
+      ...current,
+      streak: Math.max(0, current.streak + amount),
+    }))
+  }
+
+  const matchupMyStats = getMatchupCurrentStats(matchupMyPokemon)
+  const matchupMyLevel = matchupMyPokemon
+    ? matchupMyPokemon.level ??
+      levelFromExperience(
+        matchupMyPokemon.experience,
+        speciesInfo?.[matchupMyPokemon.species]?.growthRate
+      )
+    : null
+  const opponentIv =
+    battleSettings.facility === 'Dome'
+      ? 3
+      : selectedTrainer
+        ? Number(selectedTrainer.ivs ?? 31)
+        : 31
+  const matchupOpponentStats = calculateFrontierMatchupStats(
+    matchupOpponentPokemon,
+    battleSettings.level,
+    opponentIv
+  )
+  const matchupMyTypes = matchupMyPokemon
+    ? getMeta(matchupMyPokemon)?.types || []
+    : []
+  const matchupOpponentTypes = matchupOpponentPokemon
+    ? Object.values(pokemonMeta).find(
+        (entry) =>
+          entry.name.toLowerCase() ===
+          matchupOpponentPokemon.species.toLowerCase()
+      )?.types || []
+    : []
+
+  const matchupSpeedWinner =
+    matchupMyStats?.speed != null && matchupOpponentStats?.speed != null
+      ? matchupMyStats.speed > matchupOpponentStats.speed
+        ? 'my'
+        : matchupOpponentStats.speed > matchupMyStats.speed
+          ? 'opponent'
+          : null
+      : null
+
+  return (
+    <div className="page battle-page">
+      <section className="battle-control-row">
+        <div className="battle-toggle-group">
+          <button
+            className={`battle-toggle ${battleSettings.level === 50 ? 'active' : ''}`}
+            type="button"
+            onClick={() => updateBattleSetting('level', 50)}
+          >
+            Lvl 50
+          </button>
+          <button
+            className={`battle-toggle ${battleSettings.level === 100 ? 'active' : ''}`}
+            type="button"
+            onClick={() => updateBattleSetting('level', 100)}
+          >
+            Lvl 100
+          </button>
+        </div>
+
+        <div className="battle-toggle-group">
+          <button
+            className={`battle-toggle ${battleSettings.facility === 'Tower' ? 'active' : ''}`}
+            type="button"
+            onClick={() => updateBattleSetting('facility', 'Tower')}
+          >
+            Tower
+          </button>
+          <button
+            className={`battle-toggle ${battleSettings.facility === 'Dome' ? 'active' : ''}`}
+            type="button"
+            onClick={() => updateBattleSetting('facility', 'Dome')}
+          >
+            Dome
+          </button>
+        </div>
+
+        <div className="battle-toggle-group">
+          <button
+            className={`battle-toggle ${battleSettings.format === 'Singles' ? 'active' : ''}`}
+            type="button"
+            onClick={() => updateBattleSetting('format', 'Singles')}
+          >
+            Singles
+          </button>
+          <button
+            className={`battle-toggle ${battleSettings.format === 'Doubles' ? 'active' : ''}`}
+            type="button"
+            onClick={() => updateBattleSetting('format', 'Doubles')}
+          >
+            Doubles
+          </button>
+        </div>
+
+        <div className="streak-control">
+          <span className="streak-label">Current Streak</span>
+          <div className="streak-stepper">
+            <button
+              type="button"
+              aria-label="Decrease current streak"
+              onClick={() => changeStreak(-1)}
+            >
+              −
+            </button>
+            <input
+              type="number"
+              min="0"
+              inputMode="numeric"
+              value={battleSettings.streak}
+              onChange={(event) => {
+                const value = Math.max(
+                  0,
+                  Math.floor(Number(event.target.value) || 0)
+                )
+                updateBattleSetting('streak', value)
+              }}
+            />
+            <button
+              type="button"
+              aria-label="Increase current streak"
+              onClick={() => changeStreak(1)}
+            >
+              +
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section className="battle-searches">
+        <div className="trainer-search-wrap">
+          <input
+            className="pokemon-search trainer-search battle-search-input"
+            type="search"
+            spellCheck={false}
+            autoCorrect="off"
+            autoCapitalize="none"
+            placeholder="Trainer"
+            value={trainerSearch}
+            autoComplete="off"
+            onChange={(event) => {
+              setTrainerSearch(event.target.value)
+              setSelectedTrainer(null)
+              setOpponentSearch('')
+              setSelectedOpponent(null)
+            }}
+          />
+
+          {selectedTrainer && (
+            <button
+              className="battle-search-clear"
+              type="button"
+              aria-label="Clear selected trainer"
+              onClick={clearTrainer}
+            >
+              ×
+            </button>
+          )}
+
+          {trainerSearch.trim() && !selectedTrainer && (
+            <div className="trainer-search-popup">
+              {trainerMatches.length ? (
+                trainerMatches.map((trainer) => (
+                  <button
+                    className="trainer-search-result"
+                    type="button"
+                    key={`${trainer.name}-${trainer.trainerClass}`}
+                    onClick={() => chooseTrainer(trainer)}
+                  >
+                    <span className="trainer-result-main">
+                      <strong>{trainer.name}</strong>
+                      <span>{trainer.trainerClass}</span>
+                    </span>
+
+                    <span className="trainer-result-count">
+                      {trainer.pokemonSetIds.length} Pokémon
+                    </span>
+                  </button>
+                ))
+              ) : (
+                <div className="trainer-search-empty">
+                  No results
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="battle-team-row">
+          <div className="battle-team-side">
+            <span className="battle-team-label">My Team</span>
+            <div className="battle-team-slots">
+              {Array.from({ length: teamSize }).map((_, index) => {
+                const pokemon = myTeam[index]
+
+                return (
+                  <div className="battle-slot-wrap" key={`my-${index}`}>
+                    <button
+                      className={`battle-pokemon-slot ${pokemon ? 'filled' : ''}`}
+                      type="button"
+                      aria-label={pokemon ? pokemon.speciesName : `Add my Pokémon ${index + 1}`}
+                      onClick={() => {
+                        if (pokemon) {
+                          setMatchupMyPokemon(pokemon)
+                        } else {
+                          setActiveMySlot(index)
+                        }
+                      }}
+                      onDoubleClick={(event) => {
+                        if (!pokemon) return
+                        event.preventDefault()
+                        removeMyPokemon(index)
+                      }}
+                    >
+                      {pokemon ? (
+                        <img src={spritePath(pokemon)} alt={pokemon.speciesName} />
+                      ) : (
+                        '+'
+                      )}
+                    </button>
+
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+
+          <div className="battle-team-divider" />
+
+          <div className="battle-team-side">
+            <span className="battle-team-label">Opponent</span>
+            <div className="battle-team-slots">
+              {Array.from({ length: teamSize }).map((_, index) => {
+                const pokemon = opponentTeam[index]
+
+                return (
+                  <div className="battle-slot-wrap" key={`opponent-${index}`}>
+                    <button
+                      className={`battle-pokemon-slot ${pokemon ? 'filled' : ''}`}
+                      type="button"
+                      aria-label={pokemon ? `${pokemon.species} ${pokemon.instance}` : `Add opponent Pokémon ${index + 1}`}
+                      onClick={() => {
+                        if (pokemon) {
+                          setMatchupOpponentPokemon(pokemon)
+                        } else {
+                          setActiveOpponentSlot(index)
+                          setOpponentSearch('')
+                          setSelectedOpponent(null)
+                          setHiddenOpponentSetIds(new Set())
+                        }
+                      }}
+                      onDoubleClick={(event) => {
+                        if (!pokemon) return
+                        event.preventDefault()
+                        removeOpponentPokemon(index)
+                      }}
+                    >
+                      {pokemon ? (
+                        <img src={frontierSpritePath(pokemon)} alt={pokemon.species} />
+                      ) : (
+                        '+'
+                      )}
+                    </button>
+
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+
+        {activeMySlot !== null && (
+          <div className="battle-picker-backdrop" onClick={() => setActiveMySlot(null)}>
+            <div className="battle-picker my-pokemon-picker" onClick={(event) => event.stopPropagation()}>
+              <div className="battle-picker-title">
+                <strong>My Battle Frontier Pokémon</strong>
+                <button type="button" onClick={() => setActiveMySlot(null)}>×</button>
+              </div>
+
+              <div className="my-picker-grid">
+                {battleFrontierPokemon.length ? (
+                  battleFrontierPokemon.map((pokemon) => (
+                    <button
+                      className="my-picker-pokemon"
+                      type="button"
+                      key={pokemon.companionId}
+                      onClick={() => chooseMyPokemon(pokemon)}
+                    >
+                      <img src={spritePath(pokemon)} alt={pokemon.speciesName} />
+                      <span>{pokemon.nickname || pokemon.speciesName}</span>
+                    </button>
+                  ))
+                ) : (
+                  <div className="trainer-search-empty">No BF Trained Pokémon</div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeOpponentSlot !== null && (
+          <div className="battle-picker-backdrop" onClick={closeOpponentPicker}>
+            <div className="battle-picker opponent-picker" onClick={(event) => event.stopPropagation()}>
+              <div className="battle-picker-title">
+                <strong>Opponent Pokémon</strong>
+                <button type="button" onClick={closeOpponentPicker}>×</button>
+              </div>
+
+              <div className="opponent-search-wrap picker-search-wrap">
+                <input
+                  className="pokemon-search opponent-search battle-search-input"
+                  type="search"
+            spellCheck={false}
+            autoCorrect="off"
+            autoCapitalize="none"
+                  placeholder={
+                    selectedTrainer
+                      ? `Search ${selectedTrainer.name}'s Pokémon...`
+                      : 'Search all Frontier Pokémon...'
+                  }
+                  value={opponentSearch}
+                  autoComplete="off"
+                  autoFocus
+                  onChange={(event) => {
+                    setOpponentSearch(event.target.value)
+                    setSelectedOpponent(null)
+                    setHiddenOpponentSetIds(new Set())
+                  }}
+                />
+
+                {opponentSearch.trim() && (
+                  <div className="opponent-search-popup picker-results">
+                    {opponentMatches.length ? (
+                      opponentMatches.map((pokemon) => (
+                        <div
+                          className="opponent-search-result"
+                          role="button"
+                          tabIndex="0"
+                          key={pokemon.id}
+                          onClick={() => chooseOpponent(pokemon)}
+                          onKeyDown={(event) => {
+                            if (event.key === 'Enter') chooseOpponent(pokemon)
+                          }}
+                        >
+                          <span className="opponent-result-name">
+                            {pokemon.species} {pokemon.instance}
+                          </span>
+
+                          <span className="opponent-result-item">
+                            {pokemon.item || 'No Item'}
+                          </span>
+
+                          <span className="opponent-result-moves">
+                            {pokemon.moves.map((move, moveIndex) => {
+                              const duplicateClass =
+                                duplicateMoveColors.get(move) || ''
+
+                              return (
+                                <span
+                                  className={`opponent-move ${duplicateClass}`}
+                                  key={`${pokemon.id}-${move}-${moveIndex}`}
+                                >
+                                  {move}
+                                </span>
+                              )
+                            })}
+                          </span>
+
+                          <button
+                            className="opponent-result-dismiss"
+                            type="button"
+                            aria-label={`Temporarily hide ${pokemon.species} ${pokemon.instance}`}
+                            onClick={(event) => hideOpponentSet(event, pokemon.id)}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="trainer-search-empty">No results</div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
+
+      <h3 className="matchup-header">Matchup</h3>
+
+      <section className="matchup-section">
+        <div className="matchup-side matchup-my-side">
+          {matchupMyPokemon ? (
+            <>
+              <img
+                className="matchup-sprite"
+                src={spritePath(matchupMyPokemon)}
+                alt={matchupMyPokemon.speciesName}
+                onDoubleClick={() => setMatchupMyPokemon(null)}
+              />
+              <strong className="matchup-pokemon-name">
+                {matchupMyPokemon.nickname || matchupMyPokemon.speciesName}
+              </strong>
+              <div className="matchup-types">
+                {(pokemonMeta[matchupMyPokemon.species]?.types || []).map((type) => (
+                  <span className="matchup-type-icon-only" key={type}>
+                    <TypeIcon type={type} compact />
+                  </span>
+                ))}
+              </div>
+              <div className="matchup-info matchup-ring-section">
+                <div><span>Level</span><b>{matchupMyLevel ?? '—'}</b></div>
+                <div><span>Nature</span><b>{matchupMyPokemon.nature || '—'}</b></div>
+                <div><span>Ability</span><b>{matchupMyPokemon.ability || '—'}</b></div>
+                <div>
+                  <span>Held Item</span>
+                  <b className="matchup-held-item">
+                    <ItemIcon
+                      name={
+                        !matchupMyPokemon.heldItem
+                          ? 'None'
+                          : (itemNames?.[matchupMyPokemon.heldItem] ||
+                             matchupMyPokemon.heldItemName ||
+                             `Item ${matchupMyPokemon.heldItem}`)
+                      }
+                    />
+                    <span>
+                      {!matchupMyPokemon.heldItem
+                        ? 'None'
+                        : (itemNames?.[matchupMyPokemon.heldItem] ||
+                           matchupMyPokemon.heldItemName ||
+                           `Item ${matchupMyPokemon.heldItem}`)}
+                    </span>
+                  </b>
+                </div>
+              </div>
+              {matchupMyStats && (
+                <>
+                  <h4 className="matchup-section-heading">Stats</h4>
+                  <div className="matchup-stats-section matchup-ring-section">
+                    <div className="matchup-stats">
+                    {[
+                      ['HP', 'hp'], ['Atk', 'attack'], ['Def', 'defense'],
+                      ['SpA', 'spAttack'], ['SpD', 'spDefense'], ['Spe', 'speed'],
+                    ].map(([label, key]) => (
+                      <div className="matchup-stat" key={key}>
+                        <span>{label}</span>
+                        <b className={key === 'speed' && matchupSpeedWinner === 'my' ? 'speed-winner' : ''}>
+                          {matchupMyStats[key] ?? '—'}
+                        </b>
+                      </div>
+                    ))}
+                    </div>
+                    <div className="matchup-stats-evs">
+                      <span>EVs</span>
+                      <b>{formatMatchupEvs(matchupMyPokemon.evs)}</b>
+                    </div>
+                  </div>
+                </>
+              )}
+              <h4 className="matchup-section-heading">Moves</h4>
+              <div className="matchup-moves matchup-ring-section">
+                {(matchupMyPokemon.moves || []).slice(0, 4).map((move, index) => {
+                  const info = moveInfo?.[move.id] ?? {}
+                  const type = info.type ?? move.type ?? 'NORMAL'
+                  const maxPp = getMoveMaxPp(
+                    info.pp ?? move.maxPp,
+                    matchupMyPokemon.ppBonuses,
+                    index
+                  )
+                  return (
+                    <div className="matchup-move" key={`${move.id}-${index}`}>
+                      <TypeIcon type={type} compact />
+                      <b>{move.name}</b>
+                      <span>PP {maxPp ?? '—'}</span>
+                    </div>
+                  )
+                })}
+              </div>
+              <h4 className="matchup-section-heading">Type Matchups</h4>
+              <MatchupTypeAdvantages types={matchupMyTypes} />
+            </>
+          ) : null}
+        </div>
+
+        <div className="matchup-vs">VS</div>
+
+        <div className="matchup-side matchup-opponent-side">
+          {matchupOpponentPokemon ? (
+            <>
+              <img
+                className="matchup-sprite"
+                src={frontierSpritePath(matchupOpponentPokemon)}
+                alt={`${matchupOpponentPokemon.species} ${matchupOpponentPokemon.instance}`}
+                onDoubleClick={() => setMatchupOpponentPokemon(null)}
+              />
+              <strong className="matchup-pokemon-name">
+                {matchupOpponentPokemon.species} {matchupOpponentPokemon.instance}
+              </strong>
+              <div className="matchup-types">
+                {(Object.values(pokemonMeta).find(
+                  (entry) =>
+                    entry.name.toLowerCase() ===
+                    matchupOpponentPokemon.species.toLowerCase()
+                )?.types || []).map((type) => (
+                  <span className="matchup-type-icon-only" key={type}>
+                    <TypeIcon type={type} compact />
+                  </span>
+                ))}
+              </div>
+              <div className="matchup-info matchup-ring-section">
+                <div><span>Level</span><b>{battleSettings.level}</b></div>
+                <div><span>Nature</span><b>{matchupOpponentPokemon.nature || '—'}</b></div>
+                <div><span>Ability</span><b>{matchupOpponentPokemon.possibleAbility || '—'}</b></div>
+                <div>
+                  <span>Held Item</span>
+                  <b className="matchup-held-item">
+                    {matchupOpponentPokemon.item && (
+                      <ItemIcon name={matchupOpponentPokemon.item} />
+                    )}
+                    <span>{matchupOpponentPokemon.item || 'None'}</span>
+                  </b>
+                </div>
+              </div>
+              {matchupOpponentStats && (
+                <>
+                  <h4 className="matchup-section-heading">Stats</h4>
+                  <div className="matchup-stats-section matchup-ring-section">
+                    <div className="matchup-stats">
+                    {[
+                      ['HP', 'hp'], ['Atk', 'attack'], ['Def', 'defense'],
+                      ['SpA', 'spAttack'], ['SpD', 'spDefense'], ['Spe', 'speed'],
+                    ].map(([label, key]) => (
+                      <div className="matchup-stat" key={key}>
+                        <span>{label}</span>
+                        <b className={key === 'speed' && matchupSpeedWinner === 'opponent' ? 'speed-winner' : ''}>
+                          {matchupOpponentStats[key] ?? '—'}
+                        </b>
+                      </div>
+                    ))}
+                    </div>
+                    <div className="matchup-stats-evs">
+                      <span>EVs</span>
+                      <b>{formatMatchupEvs(matchupOpponentPokemon.evs, true)}</b>
+                    </div>
+                  </div>
+                </>
+              )}
+              <h4 className="matchup-section-heading">Moves</h4>
+              <div className="matchup-moves matchup-ring-section">
+                {(matchupOpponentPokemon.moves || []).slice(0, 4).map((move, index) => {
+                  const info = getFrontierMoveInfo(move) || {}
+                  return (
+                    <div className="matchup-move" key={`${move}-${index}`}>
+                      <TypeIcon type={info.type ?? 'NORMAL'} compact />
+                      <b>{move}</b>
+                      <span>PP {info.pp ?? '—'}</span>
+                    </div>
+                  )
+                })}
+              </div>
+              <h4 className="matchup-section-heading">Type Matchups</h4>
+              <MatchupTypeAdvantages types={matchupOpponentTypes} />
+            </>
+          ) : null}
+        </div>
+      </section>
     </div>
   )
 }
@@ -1473,18 +2459,6 @@ function App() {
   if (!saveData) {
     return (
       <div className="app-shell">
-        <header className="app-topbar">
-          <div>
-            <p className="app-kicker">
-              POKÉMON EMERALD
-            </p>
-
-            <h1>
-              Emerald Companion
-            </h1>
-          </div>
-        </header>
-
         <main className="app-content first-load">
           <SaveLoader
             onSaveLoaded={
@@ -1498,62 +2472,32 @@ function App() {
 
   return (
     <div className="app-shell">
-      <header className="app-topbar">
-        <button
-          className="brand-button"
-          onClick={() =>
-            setActivePage(
-              'home'
-            )
-          }
-        >
-          <span className="app-kicker">
-            POKÉMON EMERALD
-          </span>
-
-          <strong>
-            Emerald Companion
-          </strong>
-        </button>
-
-        <div className="save-status">
-          <span />
-          Save Loaded
-        </div>
-      </header>
-
       <main className="app-content">
-        {activePage ===
-        'home' ? (
+        {activePage === 'home' && (
           <HomePage
-            saveData={
-              saveData
-            }
-            collection={
-              collection
-            }
+            saveData={saveData}
+            collection={collection}
             onGoToPokemon={() =>
-              setActivePage(
-                'pokemon'
-              )
+              setActivePage('pokemon')
             }
-            onSaveLoaded={
-              handleSaveLoaded
-            }
-          />
-        ) : (
-          <MyPokemonPage
-            collection={
-              collection
-            }
-            designations={
-              designations
-            }
-            onRoleChange={
-              handleRoleChange
-            }
+            onSaveLoaded={handleSaveLoaded}
           />
         )}
+
+        {activePage === 'pokemon' && (
+          <MyPokemonPage
+            collection={collection}
+            designations={designations}
+            onRoleChange={handleRoleChange}
+          />
+        )}
+
+        <div
+          className={`persistent-page ${activePage === 'battle' ? 'active' : ''}`}
+          aria-hidden={activePage !== 'battle'}
+        >
+          <BattlePage collection={collection} designations={designations} />
+        </div>
       </main>
 
       <nav className="bottom-nav">
@@ -1597,6 +2541,26 @@ function App() {
           <span>
             My Pokémon
           </span>
+        </button>
+
+        <button
+          className={
+            activePage ===
+            'battle'
+              ? 'active'
+              : ''
+          }
+          onClick={() =>
+            setActivePage(
+              'battle'
+            )
+          }
+        >
+          <span className="nav-icon">
+            ⚔
+          </span>
+
+          <span>Battle</span>
         </button>
       </nav>
     </div>
