@@ -1,10 +1,15 @@
 import {
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react'
 
-import SaveLoader from './components/SaveLoader'
+import { emeraldTypes } from './utils/typeMatchups'
+import ResourcesPage from './components/ResourcesPage'
+import PokemonEditor from './components/PokemonEditor'
+import HomeSaveDialog from './components/HomeSaveDialog'
+import { Pokeball, FrontierEmblem, HomeIcon, TrainerStatIcon } from './components/HomeArtwork'
 import { pokemonMeta } from './data/pokemonMeta'
 import { speciesInfo, moveInfo, moveNames, itemNames } from './data/emeraldData'
 import { frontierTrainers } from './data/frontierTrainers'
@@ -16,25 +21,7 @@ const SAVE_STORAGE_KEY =
 const DESIGNATION_STORAGE_KEY =
   'emerald-companion-designations-v1'
 
-const TYPES = [
-  'NORMAL',
-  'FIRE',
-  'WATER',
-  'ELECTRIC',
-  'GRASS',
-  'ICE',
-  'FIGHTING',
-  'POISON',
-  'GROUND',
-  'FLYING',
-  'PSYCHIC',
-  'BUG',
-  'ROCK',
-  'GHOST',
-  'DRAGON',
-  'DARK',
-  'STEEL',
-]
+
 
 const ROLES = [
   {
@@ -58,6 +45,15 @@ const ROLE_ORDER = {
 }
 
 function loadStoredSave() {
+  // Local design preview does not overwrite the user's stored save.
+  if (import.meta.env.DEV && new URLSearchParams(window.location.search).has('preview')) {
+    return {
+      designPreview: true, trainerName: 'Brendan', trainerId: 12345, secretId: 54321,
+      playTime: { hours: 124, minutes: 28 }, money: 302416,
+      badgeData: { count: 8 }, pokedex: { caughtCount: 73 },
+      frontierSymbols: { tower: 'gold', dome: 'silver', factory: 'gold' },
+    }
+  }
   try {
     const stored =
       localStorage.getItem(
@@ -89,7 +85,7 @@ function loadDesignations() {
 }
 
 function getPokemonId(pokemon) {
-  return [pokemon.personality, pokemon.otId].join('-')
+  return pokemon.manualId ?? [pokemon.personality, pokemon.otId].join('-')
 }
 
 function getRole(
@@ -118,7 +114,7 @@ function buildCollection(
     return []
   }
 
-  const collection = []
+  const collection = (saveData.manualPokemon ?? []).map(pokemon => ({ ...pokemon, companionId: getPokemonId(pokemon) }))
 
   saveData.party?.pokemon
     ?.forEach((pokemon) => {
@@ -190,18 +186,6 @@ function formatMoney(money) {
   ).toLocaleString()}`
 }
 
-function formatUpdatedAt(
-  timestamp
-) {
-  if (!timestamp) {
-    return null
-  }
-
-  return new Date(
-    timestamp
-  ).toLocaleString()
-}
-
 function spritePath(
   pokemon
 ) {
@@ -219,159 +203,119 @@ function spritePath(
   return `${import.meta.env.BASE_URL}sprites/emerald/${meta.dex}.png`
 }
 
-function StatCard({
-  label,
-  value,
-  detail,
-}) {
-  return (
-    <div className="stat-card">
-      <span>{label}</span>
+function artworkSpritePath(
+  pokemon
+) {
+  const meta =
+    getMeta(pokemon)
 
-      <strong>{value}</strong>
+  if (!meta) {
+    return ''
+  }
 
-      {detail && (
-        <small>{detail}</small>
-      )}
-    </div>
-  )
+  const variant = pokemon.shiny ? 'shiny' : 'normal'
+  return `${import.meta.env.BASE_URL}sprites/artwork/${variant}/${meta.dex}.png`
 }
 
 function HomePage({
   saveData,
   collection,
-  onGoToPokemon,
   onSaveLoaded,
 }) {
-  const shinyCount =
-    collection.filter(
-      (pokemon) =>
-        pokemon.shiny
-    ).length
+  useEffect(() => {
+    const viewport = document.querySelector('meta[name="viewport"]')
+    const original = viewport?.getAttribute('content')
+    viewport?.setAttribute('content', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no')
+    const preventGesture = (event) => event.preventDefault()
+    const preventPinch = (event) => {
+      if (event.touches.length > 1) event.preventDefault()
+    }
+    document.addEventListener('gesturestart', preventGesture, { passive: false })
+    document.addEventListener('gesturechange', preventGesture, { passive: false })
+    document.addEventListener('touchmove', preventPinch, { passive: false })
+    return () => {
+      if (original !== null && original !== undefined) viewport?.setAttribute('content', original)
+      document.removeEventListener('gesturestart', preventGesture)
+      document.removeEventListener('gesturechange', preventGesture)
+      document.removeEventListener('touchmove', preventPinch)
+    }
+  }, [])
+
+  const [editingSave, setEditingSave] = useState(false)
+  const base = import.meta.env.BASE_URL
+  const shinyCount = collection.filter((pokemon) => pokemon.shiny).length
+  const caught = Number(saveData.pokedex?.caughtCount ?? 0)
+  const caughtPct = Math.max(0, Math.min(100, (caught / 386) * 100))
+  const caughtSegments = (caughtPct / 100) * 20
+  const badgeCount = Number(saveData.badgeData?.count ?? 0)
+  const sid = saveData.secretId ?? saveData.secretTrainerId ?? saveData.sid ?? '-----'
+  const gender = String(saveData.trainerGender ?? saveData.gender ?? 'male').toLowerCase()
+  const trainerSprite = gender.includes('female') || gender.includes('girl') || gender.includes('may') ? 'may.png' : 'brendan.png'
+
+  const badges = [
+    ['Stone', 'stone_badge.png'], ['Knuckle', 'knuckle_badge.png'],
+    ['Dynamo', 'dynamo_badge.png'], ['Heat', 'heat_badge.png'],
+    ['Balance', 'balance_badge.png'], ['Feather', 'feather_badge.png'],
+    ['Mind', 'mind_badge.png'], ['Rain', 'rain_badge.png'],
+  ]
+  const facilities = [
+    ['Tower', 'tower'], ['Dome', 'dome'], ['Palace', 'palace'], ['Arena', 'arena'],
+    ['Factory', 'factory'], ['Pike', 'pike'], ['Pyramid', 'pyramid'],
+  ]
+  const frontierState = saveData.frontierSymbols ?? saveData.frontier?.symbols ?? {}
+  const getSymbolState = (key) => {
+    const raw = String(frontierState?.[key] ?? frontierState?.[key.toUpperCase()] ?? '').toLowerCase()
+    if (raw.includes('gold')) return 'gold'
+    if (raw.includes('silver')) return 'silver'
+    return 'none'
+  }
+  const goldSymbols = facilities.filter(([, key]) => getSymbolState(key) === 'gold').length
 
   return (
-    <div className="page">
-      <section className="trainer-hero">
-        <div>
-          <p className="page-eyebrow">
-            TRAINER
-          </p>
-
-          <h2>
-            {saveData.trainerName}
-          </h2>
-
-          <p className="trainer-id">
-            ID No.{' '}
-            {String(
-              saveData.trainerId
-            ).padStart(5, '0')}
-          </p>
+    <div className="home97">
+      {editingSave && <HomeSaveDialog saveData={saveData ?? {}} onSaveLoaded={onSaveLoaded} onClose={() => setEditingSave(false)} />}
+      <header className="home97-header">
+        <img className="home97-banner" src={`${base}home/header/tropical-pokemon-banner.png`} alt="Pokémon from Generations 1 through 3 relaxing together on a tropical beach" />
+        <div className="home97-logo">
+          <img src={`${base}home/header/pokemon_logo.png`} alt="Pokémon" />
+          <strong>EMERALD</strong><span>COMPANION</span>
         </div>
+      </header>
 
-        <div className="trainer-playtime">
-          <span>PLAY TIME</span>
-
-          <strong>
-            {formatPlayTime(
-              saveData.playTime
-            )}
-          </strong>
+      <div className="home97-frame home97-frame-trainer"><section className="home97-card home97-trainer">
+        <div className="home97-tab"><Pokeball />TRAINER</div>
+        <div className="home97-trainer-top">
+          <div className="home97-trainer-name">
+            <h2>{saveData.trainerName || 'TRAINER'}</h2>
+            <p><span>{`TID: ${String(saveData.trainerId ?? '-----').padStart(5, '0')}`}</span><span>{`SID: ${sid === '-----' ? sid : String(sid).padStart(5, '0')}`}</span></p>
+          </div>
+          <div className="home97-trainer-portrait"><img className="home97-trainer-sprite" src={`${base}home/trainers/${trainerSprite}`} alt="Trainer" /></div>
+          <div className="home97-save"><button className="update-save-button" onClick={() => setEditingSave(true)}><svg className="save-upload-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="square" strokeLinejoin="miter"><path d="M12 15V3m-5 5 5-5 5 5M4 14v6h16v-6" /></svg>Update Save</button></div>
         </div>
-      </section>
-
-      <section className="dashboard-grid">
-        <StatCard
-          label="MONEY"
-          value={formatMoney(
-            saveData.money
-          )}
-        />
-
-        <StatCard
-          label="BADGES"
-          value={`${
-            saveData.badgeData
-              ?.count ?? 0
-          } / 8`}
-        />
-
-        <StatCard
-          label="SEEN"
-          value={`${
-            saveData.pokedex
-              ?.seenCount ?? 0
-          } / 386`}
-        />
-
-        <StatCard
-          label="CAUGHT"
-          value={`${
-            saveData.pokedex
-              ?.caughtCount ?? 0
-          } / 386`}
-        />
-
-        <StatCard
-          label="SHINIES"
-          value={shinyCount}
-        />
-
-        <StatCard
-          label="FRONTIER SYMBOLS"
-          value="— / 7"
-        />
-      </section>
-
-      <button
-        className="collection-link"
-        onClick={onGoToPokemon}
-      >
-        <div>
-          <p className="page-eyebrow">
-            COLLECTION
-          </p>
-
-          <strong>
-            My Pokémon
-          </strong>
-
-          <span>
-            {collection.length}{' '}
-            Pokémon
-          </span>
+        <div className="home97-stats">
+          <div><b className="home97-clock"><TrainerStatIcon kind="clock" /></b><p><span>TIME PLAYED</span><strong>{formatPlayTime(saveData.playTime)}</strong></p></div>
+          <div><b className="home97-coin"><TrainerStatIcon kind="coin" /></b><p><span>MONEY</span><strong>{formatMoney(saveData.money)}</strong></p></div>
         </div>
+        <div className="home97-badges"><label>BADGES</label><div>{badges.map(([name,file],i)=><img key={name} className={(saveData.badgeData?.badges?.[i] ?? (i < badgeCount)) ? '' : 'unearned'} src={`${base}home/badges/${file}`} alt={`${name} Badge`} />)}</div></div>
+      </section></div>
 
-        <span className="link-arrow">
-          ›
-        </span>
-      </button>
-
-      <section className="save-management">
-        <div>
-          <p className="page-eyebrow">
-            SAVE FILE
-          </p>
-
-          <h3>Emerald Save</h3>
-
-          {saveData.updatedAt && (
-            <p>
-              Last updated{' '}
-              {formatUpdatedAt(
-                saveData.updatedAt
-              )}
-            </p>
-          )}
+      <div className="home97-frame home97-frame-dex"><section className="home97-card home97-dex">
+        <div className="home97-tab home97-tab-wide"><Pokeball />NATIONAL POKÉDEX</div>
+        <div className="home97-dex-main">
+          <img className="home97-dex-art" src={`${base}home/pokedex/pokedex-pixel.png`} alt="Pokédex" />
+          <div className="home97-caught"><span>CAUGHT</span><strong>{`${caught} / 386`}</strong><div className="home97-bar" role="progressbar" aria-label="Pokédex caught" aria-valuemin={0} aria-valuemax={386} aria-valuenow={Math.max(0, Math.min(386, caught))}>{Array.from({length:20},(_,i)=><i key={i}><span style={{width: `${Math.max(0, Math.min(1, caughtSegments - i)) * 100}%`}} /></i>)}</div><b>{caughtPct.toFixed(1)}% COMPLETE</b></div>
+          <Pokeball className="home97-ballmark" />
         </div>
+        <div className="home97-dex-bottom">
+          <div><span>POKÉMON OWNED</span><strong>{collection.length}</strong><img className="home97-pikachu" src={`${base}home/pokedex/pikachu.png`} alt="" /></div>
+          <div><span>SHINIES</span><strong>{shinyCount}</strong><img className="home97-starters" src={`${base}home/pokedex/gen1-starters-transparent.png`} alt="" /></div>
+        </div>
+      </section></div>
 
-        <SaveLoader
-          compact
-          onSaveLoaded={
-            onSaveLoaded
-          }
-        />
-      </section>
+      <div className="home97-frame home97-frame-frontier"><section className="home97-card home97-frontier">
+        <div className="home97-frontier-head"><div className="home97-tab"><Pokeball />BATTLE FRONTIER</div><strong>GOLD SYMBOLS&nbsp; {goldSymbols} / 7</strong></div>
+        <div className="home97-symbols">{facilities.map(([label,key])=>{const state=getSymbolState(key);return <div className={state} key={key}><span>{label}</span><FrontierEmblem facility={key} state={state}/><b>{state==='none'?'---':state.toUpperCase()}</b></div>})}</div>
+      </section></div>
     </div>
   )
 }
@@ -672,7 +616,7 @@ function calculateStats(pokemon, profile, level) {
 }
 
 function getTypeMatchups(types) {
-  const allTypes = Object.keys(TYPE_CHART)
+  const allTypes = emeraldTypes
   const defense = []
   for (const attacking of allTypes) {
     let mult = 1
@@ -748,22 +692,30 @@ function RibbonIcon({ ribbon }) {
   </span>
 }
 
+function DeletePokemonConfirmation({ pokemon, onConfirm, onClose }) {
+  const ref = useRef(null)
+  useEffect(() => {
+    const dialog = ref.current
+    dialog.showModal()
+    return () => dialog.close()
+  }, [])
+  return <dialog ref={ref} className="pokemon-editor pokemon-delete-confirm" aria-labelledby="delete-pokemon-title" onCancel={onClose}>
+    <h2 id="delete-pokemon-title">Delete {pokemon.nickname || pokemon.speciesName}?</h2>
+    <p>This removes the Pokémon from your tracked collection and cannot be undone. Your original save file and Pokédex caught count stay unchanged.</p>
+    <footer><button onClick={onClose} autoFocus>Cancel</button><button className="pokemon-delete-button" onClick={onConfirm}>Delete</button></footer>
+  </dialog>
+}
+
 function PokemonDetail({
+  onDelete,
+  onEdit,
   pokemon,
   role,
   onRoleChange,
   onClose,
 }) {
   const [detailTab, setDetailTab] = useState('summary')
-
-  useEffect(() => setDetailTab('summary'), [pokemon?.companionId])
-
-  useEffect(() => {
-    if (!pokemon) return undefined
-    const previous = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => { document.body.style.overflow = previous }
-  }, [pokemon])
+  const [confirmDelete, setConfirmDelete] = useState(false)
 
   if (!pokemon) return null
   const meta = getMeta(pokemon)
@@ -826,13 +778,18 @@ function PokemonDetail({
 
   return (
     <div className="detail-overlay exact-overlay" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose() }}>
+      {confirmDelete && <DeletePokemonConfirmation pokemon={pokemon} onClose={() => setConfirmDelete(false)} onConfirm={() => onDelete(pokemon)} />}
       <div className="detail-sheet exact-sheet">
+        <div className="pokemon-detail-actions">
+          <button className="pokemon-edit-button" onClick={() => onEdit(pokemon)}>Edit</button>
+          <button className="pokemon-edit-button pokemon-delete-button" onClick={() => setConfirmDelete(true)}>Delete</button>
+        </div>
         <button className="exact-close" onClick={onClose} aria-label="Close">×</button>
 
         <header className="exact-hero">
           <div className="exact-pokeball" aria-hidden="true"><i /></div>
           <div className="sprite-stage">
-            <img src={spritePath(pokemon)} alt={pokemon.speciesName} />
+            <img src={artworkSpritePath(pokemon)} alt={pokemon.speciesName} />
             {pokemon.pokeBall && (
               <img
                 className="capture-ball-corner"
@@ -1016,10 +973,13 @@ function SelectFilter({
 }
 
 function MyPokemonPage({
+  onPokemonDelete,
+  onPokemonSave,
   collection,
   designations,
   onRoleChange,
 }) {
+  const [editor, setEditor] = useState(null)
   const [search, setSearch] =
     useState('')
 
@@ -1209,6 +1169,7 @@ function MyPokemonPage({
 
   return (
     <div className="page pokemon-page">
+      {editor && <PokemonEditor pokemon={editor.pokemon} onClose={() => setEditor(null)} onSave={pokemon => { onPokemonSave(pokemon); if (editor.pokemon) setSelectedPokemon(null) }} />}
       <header className="collection-header">
         <div>
           <p className="page-eyebrow">
@@ -1226,6 +1187,9 @@ function MyPokemonPage({
             of {collection.length}
           </p>
         </div>
+        <button type="button" className="add-pokemon-button" onClick={() => setEditor({ pokemon: null })} aria-label="Add Pokémon" title="Add Pokémon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="square" /></svg>
+        </button>
       </header>
 
       <section className="pokemon-tools">
@@ -1256,7 +1220,7 @@ function MyPokemonPage({
               All Types
             </option>
 
-            {TYPES.map(
+            {emeraldTypes.map(
               (item) => (
                 <option
                   key={item}
@@ -1377,11 +1341,14 @@ function MyPokemonPage({
 
       {!filteredPokemon.length && (
         <div className="empty-results">
-          No results
+          No results.
         </div>
       )}
 
       <PokemonDetail
+        onDelete={pokemon => { onPokemonDelete(pokemon.companionId); setSelectedPokemon(null) }}
+        onEdit={pokemon => setEditor({ pokemon })}
+        key={selectedPokemon?.companionId ?? 'closed'}
         pokemon={
           selectedPokemon
         }
@@ -1602,7 +1569,6 @@ function BattlePage({ collection, designations }) {
   const [trainerSearch, setTrainerSearch] = useState('')
   const [selectedTrainer, setSelectedTrainer] = useState(null)
   const [opponentSearch, setOpponentSearch] = useState('')
-  const [selectedOpponent, setSelectedOpponent] = useState(null)
   const [hiddenOpponentSetIds, setHiddenOpponentSetIds] = useState(new Set())
   const [myTeam, setMyTeam] = useState([])
   const [opponentTeam, setOpponentTeam] = useState([])
@@ -1642,12 +1608,14 @@ function BattlePage({ collection, designations }) {
       : ''
   }
 
-  useEffect(() => {
-    setMyTeam((current) => current.slice(0, teamSize))
-    setOpponentTeam((current) => current.slice(0, teamSize))
-    setActiveMySlot(null)
-    setActiveOpponentSlot(null)
-  }, [teamSize])
+  function frontierArtworkSpritePath(pokemon) {
+    const meta = Object.values(pokemonMeta).find(
+      (entry) => entry.name.toLowerCase() === pokemon.species.toLowerCase()
+    )
+    return meta
+      ? `${import.meta.env.BASE_URL}sprites/artwork/normal/${meta.dex}.png`
+      : ''
+  }
 
   const trainerMatches = useMemo(() => {
     const query = trainerSearch.trim().toLowerCase()
@@ -1707,7 +1675,6 @@ function BattlePage({ collection, designations }) {
     setSelectedTrainer(trainer)
     setTrainerSearch(trainer.name)
     setOpponentSearch('')
-    setSelectedOpponent(null)
     setHiddenOpponentSetIds(new Set())
   }
 
@@ -1715,7 +1682,6 @@ function BattlePage({ collection, designations }) {
     setSelectedTrainer(null)
     setTrainerSearch('')
     setOpponentSearch('')
-    setSelectedOpponent(null)
     setHiddenOpponentSetIds(new Set())
   }
 
@@ -1727,7 +1693,6 @@ function BattlePage({ collection, designations }) {
       next[activeOpponentSlot] = pokemon
       return next
     })
-    setSelectedOpponent(pokemon)
     setOpponentSearch('')
     setHiddenOpponentSetIds(new Set())
     setActiveOpponentSlot(null)
@@ -1783,7 +1748,6 @@ function BattlePage({ collection, designations }) {
   function closeOpponentPicker() {
     setActiveOpponentSlot(null)
     setOpponentSearch('')
-    setSelectedOpponent(null)
     setHiddenOpponentSetIds(new Set())
   }
 
@@ -1797,7 +1761,8 @@ function BattlePage({ collection, designations }) {
   }
 
   useEffect(() => {
-    const { streak, ...persistentSettings } = battleSettings
+    const { level, facility, format } = battleSettings
+    const persistentSettings = { level, facility, format }
     localStorage.setItem(
       BATTLE_SETTINGS_KEY,
       JSON.stringify(persistentSettings)
@@ -1805,6 +1770,14 @@ function BattlePage({ collection, designations }) {
   }, [battleSettings])
 
   function updateBattleSetting(key, value) {
+    if (key === 'format' && value !== battleSettings.format) {
+      const nextTeamSize = value === 'Doubles' ? 4 : 3
+      setMyTeam((current) => current.slice(0, nextTeamSize))
+      setOpponentTeam((current) => current.slice(0, nextTeamSize))
+      setActiveMySlot(null)
+      setActiveOpponentSlot(null)
+    }
+
     setBattleSettings((current) => ({
       ...current,
       [key]: value,
@@ -1960,7 +1933,6 @@ function BattlePage({ collection, designations }) {
               setTrainerSearch(event.target.value)
               setSelectedTrainer(null)
               setOpponentSearch('')
-              setSelectedOpponent(null)
             }}
           />
 
@@ -1997,7 +1969,7 @@ function BattlePage({ collection, designations }) {
                 ))
               ) : (
                 <div className="trainer-search-empty">
-                  No results
+                  No results.
                 </div>
               )}
             </div>
@@ -2063,7 +2035,6 @@ function BattlePage({ collection, designations }) {
                         } else {
                           setActiveOpponentSlot(index)
                           setOpponentSearch('')
-                          setSelectedOpponent(null)
                           setHiddenOpponentSetIds(new Set())
                         }
                       }}
@@ -2141,7 +2112,6 @@ function BattlePage({ collection, designations }) {
                   autoFocus
                   onChange={(event) => {
                     setOpponentSearch(event.target.value)
-                    setSelectedOpponent(null)
                     setHiddenOpponentSetIds(new Set())
                   }}
                 />
@@ -2195,7 +2165,7 @@ function BattlePage({ collection, designations }) {
                         </div>
                       ))
                     ) : (
-                      <div className="trainer-search-empty">No results</div>
+                      <div className="trainer-search-empty">No results.</div>
                     )}
                   </div>
                 )}
@@ -2213,7 +2183,7 @@ function BattlePage({ collection, designations }) {
             <>
               <img
                 className="matchup-sprite"
-                src={spritePath(matchupMyPokemon)}
+                src={artworkSpritePath(matchupMyPokemon)}
                 alt={matchupMyPokemon.speciesName}
                 onDoubleClick={() => setMatchupMyPokemon(null)}
               />
@@ -2309,7 +2279,7 @@ function BattlePage({ collection, designations }) {
             <>
               <img
                 className="matchup-sprite"
-                src={frontierSpritePath(matchupOpponentPokemon)}
+                src={frontierArtworkSpritePath(matchupOpponentPokemon)}
                 alt={`${matchupOpponentPokemon.species} ${matchupOpponentPokemon.instance}`}
                 onDoubleClick={() => setMatchupOpponentPokemon(null)}
               />
@@ -2407,6 +2377,7 @@ function App() {
     activePage,
     setActivePage,
   ] = useState('home')
+  const [resourcesVisit, setResourcesVisit] = useState(0)
 
   const collection =
     useMemo(
@@ -2418,7 +2389,7 @@ function App() {
     )
 
   useEffect(() => {
-    if (saveData) {
+    if (saveData && !saveData.designPreview) {
       localStorage.setItem(
         SAVE_STORAGE_KEY,
         JSON.stringify(
@@ -2443,6 +2414,39 @@ function App() {
     setSaveData(newSave)
   }
 
+  function handlePokemonDelete(id) {
+    const keep = pokemon => getPokemonId(pokemon) !== id
+    setSaveData(current => {
+      if (!current) return current
+      const partyPokemon = current.party?.pokemon?.filter(keep)
+      return { ...current,
+        manualPokemon: (current.manualPokemon ?? []).filter(keep),
+        party: current.party ? { ...current.party, pokemon: partyPokemon, count: partyPokemon?.length ?? 0 } : current.party,
+        pcStorage: current.pcStorage ? { ...current.pcStorage, boxes: current.pcStorage.boxes?.map(box => ({ ...box, pokemon: box.pokemon.filter(keep) })) } : current.pcStorage,
+      }
+    })
+    setDesignations(current => {
+      const next = { ...current }
+      delete next[id]
+      return next
+    })
+  }
+
+  function handlePokemonSave(pokemon) {
+    if (pokemon.experience == null) pokemon = { ...pokemon, experience: expForLevel(pokemon.level, speciesInfo[pokemon.species]?.growthRate) }
+    setSaveData(current => {
+      const save = current ?? {}
+      const id = pokemon.companionId
+      const replace = entry => getPokemonId(entry) === id ? pokemon : entry
+      if (!id) return { ...save, manualPokemon: [...(save.manualPokemon ?? []), { ...pokemon, manualId: crypto.randomUUID() }] }
+      return { ...save,
+        manualPokemon: (save.manualPokemon ?? []).map(replace),
+        party: save.party ? { ...save.party, pokemon: save.party.pokemon?.map(replace) } : save.party,
+        pcStorage: save.pcStorage ? { ...save.pcStorage, boxes: save.pcStorage.boxes?.map(box => ({ ...box, pokemon: box.pokemon.map(replace) })) } : save.pcStorage,
+      }
+    })
+  }
+
   function handleRoleChange(
     pokemonId,
     newRole
@@ -2456,40 +2460,30 @@ function App() {
     )
   }
 
-  if (!saveData) {
-    return (
-      <div className="app-shell">
-        <main className="app-content first-load">
-          <SaveLoader
-            onSaveLoaded={
-              handleSaveLoaded
-            }
-          />
-        </main>
-      </div>
-    )
-  }
 
   return (
     <div className="app-shell">
       <main className="app-content">
         {activePage === 'home' && (
           <HomePage
-            saveData={saveData}
+            saveData={saveData ?? {}}
             collection={collection}
-            onGoToPokemon={() =>
-              setActivePage('pokemon')
-            }
             onSaveLoaded={handleSaveLoaded}
           />
         )}
 
         {activePage === 'pokemon' && (
           <MyPokemonPage
+            onPokemonDelete={handlePokemonDelete}
+            onPokemonSave={handlePokemonSave}
             collection={collection}
             designations={designations}
             onRoleChange={handleRoleChange}
           />
+        )}
+
+        {activePage === 'resources' && (
+          <ResourcesPage key={resourcesVisit} />
         )}
 
         <div
@@ -2500,68 +2494,11 @@ function App() {
         </div>
       </main>
 
-      <nav className="bottom-nav">
-        <button
-          className={
-            activePage ===
-            'home'
-              ? 'active'
-              : ''
-          }
-          onClick={() =>
-            setActivePage(
-              'home'
-            )
-          }
-        >
-          <span className="nav-icon">
-            ⌂
-          </span>
-
-          <span>Home</span>
-        </button>
-
-        <button
-          className={
-            activePage ===
-            'pokemon'
-              ? 'active'
-              : ''
-          }
-          onClick={() =>
-            setActivePage(
-              'pokemon'
-            )
-          }
-        >
-          <span className="nav-icon">
-            ◉
-          </span>
-
-          <span>
-            My Pokémon
-          </span>
-        </button>
-
-        <button
-          className={
-            activePage ===
-            'battle'
-              ? 'active'
-              : ''
-          }
-          onClick={() =>
-            setActivePage(
-              'battle'
-            )
-          }
-        >
-          <span className="nav-icon">
-            ⚔
-          </span>
-
-          <span>Battle</span>
-        </button>
+      <nav className="bottom-nav home97-nav">
+        <button className={activePage === 'home' ? 'active' : ''} onClick={() => setActivePage('home')}><span className="nav-icon nav-home-icon"><HomeIcon kind="home" /></span><span>Home</span></button>
+        <button className={activePage === 'pokemon' ? 'active' : ''} onClick={() => setActivePage('pokemon')}><span className="nav-icon nav-pokemon-icon"><HomeIcon kind="pokemon" /></span><span>My Pokémon</span></button>
+        <button className={activePage === 'battle' ? 'active' : ''} onClick={() => setActivePage('battle')}><span className="nav-icon nav-battle-icon"><HomeIcon kind="battle" /></span><span>Battle</span></button>
+        <button className={activePage === 'resources' ? 'active' : ''} onClick={() => { setResourcesVisit(visit => visit + 1); setActivePage('resources') }}><span className="nav-icon nav-resources-icon"><HomeIcon kind="resources" /></span><span>Resources</span></button>
       </nav>
     </div>
   )

@@ -1,0 +1,417 @@
+/* Width-based composition: every panel scales together, independent of phone height. */
+.app-shell:has(.home97) { padding: 0; background: #002e29; }
+.app-content:has(.home97) { width: 100%; max-width: none; margin: 0; }
+.home97 { container-type: inline-size; display: flex; flex-direction: column; gap: 12px; width: min(100%,520px); margin: auto; padding: 0 9px 12px; background: radial-gradient(ellipse at top left,#096750,#003c32 68%); color: #082e29; font-family: 'Courier New',monospace; font-weight: 900; }
+.home97 * { box-sizing: border-box; }
+.home97-header { position: relative; margin: 0 -9px -8px; overflow: hidden; }
+.home97-header::after { content: ''; position: absolute; inset: 0; pointer-events: none; }
+.home97-logo { position: absolute; z-index: 2; left: 50%; transform: translate(-50%,-50%); display: flex; flex-direction: column; align-items: center; filter: drop-shadow(0 2px 0 #001b19); }
+.home97-logo img { object-fit: contain; }
+.home97-logo strong { color: #edffec; font-family: Impact,'Arial Black',sans-serif; line-height: .98; letter-spacing: .025em; -webkit-text-stroke: 1px #003526; paint-order: stroke fill; text-shadow: 2px 2px #002b21; }
+.home97-logo span { color: #eaffeb; }
+.home97-card { position: relative; overflow: hidden; background: repeating-linear-gradient(0deg,#ffffff0c 0 1px,#376a3905 1px 3px),linear-gradient(115deg,#d2e9bc,#a6d3ac); }
+.home97-tab { position: absolute; z-index: 4; top: 5px; left: 5px; display: flex; align-items: center; gap: 7px; height: 6cqw; min-height: 23px; width: max-content; padding: 2px 19px 2px 8px; color: #e8f4e1; background: linear-gradient(#075d45,#003e31); border-bottom: 2px solid #739b6b; clip-path: polygon(0 0,94% 0,100% 30%,100% 70%,94% 100%,0 100%); font-size: 3.6cqw; letter-spacing: .03em; text-shadow: 1px 1px #001f1a; }
+.home97-tab svg { width: 4.7cqw; height: 4.7cqw; flex-shrink: 0; }
+.home97-trainer { padding: 9cqw 3.4cqw 3cqw; }
+.home97-trainer-top { position: relative; height: 13.5cqw; display: flex; align-items: center; padding-left: 1.5cqw; }
+.home97-trainer-name { position: relative; z-index: 2; min-width: 0; }
+.home97-trainer-name h2 { margin: 0; }
+.home97-trainer-name p { display: flex; margin: 2.2cqw 0 0; line-height: 1; white-space: nowrap; }
+.home97-trainer-sprite { position: absolute; z-index: 1; object-fit: contain; image-rendering: pixelated; }
+.home97-save { position: absolute; right: 0; top: -5.5cqw; z-index: 5; }
+.home97-save .update-save-button { width: 100%; padding: 3px 2px; font-family: inherit; font-weight: 900; color: #f0f5dd; white-space: nowrap; text-transform: uppercase; }
+.home97-save .update-save-button::before { font-size: 4cqw; margin-right: 4px; }
+.home97-stats { display: grid; grid-template-columns: 1fr 1fr; }
+.home97-stats>div { display: flex; align-items: center; gap: 2cqw; height: 10cqw; min-width: 0; padding: 1cqw 1.5cqw; background: repeating-linear-gradient(0deg,#ffffff03 0 1px,transparent 1px 3px),linear-gradient(#095b43,#004333); color: #eef7de; }
+.home97-stats b { display: grid; place-items: center; width: 6cqw; height: 6cqw; flex-shrink: 0; border: 2px solid #123c35; border-radius: 50%; background: #d5ead6; color: #255648; font-size: 5cqw; box-shadow: 0 0 0 1px #82ab9a,inset 0 0 0 1px #718f78; }
+.home97-stats .home97-coin { background: #eac743; color: #a17b15; font-size: 4cqw; border-color: #8a6a14; box-shadow: 0 0 0 1px #e1d059,inset 0 0 0 2px #c59a23; }
+.home97-stats p { margin: 0; min-width: 0; }
+.home97-stats span { display: block; color: #c8dec2; line-height: 1.2; letter-spacing: .03em; }
+.home97-stats strong { display: block; line-height: 1.1; white-space: nowrap; }
+.home97-badges { position: relative; margin: 1cqw 0 0; background: linear-gradient(#064c38,#003d2f); }
+.home97-badges label { position: absolute; top: 1cqw; color: #d7e7c7; }
+.home97-badges>div { display: flex; align-items: center; justify-content: space-between; height: 100%; }
+.home97-badges img { width: 9.5%; object-fit: contain; image-rendering: pixelated; filter: drop-shadow(1px 2px 0 #00251e); }
+.home97-badges .unearned { filter: grayscale(1) brightness(.6); opacity: .5; }
+.home97-dex { padding: 8.5cqw 3cqw 3cqw; }
+.home97-dex-main { position: relative; display: grid; grid-template-columns: 33% 67%; align-items: center; height: 24cqw; }
+.home97-dex-art { position: relative; z-index: 2; object-fit: contain; filter: drop-shadow(2px 3px 0 #35674755); }
+.home97-caught { position: relative; z-index: 2; padding: 0 1cqw 0 3cqw; }
+.home97-caught>span { display: block; font-size: 3.6cqw; margin-bottom: 1.5cqw; }
+.home97-caught>strong { display: block; width: 94%; margin-bottom: 2cqw; }
+.home97-caught>b { display: block; text-align: center; margin-top: 1.5cqw; font-size: 3cqw; white-space: nowrap; }
+.home97-bar { display: grid; grid-template-columns: repeat(20,minmax(0,1fr)); height: 4.7cqw; gap: 1px; padding: 1px; border: 1px solid #3d8064; background: #699b84; box-shadow: 0 -1px #396a53,0 1px #d8e9bc; border-radius: 2px; }
+.home97-bar i { background: #a5c1a9; box-shadow: inset 0 2px #c7d9b7; }
+.home97-ballmark { position: absolute; right: 1%; top: -2%; width: 15%; opacity: .12; filter: grayscale(1); }
+.home97-dex-bottom { display: grid; grid-template-columns: 1.15fr 1fr; gap: 2cqw; }
+.home97-dex-bottom>div { position: relative; overflow: hidden; height: 14cqw; padding: 2cqw 3cqw; background: #a8d4ae66; }
+.home97-dex-bottom span { position: relative; z-index: 2; display: block; font-size: 2.8cqw; white-space: nowrap; }
+.home97-dex-bottom strong { position: relative; z-index: 2; display: block; height: 5cqw; width: max-content; margin: 2cqw 0 0 4cqw; }
+.home97-dex-bottom img { position: absolute; object-fit: contain; }
+.home97-starters { width: 63%; right: -1%; }
+.home97-pikachu { bottom: -15%; }
+.home97-frontier { padding: 8cqw 2cqw 2.5cqw; }
+.home97-frontier-head { position: absolute; inset: 0 0 auto; height: 7cqw; display: flex; align-items: center; justify-content: flex-end; }
+.home97-frontier-head>strong { display: flex; align-items: center; white-space: nowrap; }
+.home97-symbols { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: 1px; }
+.home97-symbols>div { display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 1.5cqw 0 1cqw; background: #003f30; }
+.home97-symbols span { color: #dae8d4; font-size: 2.25cqw; text-transform: uppercase; }
+.frontier-emblem { display: block; width: 100%; height: 12cqw; filter: drop-shadow(1px 2px 0 #001e19); }
+.home97-symbols b { color: #e6efdb; font-size: 2.9cqw; line-height: 1; }
+.home97-symbols .gold b { color: #f6d554; text-shadow: 1px 1px #796421; }
+.home97-symbols .none { opacity: .7; }
+.home97-symbols .none b { color: #96b5a3; }
+.bottom-nav.home97-nav { position: fixed!important; z-index: 300!important; inset: auto 0 0!important; display: grid!important; grid-template-columns: repeat(4,1fr)!important; width: min(100%,520px)!important; height: calc(var(--home97-nav) + env(safe-area-inset-bottom))!important; margin: auto!important; padding: 3px 5px env(safe-area-inset-bottom)!important; border: 0!important; border-top: 3px solid #3eaa71!important; border-radius: 0!important; background: linear-gradient(#004b39,#002e28)!important; box-shadow: 0 -3px 0 #082f28!important; }
+.bottom-nav.home97-nav button { display: flex!important; flex-direction: column!important; align-items: center!important; justify-content: center!important; gap: 4px!important; margin: 0!important; padding: 2px!important; border: 0!important; border-radius: 0!important; background: transparent!important; color: #a9c6bc!important; font-family: Arial,sans-serif; font-size: clamp(11px,3.2vw,16px)!important; font-weight: 800!important; }
+.bottom-nav.home97-nav button.active { color: #e8f6db!important; border-radius: 8px!important; background: linear-gradient(#086343,#005339)!important; box-shadow: none!important; }
+.bottom-nav.home97-nav button+button { border-left: 1px solid #106045!important; }
+.bottom-nav .nav-icon svg { display: block; width: 29px; height: 29px; }
+.bottom-nav.home97-nav .nav-icon { font-size: 29px!important; line-height: 1!important; }
+@media(max-width:350px) { .home97 { gap: 9px; } .home97-save .update-save-button::before { display: none; } }
+
+/* Use extra space on tall phones without compressing panels on short screens. */
+.home97-trainer { display: flex; flex-direction: column; flex-grow: 1; }
+.home97-trainer-top { flex-grow: 1; min-height: 13.5cqw; }
+.home97-trainer-name { width: 52%; }
+.home97-trainer-sprite { width: 21cqw; height: 24cqw; bottom: 0; right: 27%; }
+.home97-dex { display: flex; flex-direction: column; flex-grow: 1; }
+.home97-dex-main { flex-grow: 1; min-height: 24cqw; }
+.home97-frontier { display: flex; flex-direction: column; flex-grow: .3; }
+.home97-symbols { flex-grow: 1; min-height: 20cqw; }
+.home97-symbols>div { height: 100%; min-height: 20cqw; }
+.home97-pikachu { width: 54%; right: 0; height: 125%; image-rendering: pixelated; }
+.home97-badges img { height: 10cqw; }
+.home97-logo strong,.home97-logo span { background: linear-gradient(180deg,#f2ffe9 0%,#c2efbf 34%,#76c28e 62%,#2a825b 100%); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; paint-order: stroke fill; -webkit-text-stroke: .65px #063f2d; text-shadow: none; filter: drop-shadow(1px 2px 0 #002b23); }
+
+/* Full-width beach banner replaces the separate map and ancient Pokémon artwork. */
+.home97-header { flex-grow: 0; background: #149d99; }
+.home97-banner { position: absolute; inset: 0; display: block; }
+.home97-logo strong { font-size: 6.5cqw; }
+
+/* Tropical banner: preserve the full 3:1 artwork and center branding in the sky. */
+.home97-header { height: calc((100cqw + 18px) / 3); min-height: 0; }
+.home97-banner { object-position: center; }
+.home97-logo { width: 34%; top: 48%; }
+.home97-logo strong { background-image: linear-gradient(180deg,#f6ffeb 0%,#e2f9d4 48%,#bbebb6 70%,#75be85 88%,#3d8e65 100%); }
+.home97-logo span { background-image: linear-gradient(180deg,#f6ffeb 0%,#e6fbd9 58%,#c9efbf 78%,#91d29b 92%,#4d9f73 100%); }
+.home97-header::after { background: linear-gradient(0deg,#003e3270,transparent 24%),radial-gradient(ellipse 26% 90% at 50% 48%,#003c3238,transparent 100%); }
+
+/* Match the title's block lettering and the reference navigation silhouettes. */
+.home97-logo span { font-family: Impact,'Arial Black',sans-serif; font-weight: 900; font-size: 3.9cqw; line-height: 1.12; letter-spacing: .05em; margin-top: 2px; }
+.bottom-nav.home97-nav .nav-icon svg { width: 34px; height: 34px; filter: drop-shadow(1px 1px 0 #00281f); }
+.bottom-nav.home97-nav button.active .nav-icon { color: #bde8ab; }
+.home97-logo img { width: 145%; height: 14cqw; max-width: none; }
+/* A single continuous gold bevel, including the diagonal corner segments. */
+.home97-card {
+  border: 0;
+  border-radius: 0;
+  clip-path: polygon(10px 0,calc(100% - 10px) 0,100% 10px,100% calc(100% - 10px),calc(100% - 10px) 100%,10px 100%,0 calc(100% - 10px),0 10px);
+}
+.home97-card::before,
+.home97-save .update-save-button::after {
+  content: '';
+  position: absolute;
+  z-index: 6;
+  inset: 0;
+  pointer-events: none;
+  clip-path: polygon(evenodd,
+    10px 0,calc(100% - 10px) 0,100% 10px,100% calc(100% - 10px),calc(100% - 10px) 100%,10px 100%,0 calc(100% - 10px),0 10px,10px 0,
+    11px 3px,3px 11px,3px calc(100% - 11px),11px calc(100% - 3px),calc(100% - 11px) calc(100% - 3px),calc(100% - 3px) calc(100% - 11px),calc(100% - 3px) 11px,calc(100% - 11px) 3px,11px 3px);
+}
+.home97-save .update-save-button {
+  position: relative;
+  border: 0;
+  border-radius: 0;
+}
+/* Fine inner keyline and shaded outer lip follow the same beveled outline. */
+.home97-card::before,
+.home97-save .update-save-button::after {
+  background: linear-gradient(135deg,#fff0a0 0%,#d2b64c 40%,#f0dd81 70%,#a88d31 100%);
+  filter: drop-shadow(0 1px 0 #002c23);
+}
+.home97-card::after {
+  display: block;
+  content: '';
+  position: absolute;
+  z-index: 7;
+  border: 0;
+  pointer-events: none;
+  background: #102e24;
+}
+.home97-card {
+  /* The outermost dark lip stays visible inside the clipped corner silhouette. */
+  box-shadow: inset 0 0 0 1px #00261e;
+}
+.home97-save .update-save-button {
+  background: linear-gradient(#086747,#003f30);
+  box-shadow: inset 0 0 0 4px #102e24;
+}
+
+.home97-frame { display: flex; flex-direction: column; flex-grow: 1; filter: drop-shadow(0 2px 0 #00291f) drop-shadow(0 3px 3px #001b1a70); }
+.home97-frame-frontier { flex-grow: .3; }
+.home97-frame .home97-card { flex-grow: 1; }
+.home97-save { filter: drop-shadow(0 1px 0 #00271d) drop-shadow(0 2px 2px #001b1a66); }
+/* Short bevels leave straight vertical sides on the save button. */
+.home97-save .update-save-button {
+  clip-path: polygon(5px 0,calc(100% - 5px) 0,100% 5px,100% calc(100% - 5px),calc(100% - 5px) 100%,5px 100%,0 calc(100% - 5px),0 5px);
+}
+.home97-save .update-save-button::after {
+  inset: 1px;
+  clip-path: polygon(evenodd,
+    4px 0,calc(100% - 4px) 0,100% 4px,100% calc(100% - 4px),calc(100% - 4px) 100%,4px 100%,0 calc(100% - 4px),0 4px,4px 0,
+    4.6px 2px,2px 4.6px,2px calc(100% - 4.6px),4.6px calc(100% - 2px),calc(100% - 4.6px) calc(100% - 2px),calc(100% - 2px) calc(100% - 4.6px),calc(100% - 2px) 4.6px,calc(100% - 4.6px) 2px,4.6px 2px);
+}
+
+/* Trainer typography uses the same pixel glyphs as its name. */
+.home97-save { width: 29%; }
+.home97-save .update-save-button { min-height: 7cqw; font-size: 2.65cqw; }
+.home97-trainer-name p { gap: 2.5cqw; }
+
+.home97-save .update-save-button { display: flex; align-items: center; justify-content: center; gap: 4px; }
+.home97-save .update-save-button::before { content: none; }
+.save-upload-icon { width: 12px; height: 12px; flex-shrink: 0; }
+
+/* Trainer uses the same Courier lettering as the Update Save button. */
+.home97-trainer { font-family: 'Courier New',monospace; font-weight: 900; }
+.home97-trainer-name h2 { font-family: inherit; font-size: 9cqw; font-weight: 900; letter-spacing: -.055em; line-height: 1; }
+.home97-trainer-name p { font-family: inherit; font-size: 2.9cqw; }
+.home97-trainer .home97-tab { font-family: inherit; font-size: 3.6cqw; }
+.home97-stats span { font-family: inherit; margin-bottom: .4cqw; }
+.home97-stats strong { font-family: inherit; }
+.home97-badges label { font-family: inherit; font-size: 2.8cqw; }
+
+/* Match all dashboard sections to the Update Save lettering. */
+.home97-dex,.home97-frontier { font-family: 'Courier New',monospace; font-weight: 900; }
+.home97-caught>strong { font-family: inherit; font-size: 8.5cqw; line-height: 1; letter-spacing: -.065em; white-space: nowrap; }
+.home97-dex-bottom strong { font-family: inherit; font-size: 5.5cqw; line-height: 1; }
+.home97-symbols span,.home97-symbols b,.home97-frontier-head>strong { font-family: inherit; }
+/* Badge panel fills the trainer card to its outer frame. */
+.home97-badges {
+  padding-left: 5.4cqw;
+  padding-right: 5.4cqw;
+  padding-bottom: 3cqw;
+}
+/* Inset badge frame with a slim mint gutter and a separate badge-row keyline. */
+.home97-badges {
+  padding: 5cqw 2cqw 1.7cqw;
+  clip-path: polygon(5px 0,calc(100% - 5px) 0,100% 5px,100% calc(100% - 5px),calc(100% - 5px) 100%,5px 100%,0 calc(100% - 5px),0 5px);
+}
+.home97-badges label { left: 3cqw; }
+.home97-badges>div {
+  position: relative;
+  padding: 1cqw 1.3cqw;
+  border: 1px solid #70975c;
+  border-radius: 4px;
+}
+.home97-badges { border: 0; }
+.home97-badges::before {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+}
+/* Stat panels share the save button's gold frame and short corner bevels. */
+.home97-stats>div {
+  position: relative;
+  border: 0;
+  box-shadow: inset 0 0 0 3px #102e24;
+  clip-path: polygon(5px 0,calc(100% - 5px) 0,100% 5px,100% calc(100% - 5px),calc(100% - 5px) 100%,5px 100%,0 calc(100% - 5px),0 5px);
+}
+.home97-stats>div::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  pointer-events: none;
+  background: linear-gradient(135deg,#fff0a0 0%,#d2b64c 40%,#f0dd81 70%,#a88d31 100%);
+  clip-path: polygon(evenodd,
+    4px 0,calc(100% - 4px) 0,100% 4px,100% calc(100% - 4px),calc(100% - 4px) 100%,4px 100%,0 calc(100% - 4px),0 4px,4px 0,
+    4.6px 2px,2px 4.6px,2px calc(100% - 4.6px),4.6px calc(100% - 2px),calc(100% - 4.6px) calc(100% - 2px),calc(100% - 2px) calc(100% - 4.6px),calc(100% - 2px) 4.6px,calc(100% - 4.6px) 2px,4.6px 2px);
+}
+/* Badge panel uses the same two-pixel frame, with room around every edge. */
+.home97-badges {
+  box-shadow: inset 0 0 0 3px #102e24;
+}
+.home97-badges::before {
+  inset: 1px;
+  background: linear-gradient(135deg,#fff0a0 0%,#d2b64c 40%,#f0dd81 70%,#a88d31 100%);
+  clip-path: polygon(evenodd,
+    4px 0,calc(100% - 4px) 0,100% 4px,100% calc(100% - 4px),calc(100% - 4px) 100%,4px 100%,0 calc(100% - 4px),0 4px,4px 0,
+    4.6px 2px,2px 4.6px,2px calc(100% - 4.6px),4.6px calc(100% - 2px),calc(100% - 4.6px) calc(100% - 2px),calc(100% - 2px) calc(100% - 4.6px),calc(100% - 2px) 4.6px,calc(100% - 4.6px) 2px,4.6px 2px);
+}
+/* One shared inset and gap matches the Update Save button's edge spacing. */
+.home97-badges { height: 18cqw; }
+
+.home97-stats b,.home97-stats .home97-coin { width: 6.6cqw; height: 6.6cqw; border: 0; background: none; box-shadow: none; }
+.home97-stats b svg { display: block; width: 100%; height: 100%; filter: drop-shadow(1px 1px 0 #00271e); }
+.home97-stats p { padding-top: .6cqw; }
+.home97-stats span { font-size: 2.8cqw; }
+.home97-stats strong { font-size: 4cqw; }
+/* Keep all lower trainer panels on the same inset and spacing rhythm. */
+.home97-trainer { --trainer-gap: 4cqw; padding-left: var(--trainer-gap); padding-right: var(--trainer-gap); padding-bottom: var(--trainer-gap); }
+.home97-stats { gap: var(--trainer-gap); padding: 3.2cqw 0 0; }
+.home97-badges { margin-left: 0; margin-right: 0; margin-top: var(--trainer-gap); }
+
+/* Larger trainer portrait, framed from the knees upward with a quiet Poké Ball. */
+.home97-trainer-portrait { position: absolute; right: 26%; width: 27cqw; height: 25cqw; overflow: hidden; }
+.home97-trainer-portrait>svg { position: absolute; width: 26cqw; height: 26cqw; left: .5cqw; top: -.5cqw; color: #428c63; opacity: .14; }
+.home97-trainer-portrait .home97-trainer-sprite { object-fit: contain; object-position: center top; }
+.home97-trainer-portrait .home97-trainer-sprite { width: 31cqw; height: 31cqw; right: -2cqw; bottom: -6cqw; }
+.home97-trainer-portrait { bottom: -1.5cqw; }
+
+.home97-trainer,.home97-dex { background: repeating-linear-gradient(0deg,rgba(255,255,255,.09) 0 1px,rgba(31,79,44,.045) 1px 3px),linear-gradient(115deg,#d2e9bc,#a6d3ac); }
+.home97-trainer>.home97-tab {
+  top: 6px;
+  left: 6px;
+  padding-right: 12px;
+  clip-path: polygon(4px 0,calc(100% - 4px) 0,100% 4px,100% calc(100% - 4px),calc(100% - 4px) 100%,4px 100%,0 calc(100% - 4px),0 4px);
+}
+.home97-dex>.home97-tab {
+  top: 6px;
+  left: 6px;
+  padding-right: 12px;
+  clip-path: polygon(4px 0,calc(100% - 4px) 0,100% 4px,100% calc(100% - 4px),calc(100% - 4px) 100%,4px 100%,0 calc(100% - 4px),0 4px);
+}
+/* Keep the outer bevel and inner keyline parallel through every corner. */
+.home97-card::after {
+  inset: 4px;
+  clip-path: polygon(evenodd,
+    7.6px 0,calc(100% - 7.6px) 0,100% 7.6px,100% calc(100% - 7.6px),calc(100% - 7.6px) 100%,7.6px 100%,0 calc(100% - 7.6px),0 7.6px,7.6px 0,
+    8px 1px,1px 8px,1px calc(100% - 8px),8px calc(100% - 1px),calc(100% - 8px) calc(100% - 1px),calc(100% - 1px) calc(100% - 8px),calc(100% - 1px) 8px,calc(100% - 8px) 1px,8px 1px);
+}
+/* The gold ring begins at the card silhouette, leaving no green outer sliver. */
+.home97-card::before {
+  inset: 0;
+  clip-path: polygon(evenodd,
+    10px 0,calc(100% - 10px) 0,100% 10px,100% calc(100% - 10px),calc(100% - 10px) 100%,10px 100%,0 calc(100% - 10px),0 10px,10px 0,
+    11.6px 4px,4px 11.6px,4px calc(100% - 11.6px),11.6px calc(100% - 4px),calc(100% - 11.6px) calc(100% - 4px),calc(100% - 4px) calc(100% - 11.6px),calc(100% - 4px) 11.6px,calc(100% - 11.6px) 4px,11.6px 4px);
+}
+.home97-trainer>.home97-tab,.home97-dex>.home97-tab { top: 8px; left: 8px; }
+.home97-trainer>.home97-tab,.home97-dex>.home97-tab {
+  clip-path: polygon(5.3px 0,calc(100% - 5.3px) 0,100% 5.3px,100% calc(100% - 5.3px),calc(100% - 5.3px) 100%,5.3px 100%,0 calc(100% - 5.3px),0 5.3px);
+}
+.home97-dex-art { width: 98%; height: 24cqw; margin-left: -3%; }
+.home97-dex-bottom { margin-top: 3cqw; }
+.home97-starters { top: 0; bottom: auto; height: 100%; object-fit: cover; object-position: center top; }
+/* Continuous thin outlines around the beveled Owned and Shinies panels. */
+.home97-dex-bottom>div {
+  border: 0;
+  clip-path: polygon(5px 0,calc(100% - 5px) 0,100% 5px,100% calc(100% - 5px),calc(100% - 5px) 100%,5px 100%,0 calc(100% - 5px),0 5px);
+}
+.home97-dex-bottom>div::after {
+  content: '';
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  pointer-events: none;
+  background: #6aa381;
+  clip-path: polygon(evenodd,
+    5px 0,calc(100% - 5px) 0,100% 5px,100% calc(100% - 5px),calc(100% - 5px) 100%,5px 100%,0 calc(100% - 5px),0 5px,5px 0,
+    5.4px 1px,1px 5.4px,1px calc(100% - 5.4px),5.4px calc(100% - 1px),calc(100% - 5.4px) calc(100% - 1px),calc(100% - 1px) calc(100% - 5.4px),calc(100% - 1px) 5.4px,calc(100% - 5.4px) 1px,5.4px 1px);
+}
+/* White blends away into the panel while the faint starter artwork remains. */
+.home97-starters { mix-blend-mode: normal; }
+.home97-dex-bottom img { filter: none; }
+.home97-dex-bottom img { opacity: 1; }
+
+.home97-bar i { display: block; min-width: 0; overflow: hidden; }
+.home97-bar i>span { display: block; height: 100%; background: linear-gradient(#36e564,#03ac46); box-shadow: inset 0 2px #a0f16e,inset 1px 0 #027e3d; }
+.home97-frontier { background: repeating-linear-gradient(0deg,#ffffff04 0 1px,transparent 1px 3px),linear-gradient(#1b7155,#115b43); }
+.home97-frontier-head .home97-tab {
+  top: 8px;
+  left: 8px;
+  padding-right: 12px;
+  clip-path: polygon(5.3px 0,calc(100% - 5.3px) 0,100% 5.3px,100% calc(100% - 5.3px),calc(100% - 5.3px) 100%,5.3px 100%,0 calc(100% - 5.3px),0 5.3px);
+}
+.home97-frontier-head .home97-tab { height: 6cqw; min-height: 23px; font-size: 3.6cqw; }
+.home97-frontier-head .home97-tab { border-bottom: 0; }
+.home97-frontier-head>strong {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  height: 6cqw;
+  min-height: 23px;
+  margin: 0;
+  padding: 2px 8px;
+  border: 0;
+  background: linear-gradient(#075d45,#003e31);
+  font-size: 3.6cqw;
+  letter-spacing: .03em;
+  text-shadow: 1px 1px #001f1a;
+  clip-path: polygon(5.3px 0,calc(100% - 5.3px) 0,100% 5.3px,100% calc(100% - 5.3px),calc(100% - 5.3px) 100%,5.3px 100%,0 calc(100% - 5.3px),0 5.3px);
+}
+.home97-frontier-head>strong { color: #f6d862; }
+.home97-frontier { padding-top: calc(6cqw + 14px); }
+/* Fixed corner cuts and continuous outlines on every Frontier symbol panel. */
+.home97-symbols>div {
+  position: relative;
+  border: 0;
+  clip-path: polygon(4px 0,calc(100% - 4px) 0,100% 4px,100% calc(100% - 4px),calc(100% - 4px) 100%,4px 100%,0 calc(100% - 4px),0 4px);
+}
+.home97-symbols>div::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: #39714e;
+  clip-path: polygon(evenodd,
+    4px 0,calc(100% - 4px) 0,100% 4px,100% calc(100% - 4px),calc(100% - 4px) 100%,4px 100%,0 calc(100% - 4px),0 4px,4px 0,
+    4.4px 1px,1px 4.4px,1px calc(100% - 4.4px),4.4px calc(100% - 1px),calc(100% - 4.4px) calc(100% - 1px),calc(100% - 1px) calc(100% - 4.4px),calc(100% - 1px) 4.4px,calc(100% - 4.4px) 1px,4.4px 1px);
+}
+:root { --home97-nav: 62px; }
+@media(max-width:350px) { :root { --home97-nav: 58px; } }
+/* Keep the homepage dashboard fixed within the phone viewport. */
+.app-shell:has(.home97) { min-height: 0; }
+.app-content:has(.home97) { padding: 0; }
+.home97 { min-height: 0; }
+@media(max-height:700px) {
+  .home97 { gap: 7px; padding-bottom: 7px; }
+  .home97-header { height: 23cqw; flex-shrink: 0; }
+  .home97-banner { object-fit: cover; }
+  .home97-trainer { padding-top: 8cqw; --trainer-gap: 2.5cqw; }
+  .home97-trainer-top { min-height: 12cqw; height: 12cqw; }
+  .home97-stats { padding-top: 1cqw; }
+  .home97-stats>div { height: 9cqw; }
+  .home97-badges { height: 15cqw; padding-top: 4cqw; padding-bottom: 1cqw; }
+  .home97-badges img { height: 8cqw; }
+  .home97-trainer-portrait { height: 20cqw; }
+  .home97-dex { padding-top: 9cqw; padding-bottom: 2cqw; }
+  .home97-dex-main { height: 20cqw; min-height: 20cqw; }
+  .home97-dex-art { height: 20cqw; }
+  .home97-dex-bottom { margin-top: 1cqw; }
+  .home97-dex-bottom>div { height: 12cqw; }
+  .home97-symbols,.home97-symbols>div { min-height: 16cqw; }
+  .home97-symbols>div { height: 16cqw; }
+  .frontier-emblem { height: 9cqw; }
+}
+/* Safari toolbar resizing must never shrink the full-width banner. */
+.home97-header { flex-shrink: 0; }
+.home97-banner { object-fit: cover; width: 100%; height: 100%; }
+
+.bottom-nav.home97-nav { backdrop-filter: none; }
+
+/* Save import and manual homepage editing. */
+.home-save-dialog { position: fixed; inset: 0; margin: auto; width: min(92vw, 460px); max-height: 85dvh; overflow: auto; padding: 18px; border: 3px solid #ddc56b; border-radius: 8px; background: repeating-linear-gradient(0deg,#ffffff14 0 1px,transparent 1px 3px),#bcddb5; color: #082e29; box-shadow: 0 5px 24px #001e20aa; font: bold 14px 'Courier New',monospace; touch-action: pan-y; }
+.home-save-dialog::backdrop { background: #001d24bb; }
+.home-save-dialog * { box-sizing: border-box; }
+.home-save-dialog-heading { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 14px; }
+.home-save-dialog h2 { margin: 0; font: bold 20px 'Courier New',monospace; }
+.home-save-dialog button { padding: 10px 12px; border: 1px solid #ddc56b; border-radius: 5px; background: #07543e; color: #ecf4dd; font: inherit; cursor: pointer; }
+.home-save-options { display: grid; gap: 12px; }
+.home-save-options button { text-align: left; padding: 16px; }
+.home-save-options strong,.home-save-options span { display: block; }
+.home-save-options strong { font-size: 18px; margin-bottom: 7px; }
+.home-save-options span,.home-save-note { font-size: 12px; line-height: 1.5; }
+.home-save-dialog fieldset { margin: 0 0 14px; padding: 12px; border: 1px solid #5f9476; border-radius: 5px; }
+.home-save-dialog legend { padding: 0 5px; font-size: 16px; }
+.home-save-fields { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+.home-save-dialog label { display: grid; gap: 6px; font-size: 12px; }
+.home-save-dialog input:not([type=checkbox]),.home-save-dialog select { width: 100%; min-width: 0; padding: 9px 6px; border: 1px solid #477963; border-radius: 3px; background: #eff5de; color: #082e29; font: 16px 'Courier New',monospace; }
+.home-save-badges { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 12px 6px; }
+.home-save-badges label { justify-items: center; font-size: 10px; cursor: pointer; }
+.home-save-badges img { width: 30px; height: 30px; object-fit: contain; }
+.home-save-badges input { accent-color: #07543e; }
+.home-save-badges label:has(input:not(:checked)) img { opacity: .35; filter: grayscale(1); }
+.home-save-actions { display: flex; justify-content: flex-end; gap: 10px; }
+.home-save-dialog button:focus-visible,.home-save-dialog input:focus-visible,.home-save-dialog select:focus-visible { outline: 2px solid #087d59; outline-offset: 2px; }
+
+/* Pages use normal document scrolling while navigation stays fixed. */
+.app-content:has(.home97) { padding-bottom: calc(var(--home97-nav) + env(safe-area-inset-bottom) + 8px); }

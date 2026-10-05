@@ -1,8 +1,9 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 
 import {
   inspectSaveSections,
   readTrainerId,
+  readSecretId,
   readTrainerName,
   readPlayTime,
   readMoney,
@@ -15,8 +16,10 @@ import {
 function SaveLoader({
   onSaveLoaded,
   compact = false,
+  label = 'Update Save',
 }) {
   const inputRef = useRef(null)
+  const [error, setError] = useState('')
 
   async function handleFileChange(
     event
@@ -28,17 +31,24 @@ function SaveLoader({
       return
     }
 
+    setError('')
+    try {
     const buffer =
       await file.arrayBuffer()
 
     const bytes =
       new Uint8Array(buffer)
 
+    if (!readTrainerName(bytes) || readTrainerId(bytes) === null) {
+      throw new Error('Please select a valid Pokémon Emerald save file.')
+    }
     inspectSaveSections(bytes)
 
     const saveData = {
       trainerId:
         readTrainerId(bytes),
+
+      secretId: readSecretId(bytes),
 
       trainerName:
         readTrainerName(bytes),
@@ -70,7 +80,11 @@ function SaveLoader({
 
     onSaveLoaded(saveData)
 
-    event.target.value = ''
+    } catch {
+      setError('Unable to read this save. Please select a valid Pokémon Emerald .sav file.')
+    } finally {
+      event.target.value = ''
+    }
   }
 
   if (compact) {
@@ -92,8 +106,12 @@ function SaveLoader({
             inputRef.current?.click()
           }
         >
-          Update Save
+          <svg className="save-upload-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="square" strokeLinejoin="miter">
+            <path d="M12 15V3m-5 5 5-5 5 5M4 14v6h16v-6" />
+          </svg>
+          {label}
         </button>
+        {error && <p role="alert">{error}</p>}
       </>
     )
   }

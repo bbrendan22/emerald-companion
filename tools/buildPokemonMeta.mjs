@@ -121,7 +121,7 @@ function parseTypes(text) {
   const result = {}
 
   const entryRegex =
-    /\[SPECIES_([A-Z0-9_]+)\]\s*=\s*\{([\s\S]*?)\n\s*\},/g
+    /^\s*\[SPECIES_([A-Z0-9_]+)\]\s*=\s*\{([\s\S]*?)(?=^\s*\[SPECIES_|^\};)/gm
 
   let match
 

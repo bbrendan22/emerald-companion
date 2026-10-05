@@ -8,7 +8,8 @@ export const pokemonMeta =
     "name": "Bulbasaur",
     "generation": 1,
     "types": [
-      "NORMAL"
+      "GRASS",
+      "POISON"
     ]
   },
   "2": {
@@ -3258,7 +3259,7 @@ export const pokemonMeta =
     "name": "Chimecho",
     "generation": 3,
     "types": [
-      "NORMAL"
+      "PSYCHIC"
     ]
   }
 }

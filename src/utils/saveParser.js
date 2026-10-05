@@ -992,6 +992,12 @@ export function readTrainerId(
     : null
 }
 
+// The secret ID is the upper half of SaveBlock2's four-byte trainer ID.
+export function readSecretId(bytes) {
+  const block = getSaveBlock2(bytes)
+  return block && block.length >= 0x0E ? read16(block, 0x0C) : null
+}
+
 export function readTrainerName(
   bytes
 ) {

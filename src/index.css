@@ -370,7 +370,7 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .type-icon{width:21px;height:21px;flex-basis:21px}
 }
 .exact-overlay{padding:0!important;overflow:hidden;background:rgba(6,21,31,.72)}
-.exact-sheet{ position:relative;width:min(704px,calc(100vw - 18px));height:calc(100dvh - 14px);max-height:none!important; margin:7px auto;padding:10px 14px 12px;overflow:hidden!important;border:1px solid #a8d4f1; border-radius:24px;background:linear-gradient(180deg,#d9f0ff 0%,#eef9ff 54%,#d9f0ff 100%); color:#08265e;box-shadow:0 18px 60px rgba(0,0,0,.3);display:flex;flex-direction:column; }
+.exact-sheet{ position:relative;width:min(704px,calc(100vw - 18px));height:calc(100dvh - 14px);max-height:none!important; margin:7px auto;padding:10px 14px 12px;overflow-y:auto!important;border:1px solid #a8d4f1; border-radius:24px;background:linear-gradient(180deg,#d9f0ff 0%,#eef9ff 54%,#d9f0ff 100%); color:#08265e;box-shadow:0 18px 60px rgba(0,0,0,.3);display:flex;flex-direction:column; }
 .exact-close{position:absolute;z-index:20;top:10px;right:12px;width:43px;height:43px;border:0;border-radius:50%;background:#2c6287;color:#fff;font-size:33px;line-height:36px}
 .exact-hero{position:relative;z-index:1;flex:0 0 274px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;text-align:center}
 .exact-pokeball{position:absolute;z-index:-1;top:6px;left:4px;width:190px;height:190px;border:26px solid rgba(83,161,216,.16);border-radius:50%}
@@ -1164,10 +1164,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline-color:var(
 .app-shell{padding-top:max(10px,env(safe-area-inset-top))}
 
 .pokemon-page{
-  height:calc(100dvh - 76px - env(safe-area-inset-top));
   min-height:0;
   gap:7px;
-  overflow:hidden;
 }
 .pokemon-page .collection-header{flex:0 0 auto;padding:0 2px}
 .pokemon-page .collection-header .page-eyebrow{display:none}
@@ -1184,11 +1182,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline-color:var(
 .pokemon-page .clear-filters{margin-top:3px;padding:2px 0 0;font-size:8px}
 
 .pokemon-page .pokedex-grid{
-  flex:1 1 auto;
   min-height:0;
   align-content:start;
-  overflow-y:auto;
-  overscroll-behavior:contain;
   -webkit-overflow-scrolling:touch;
   padding:1px 1px 12px;
   scrollbar-width:thin;
@@ -1206,7 +1201,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline-color:var(
 
 @media(max-width:700px){
   .app-shell{padding-top:max(7px,env(safe-area-inset-top))}
-  .pokemon-page{height:calc(100dvh - 72px - env(safe-area-inset-top));gap:5px}
+  .pokemon-page{gap:5px}
   .pokemon-page .collection-header h2{font-size:19px}
   .pokemon-page .collection-header>div>p:last-child{font-size:9px}
   .pokemon-page .pokemon-tools{padding:6px 7px}
@@ -1222,19 +1217,13 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline-color:var(
 }
 
 .pokemon-page{
-  height:auto!important;
   min-height:0!important;
-  overflow:visible!important;
 }
 .pokemon-page .pokedex-grid{
-  flex:0 0 auto!important;
   min-height:0!important;
-  overflow:visible!important;
-  overscroll-behavior:auto!important;
   -webkit-overflow-scrolling:auto!important;
 }
 @media(max-width:700px){
-  .pokemon-page{height:auto!important}
 }
 
 .pokemon-page .pokemon-tools{padding:5px 6px!important;border-radius:10px!important}
@@ -1859,12 +1848,6 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline-color:var(
 }
 .matchup-section{
   border-top:0!important;
-}
-
-.battle-page{
-  height:100%;
-  max-height:100%;
-  overflow:hidden!important;
 }
 .matchup-header{
   margin-top:2px!important;
@@ -2727,7 +2710,6 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline-color:var(
 
 .persistent-page.active{
   display:block;
-  height:100%;
 }
 
 .matchup-moves{
@@ -2854,26 +2836,18 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline-color:var(
 
 /* My Pokémon viewport lock: controls stay fixed; only the grid scrolls */
 .pokemon-page{
-  height:calc(100dvh - 76px - env(safe-area-inset-top))!important;
   min-height:0!important;
-  overflow:hidden!important;
   display:flex!important;
   flex-direction:column!important;
 }
 
 .pokemon-page .pokedex-grid{
-  flex:1 1 auto!important;
   min-height:0!important;
-  overflow-y:auto!important;
-  overscroll-behavior:contain;
   -webkit-overflow-scrolling:touch;
   padding-bottom:12px;
 }
 
 @media(max-width:600px){
-  .pokemon-page{
-    height:calc(100dvh - 72px - env(safe-area-inset-top))!important;
-  }
 }
 
 /* v86 — stable My Pokémon scroll grid */
@@ -2881,10 +2855,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline-color:var(
   display:grid!important;
   align-content:start!important;
   grid-auto-rows:max-content!important;
-  flex:1 1 0!important;
   min-height:0!important;
-  overflow-y:auto!important;
-  overflow-x:hidden!important;
 }
 
 .pokemon-page .pokemon-tile{
@@ -2930,56 +2901,29 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline-color:var(
 
 /* v87 — Battle page stays locked to the viewport */
 .battle-page{
-  height:100%!important;
-  max-height:100%!important;
   min-height:0!important;
-  overflow:hidden!important;
-  overscroll-behavior:none!important;
-  touch-action:pan-x!important;
 }
 
 .persistent-page.active{
-  height:100%!important;
   min-height:0!important;
-  overflow:hidden!important;
 }
 
 @media(max-width:600px){
-  .battle-page{
-    overflow:hidden!important;
-  }
 }
 
 /* v88 — lock the actual app containers while Battle is visible.
    iOS Safari can scroll an ancestor even when .battle-page itself is hidden. */
-html:has(.persistent-page.active),
-body:has(.persistent-page.active),
-#root:has(.persistent-page.active),
-.app-shell:has(.persistent-page.active),
-.app-content:has(.persistent-page.active){
-  height:100dvh!important;
-  max-height:100dvh!important;
-  overflow:hidden!important;
-  overscroll-behavior:none!important;
-}
 
 .app-content:has(.persistent-page.active){
   min-height:0!important;
 }
 
 .persistent-page.active{
-  height:100%!important;
-  max-height:100%!important;
   min-height:0!important;
-  overflow:hidden!important;
 }
 
 .persistent-page.active .battle-page{
-  height:100%!important;
-  max-height:100%!important;
   min-height:0!important;
-  overflow:hidden!important;
-  overscroll-behavior:none!important;
 }
 
 /* Pickers/results remain the only independently scrollable Battle elements. */
@@ -2991,4 +2935,63 @@ body:has(.persistent-page.active),
   overflow-y:auto!important;
   overscroll-behavior:contain!important;
   -webkit-overflow-scrolling:touch!important;
+}.resources-coming-soon{display:flex;height:calc(100dvh - 80px);flex-direction:column;align-items:center;justify-content:center;gap:8px;color:white}.resources-coming-soon strong{font-size:24px}.resources-coming-soon span{color:#91a59c;font-size:12px}
+
+
+.pokemon-page .collection-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.add-pokemon-button { display: grid; place-items: center; flex: 0 0 36px; width: 36px; height: 36px; padding: 7px; border: 1px solid #ddc56b; border-radius: 6px; background: #07543e; color: #ecf4dd; cursor: pointer; }
+.add-pokemon-button svg { width: 100%; height: 100%; }
+.add-pokemon-button:active { background: #087354; }
+
+/* Pokémon editing follows the collection's blue and ice palette. */
+.add-pokemon-button,.pokemon-edit-button { border: 1px solid var(--app-line); background: linear-gradient(#fff,#d9edfc); color: var(--app-navy); }
+.pokemon-editor { width: min(94vw,520px); max-height: 88dvh; overflow: auto; padding: 18px; border: 1px solid var(--app-line); border-radius: 16px; background: linear-gradient(#f7fcff,#eaf6ff); color: var(--app-navy); box-shadow: 0 18px 60px #173a6740; }
+.pokemon-editor::backdrop { background: #132b4c99; backdrop-filter: blur(5px); }
+.pokemon-editor header,.pokemon-editor footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.pokemon-editor h2 { font-size: 22px; margin: 0 0 12px; }
+.pokemon-editor button,.pokemon-edit-button { padding: 8px 12px; border: 1px solid var(--app-line); border-radius: 8px; background: #e1f1ff; color: var(--app-navy); font-weight: 700; cursor: pointer; }
+.pokemon-editor-fields { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+.pokemon-editor label { display: grid; gap: 5px; font-size: 12px; font-weight: 700; }
+.pokemon-editor input:not([type=checkbox]),.pokemon-editor select { width: 100%; min-width: 0; padding: 9px 7px; border: 1px solid var(--app-line); border-radius: 7px; background: #fff; color: var(--app-navy); font-size: 16px; }
+.pokemon-editor .pokemon-editor-shiny { display: flex; align-items: center; gap: 8px; }
+.pokemon-editor input[type=checkbox] { accent-color: var(--app-royal); }
+.pokemon-editor fieldset { margin: 16px 0; border: 1px solid var(--app-line); border-radius: 10px; padding: 12px; }
+.pokemon-editor legend,.pokemon-editor summary { font-weight: 700; }
+.pokemon-editor summary { cursor: pointer; }
+.pokemon-editor details p { color: var(--app-muted); font-size: 12px; }
+.pokemon-editor-stats { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 8px; align-items: center; font-size: 12px; }
+.pokemon-editor-stat-row { display: contents; }
+.pokemon-editor footer { justify-content: flex-end; margin-top: 20px; }
+.pokemon-editor footer button[type=submit] { background: var(--app-royal); color: white; }
+.pokemon-detail-actions { position: absolute; top: 12px; left: 12px; z-index: 5; display: flex; gap: 6px; }
+.pokemon-edit-button { font-size: 11px; }
+.pokemon-delete-button { color: #9b3535; border-color: #d6afb1; background: #fff0f1; }
+
+
+/* Detail content can grow beyond the viewport instead of being clipped. */
+.exact-sheet { overflow-y: auto !important; touch-action: pan-y; }
+.exact-sheet > .exact-page { flex: 0 0 auto; min-height: min-content; }
+
+/* Detail sections size to their content; the sheet is the single scroll area. */
+.detail-overlay.exact-overlay { display: block; overflow: visible; z-index: 400; }
+.detail-sheet.exact-sheet { display: block; height: calc(100dvh - 14px); max-height: calc(100dvh - 14px) !important; overflow-y: auto !important; overflow-x: hidden; padding-bottom: calc(24px + env(safe-area-inset-bottom)); -webkit-overflow-scrolling: touch; touch-action: pan-y; }
+.exact-sheet .exact-tabs { min-height: 36px; }
+.exact-sheet .exact-page { display: flex !important; flex-direction: column; height: auto !important; min-height: 0 !important; gap: 8px !important; }
+.exact-sheet .summary-top,
+.exact-sheet .advanced-top-row,
+.exact-sheet .advanced-second-row,
+.exact-sheet .advanced-third-row,
+.exact-sheet .exact-card { flex: 0 0 auto !important; height: auto !important; min-height: min-content !important; max-height: none !important; }
+.exact-sheet .exact-card { overflow: visible !important; }
+.exact-sheet .exact-stats,
+.exact-sheet .exact-moves,
+.exact-sheet .exact-role-buttons,
+.exact-sheet .exact-ribbons > div,
+.exact-sheet .ribbon-list { height: auto !important; min-height: 0 !important; max-height: none !important; overflow: visible !important; }
+.exact-sheet .exact-stat-row { height: auto !important; min-height: 23px; }
+.exact-sheet .exact-role-buttons button { flex: 0 0 auto; min-height: 28px; }
+.exact-sheet .exact-move { min-height: 44px; }
+.exact-sheet .ribbon-list { align-content: start !important; padding: 10px !important; }
+@media(max-width:600px) {
+  .detail-sheet.exact-sheet { height: 100dvh; max-height: 100dvh !important; margin: 0; }
 }
