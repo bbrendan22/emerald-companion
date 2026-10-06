@@ -10,9 +10,9 @@ const pockets={ITEMS:'Items',KEY_ITEMS:'Key Items',POKE_BALLS:'Poké Balls',TM_H
 const machines=machineResources.map(m=>({...itemResources[machineIconIds[m.code]],...m,id:machineIconIds[m.code],price:machineItemPrices[machineIconIds[m.code]],name:moveNames[m.moveId],machine:true}))
 const items=Object.entries(itemResources).map(([id,item])=>({id,...item,name:itemNames[id]??item.name})).sort((a,b)=>a.name.localeCompare(b.name))
 
-export default function ItemsBrowser({ machinesOnly, initialEntry, onToolBack, onLocationBack, onBack, onMove, onPokemon }) {
+export default function ItemsBrowser({ initialCategory = 'Battle', machinesOnly, initialEntry, onToolBack, onLocationBack, onBack, onMove, onPokemon }) {
  const [search,setSearch]=useState('')
- const [filter,setFilter]=useState(machinesOnly?'TMs/HMs':'Battle')
+ const [filter,setFilter]=useState(machinesOnly?'TMs/HMs':initialCategory)
  const [selected,setSelected]=useState(initialEntry??null)
  const entries=[...items.filter(item=>item.pocket!=='TM_HM'),...machines]
  const matches=entries.filter(item=>`${item.name} ${item.code??''}`.toLowerCase().includes(search.trim().toLowerCase())&&itemCategory(item)===filter)

@@ -14,3 +14,12 @@ export function encounterSummary(encounters) {
     `${form ? `${form} · ` : ''}Lv. ${min === max ? min : `${min}–${max}`} · ${Number(rate.toFixed(2))}%`,
   ).join(' / ')
 }
+export function encounterLevelRange(locations, methodName) {
+  const slots = locations.flatMap(({ methods }) => methods
+    .filter(method => !methodName || method.name === methodName)
+    .flatMap(method => method.encounters))
+  if (!slots.length) return ''
+  const min = Math.min(...slots.map(slot => slot.min))
+  const max = Math.max(...slots.map(slot => slot.max))
+  return `Lv. ${min === max ? min : `${min}–${max}`}`
+}

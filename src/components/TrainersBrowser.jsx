@@ -16,7 +16,7 @@ const locations = [...new Set(trainers.map(trainer => trainer.location))].sort((
 
 function TrainerFilter({label,value,options,onChange}) {
  const [open,setOpen]=useState(false)
- const text=value==='all'?'All':value||label
+ const text=value==='all'?label:value||label
  const textSize=text.length>23?10:text.length>16?11:text.length>10?12:14
  return <div className="resource-trainer-filter" onBlur={event=>{if(!event.currentTarget.contains(event.relatedTarget))setOpen(false)}} onKeyDown={event=>{if(event.key==='Escape')setOpen(false)}}>
   <button type="button" aria-label={label} aria-expanded={open} title={text} onClick={()=>setOpen(!open)}><span style={{fontSize:textSize}}>{text}</span><span className="resource-trainer-filter-arrow" aria-hidden="true"/></button>

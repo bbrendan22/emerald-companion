@@ -1,22 +1,20 @@
 import { encounterSummary } from '../utils/encounterSummary.js'
+import { groupedEncounterDisplay, combinedEncounterLabel, splitEncounterLocation } from '../utils/groupEncounterLocations.js'
 
-function splitLocation(name) {
-  const match = name.match(/^(Abandoned Ship|Granite Cave|Mt\.? Pyre|Victory Road|Safari Zone|Meteor Falls|New Mauville|Seafloor Cavern|Cave Of Origin|Shoal Cave|Sky Pillar|Magma Hideout|Mirage Tower|Artisan Cave|Rock Tunnel|Mt\.? Moon|Seafoam Islands|Cerulean Cave|Pokemon Mansion|Pokémon Mansion|Pokemon Tower|Pokémon Tower|Mt\.? Ember|Icefall Cave|Lost Cave|Tanoby Ruins)\s+(.+)$/i)
-  return match ? { parent: match[1], name: match[2] } : { parent: null, name }
-}
-
-export default function SpeciesLocationEntries({ locations, onLocation }) {
-  const groups = new Map()
-  for (const entry of locations) {
-    const label = splitLocation(entry.location.name)
-    const key = label.parent ?? entry.location.name
-    if (!groups.has(key)) groups.set(key, { parent: label.parent, entries: [] })
-    groups.get(key).entries.push({ ...entry, label: label.name })
+export default function SpeciesLocationEntries({ locations, onLocation, allLocations = [], combineMatchingRoutes = false, combineMatchingCities = false, splitMethodParents = [], independentMethods = false, combineSeviiIslands = false }) {
+  const subareas = new Map()
+  for (const location of allLocations) {
+    const parent = splitEncounterLocation(location.name).parent
+    if (!parent || !location.methods.some(method => method.encounters.length)) continue
+    if (!subareas.has(parent)) subareas.set(parent, new Set())
+    subareas.get(parent).add(location.id)
   }
-  return [...groups].map(([key, group]) => <div key={key} className={group.parent ? 'resource-location-family' : undefined}>
+  const groups = groupedEncounterDisplay(locations, { combineMatchingRoutes, combineMatchingCities, splitMethodParents, independentMethods, combineSeviiIslands })
+  return groups.map((group, index) => <div key={`${group.parent}-${index}`} className={`resource-encounter-group${group.parent ? ' resource-location-family' : ''}${index === 0 || groups[index - 1].category !== group.category ? ' resource-encounter-category-start' : ''}`}>
+    {(index === 0 || groups[index - 1].category !== group.category) && <div className="resource-encounter-category-label">{group.category}</div>}
     {group.parent && <h4>{group.parent}</h4>}
-    {group.entries.map(({ location, methods, requirements = [], label }) => <div className="resource-availability-row" key={location.id}>
-      {onLocation ? <button className="resource-ability-link" onClick={() => onLocation(location)}>{label} →</button> : <strong>{label}</strong>}
+    {group.rows.map(({ entries, methods, requirements, islands }) => <div className="resource-availability-row resource-encounter-row" key={`${entries[0].location.id}-${methods.map(method => method.name).join('-')}`}>
+      {islands ? <div className="resource-island-areas">{islands.map(island => <div className="resource-island-area" key={island.name}><strong>{island.name}</strong><span>{island.label}</span></div>)}</div> : !(group.parent && group.rows.length === 1 && subareas.get(group.parent)?.size > 1 && entries.length === subareas.get(group.parent).size && entries.every(entry => subareas.get(group.parent).has(entry.location.id))) && (onLocation && entries.length === 1 ? <button className="resource-ability-link resource-encounter-label" onClick={() => onLocation(entries[0].location)}>{combinedEncounterLabel(entries)} →</button> : <strong className="resource-encounter-label">{combinedEncounterLabel(entries)}</strong>)}
       <div className="resource-location-rates">{methods.map(method => <p key={method.name}><strong>{method.name}</strong> · {encounterSummary(method.encounters)}</p>)}</div>
       {requirements.length > 0 && <details><summary>Requirements</summary>{requirements.map(note => <p key={note}>{note}</p>)}</details>}
     </div>)}

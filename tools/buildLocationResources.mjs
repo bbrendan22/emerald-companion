@@ -8,7 +8,7 @@ const names={land_mons:'Grass / Cave',water_mons:'Surfing',rock_smash_mons:'Rock
 const group=JSON.parse(wild).wild_encounter_groups.find(g=>g.label==='gWildMonHeaders')
 const fields=Object.fromEntries(group.fields.map(f=>[f.type,f]))
 const title=map=>map.replace(/^MAP_/,'').replace(/_/g,' ').replace(/([A-Z])(\d)/g,'$1 $2').replace(/\b\w+/g,w=>w[0]+w.slice(1).toLowerCase()).replace(/ (\d+)f\b/gi,' $1F').replace(/ Ss /g,' S.S. ')
-const locations=group.encounters.map(enc=>{
+const locations=group.encounters.filter(enc=>!enc.map.includes('UNUSED')).map(enc=>{
  const methods=[]
  for(const [key,field] of Object.entries(fields)){
   const data=enc[key];if(!data)continue

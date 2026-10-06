@@ -10,7 +10,6 @@ export const miscGroups = {
   'Evolution Stones': [93,94,95,96,97,98],
   'Evolution Items': [201,218],
   Fossils: [286,287,354,357,358],
-  Contests: [254,255,256,257,258],
   'Event Passes': [275,370,371,376],
   'Exchange Items': [46,47,48,49,50,51],
 }
@@ -20,10 +19,9 @@ export const battleGroups = {
   'Pokémon-Specific Items': [193,192,202,222,223,191,225,224],
 }
 export const berryGroups = {
-  Recovery: [133,134,135,136,137,138,139,140,141,142,143,144,145,146,147],
+  Recovery: [133,134,135,136,137,138,139,140,141,142],
   'Stat Boost': [168,169,170,171,172,173,174],
   EVs: [153,154,155,156,157,158],
-  Pokéblocks: [148,149,150,151,152,159,160,161,162,163,164,165,166,167],
 }
 export function itemBerryGroup(item) {
   return Object.keys(berryGroups).find(group => berryGroups[group].includes(Number(item.id)))

@@ -1,3 +1,4 @@
+import ResourceFilter from './ResourceFilter'
 import { deoxysForms } from '../data/deoxysForms'
 import { pokedexEntries } from '../data/pokedexEntries'
 import GameNames from './GameNames'
@@ -33,12 +34,7 @@ const castformForms = {
 const types = emeraldTypes
 const statNames = [['HP', 'hp'], ['Attack', 'attack'], ['Defense', 'defense'], ['Sp. Attack', 'spAttack'], ['Sp. Defense', 'spDefense'], ['Speed', 'speed']]
 const statMaximums = Object.fromEntries(statNames.map(([, key]) => [key, Math.max(...pokemon.map(([id]) => speciesInfo[id]?.baseStats?.[key] ?? 0), ...Object.values(deoxysForms).map(form => form.baseStats[key]))]))
-const categories = [
-  { title: 'Database', icon: '▦', description: 'Pokémon, moves, abilities, items, and TMs/HMs.', available: true },
-  { title: 'Explore Hoenn', icon: '◇', description: 'Locations, wild encounters, trainer teams, and items across Hoenn.', available: true },
-  { title: 'Guides', icon: '▤', description: 'Breeding, training, tutors, and Battle Frontier.', available: true },
-  { title: 'Tools & Charts', icon: '⌘', description: 'Calculators, natures, types, and Pickup tables.', available: true },
-]
+
 
 function genderRatio(value) {
   if (value === 255) return 'Genderless'
@@ -49,7 +45,10 @@ function genderRatio(value) {
 }
 
 export default function ResourcesPage() {
+  const [guideSection, setGuideSection] = useState(null)
   const [view, updateView] = useState('home')
+  const [itemCategory, setItemCategory] = useState('Battle')
+  const [frontierSection, setFrontierSection] = useState('Pokémon Sets')
   const [query, setQuery] = useState('')
   const [type, setType] = useState('')
   const [generation, setGeneration] = useState('')
@@ -73,7 +72,7 @@ export default function ResourcesPage() {
   const [encounterOrigin, setEncounterOrigin] = useState(null)
   const history = useRef([])
   const [previousPage, setPreviousPage] = useState(null)
-  const snapshot = { view, selected, query, type, generation, abilityOrigin, itemOrigin, linkedMove, eggOrigin, breedingOrigin, tutorOrigin, guideOrigin, toolOrigin, locationOrigin, learnsetOrigin, encounterOrigin }
+  const snapshot = { scroll:window.scrollY, view, selected, query, type, generation, abilityOrigin, itemOrigin, linkedMove, eggOrigin, breedingOrigin, tutorOrigin, guideOrigin, toolOrigin, locationOrigin, learnsetOrigin, encounterOrigin }
   const remember = () => {
     if (history.current.at(-1) !== snapshot) { history.current.push(snapshot); setPreviousPage(snapshot) }
   }
@@ -104,6 +103,7 @@ export default function ResourcesPage() {
     if (previous.view === 'items' || previous.view === 'machines') previous.itemOrigin = itemOrigin
     if (previous.view === 'guides') Object.assign(previous, { eggOrigin, breedingOrigin, tutorOrigin, guideOrigin })
     if (previous.view === 'tools') previous.toolOrigin = toolOrigin
+    requestAnimationFrame(() => window.scrollTo(0, previous.scroll ?? 0))
     updateView(previous.view); updateSelected(previous.selected); setPokemonTab('overview')
     setQuery(previous.query); setType(previous.type); setGeneration(previous.generation)
     setAbilityOrigin(previous.abilityOrigin); setItemOrigin(previous.itemOrigin); setLinkedMove(previous.linkedMove)
@@ -120,25 +120,30 @@ export default function ResourcesPage() {
   const displayTypes = weatherForm?.types ?? selected?.[1].types
   const form = selected?.[1].dex === 386 ? deoxysForms[deoxysForm] : null
   const profile = selected ? { ...speciesInfo[selected[0]], ...(form ? { baseStats:form.baseStats } : {}) } : null
-  if (view === 'guides') return <GuidesBrowser initialEgg={eggOrigin} onEggMove={(id,origin)=>{setEggOrigin(origin);setBreedingOrigin(null);setTutorOrigin(null);setGuideOrigin(null);setItemOrigin(null);setLinkedMove(id);setView('moves')}} onEggPokemon={(entry,origin)=>{setEggOrigin(origin);setBreedingOrigin(null);setTutorOrigin(null);setGuideOrigin(null);setItemOrigin(null);setLocationOrigin(null);setAbilityOrigin(null);setSelected(entry);setView('pokemon')}} initialParent={breedingOrigin} onBreedingPokemon={(entry,parent)=>{setEggOrigin(null);setBreedingOrigin(parent);setTutorOrigin(null);setGuideOrigin(null);setItemOrigin(null);setLocationOrigin(null);setAbilityOrigin(null);setSelected(entry);setView('pokemon')}} initialTutor={tutorOrigin} onTutorMove={id=>{setEggOrigin(null);setBreedingOrigin(null);setTutorOrigin(id);setGuideOrigin(null);setItemOrigin(null);setLinkedMove(id);setView('moves')}} onTutorPokemon={(entry,id)=>{setEggOrigin(null);setBreedingOrigin(null);setTutorOrigin(id);setGuideOrigin(null);setItemOrigin(null);setLocationOrigin(null);setAbilityOrigin(null);setSelected(entry);setView('pokemon')}} initialStat={guideOrigin} onBack={goBack} onPokemon={(entry,stat)=>{setEggOrigin(null);setBreedingOrigin(null);setTutorOrigin(null);setGuideOrigin(stat);setItemOrigin(null);setLocationOrigin(null);setAbilityOrigin(null);setSelected(entry);setView('pokemon')}} onLocation={(location,stat)=>{setGuideOrigin(stat);setLocationOrigin(location);setView('locations')}} />
+  if (view === 'guides') return <GuidesBrowser initialGuide={guideSection} onTrainers={() => setView('trainers')} onLegacyLocations={() => setView('locations')} initialEgg={eggOrigin} onEggMove={(id,origin)=>{setEggOrigin(origin);setBreedingOrigin(null);setTutorOrigin(null);setGuideOrigin(null);setItemOrigin(null);setLinkedMove(id);setView('moves')}} onEggPokemon={(entry,origin)=>{setEggOrigin(origin);setBreedingOrigin(null);setTutorOrigin(null);setGuideOrigin(null);setItemOrigin(null);setLocationOrigin(null);setAbilityOrigin(null);setSelected(entry);setView('pokemon')}} initialParent={breedingOrigin} onBreedingPokemon={(entry,parent)=>{setEggOrigin(null);setBreedingOrigin(parent);setTutorOrigin(null);setGuideOrigin(null);setItemOrigin(null);setLocationOrigin(null);setAbilityOrigin(null);setSelected(entry);setView('pokemon')}} initialTutor={tutorOrigin} onTutorMove={id=>{setEggOrigin(null);setBreedingOrigin(null);setTutorOrigin(id);setGuideOrigin(null);setItemOrigin(null);setLinkedMove(id);setView('moves')}} onTutorPokemon={(entry,id)=>{setEggOrigin(null);setBreedingOrigin(null);setTutorOrigin(id);setGuideOrigin(null);setItemOrigin(null);setLocationOrigin(null);setAbilityOrigin(null);setSelected(entry);setView('pokemon')}} initialStat={guideOrigin} onBack={goBack} onPokemon={(entry,stat)=>{setEggOrigin(null);setBreedingOrigin(null);setTutorOrigin(null);setGuideOrigin(stat);setItemOrigin(null);setLocationOrigin(null);setAbilityOrigin(null);setSelected(entry);setView('pokemon')}} onLocation={(location,stat)=>{setGuideOrigin(stat);setLocationOrigin(location);setView('locations')}} />
   if (view === 'tools') return <ToolsBrowser initialTool={toolOrigin?.tool} initialLevel={toolOrigin?.level} onBack={goBack} onItem={(entry,level)=>{setLocationOrigin(null);setToolOrigin({tool:'pickup',level});setItemOrigin({view:entry.machine?'machines':'items',entry});setView(entry.machine?'machines':'items')}} />
   if (view === 'locations') return <LocationsBrowser onDetailBack={encounterOrigin || previousPage?.view === 'guides' ? goBack : null} initialLocation={locationOrigin} onItem={(entry,location)=>{setLocationOrigin(location);setItemOrigin({view:entry.machine?'machines':'items',entry});setView(entry.machine?'machines':'items')}} onBack={goBack} onPokemon={(entry,location) => { setAbilityOrigin(null); setItemOrigin(null); setLocationOrigin(location); setSelected(entry); setView('pokemon') }} />
   if (view === 'abilities') return <AbilitiesBrowser onDetailBack={previousPage?.selected ? goBack : null} initialAbility={abilityOrigin} onBack={goBack} onPokemon={(entry, abilityId) => { setSelected(entry); setAbilityOrigin(abilityId); setView('pokemon') }} />
-  if (view === 'items' || view === 'machines') return <ItemsBrowser machinesOnly={view === 'machines'} onToolBack={toolOrigin ? goBack : null} onLocationBack={locationOrigin ? goBack : null} initialEntry={itemOrigin?.entry} onBack={goBack} onMove={(id,entry) => { setItemOrigin({view,entry}); setLinkedMove(id); setView('moves') }} onPokemon={(entry,item) => { setAbilityOrigin(null); setItemOrigin({view,entry:item}); setSelected(entry); setView('pokemon') }} />
+  if (view === 'items' || view === 'machines') return <ItemsBrowser initialCategory={itemCategory} machinesOnly={view === 'machines'} onToolBack={toolOrigin ? goBack : null} onLocationBack={locationOrigin ? goBack : null} initialEntry={itemOrigin?.entry} onBack={goBack} onMove={(id,entry) => { setItemOrigin({view,entry}); setLinkedMove(id); setView('moves') }} onPokemon={(entry,item) => { setAbilityOrigin(null); setItemOrigin({view,entry:item}); setSelected(entry); setView('pokemon') }} />
   if (view === 'moves') return <MovesBrowser onPokemon={(entry, move) => { setSelected(entry); const origin = history.current.at(-1); if (origin?.view === 'moves') origin.linkedMove = move; setLinkedMove(move); setView('pokemon') }} initialMove={linkedMove} onDetailBack={linkedMove ? goBack : null} onBack={goBack} />
   if (view === 'trainers') return <TrainersBrowser onBack={goBack} onPokemon={entry=>{setAbilityOrigin(null);setItemOrigin(null);setLocationOrigin(null);setSelected(entry);setView('pokemon')}} />
   if (view === 'location-database') return <LocationDatabase onBack={goBack}/>
-  if (view === 'database') return <div className="resources-page">
-    <button className="resources-back" onClick={goBack}>← Back</button>
-    <div className="resource-list-heading"><h2>Database</h2></div>
-    <div className="resources-categories">
-      <button onClick={() => setView('pokemon')}><span className="resource-category-icon" aria-hidden="true">▦</span><h2>Pokémon</h2><p>Types, abilities, base stats, and species information.</p><b>Browse 386 species →</b></button>
-      <button onClick={() => setView('moves')}><span className="resource-category-icon" aria-hidden="true">✦</span><h2>Moves</h2><p>Power, accuracy, PP, effects, and Gen III categories.</p><b>Browse 354 moves →</b></button>
-      <button onClick={() => { setAbilityOrigin(null); setView('abilities') }}><span className="resource-category-icon" aria-hidden="true">◇</span><h2>Abilities</h2><p>Emerald effect summaries and Pokémon with each ability.</p><b>Browse abilities →</b></button>
-      <button onClick={() => setView('trainers')}><h2>Trainers</h2><p>Emerald trainer teams, levels, locations, and prize money.</p><b>Browse trainers →</b></button>
-      <button onClick={() => setView('location-database')}><h2>Locations</h2><p>Emerald routes, towns, and other locations.</p><b>Browse locations →</b></button>
-      <button onClick={() => { setItemOrigin(null); setToolOrigin(null); setView('items') }}><h2>Items</h2><p>Medicine, battle and training items, berries, TMs/HMs, and more.</p><b>Browse items →</b></button>
-    </div>
+  if (view === 'frontier-database') return <div className="resources-page"><div className="resource-list-heading"><button className="resources-back" onClick={goBack}>← Back</button><h2>Battle Frontier · {frontierSection}</h2></div><p className="resource-note">This database will be added here.</p></div>
+  if (view === 'home' && !selected) return <div className="resources-page">
+    <div className="resource-list-heading"><h2>Resources</h2></div>
+    <section className="resource-location-category"><h3>Pokémon</h3><div className="resource-location-index">
+      <div><button className="resource-location-link" onClick={() => { updateSelected(null); setView('pokemon') }}>Pokémon Database</button></div>
+      <div><button className="resource-location-link" onClick={() => { setLinkedMove(null); setView('moves') }}>Moves</button></div>
+      <div><button className="resource-location-link" onClick={() => { setAbilityOrigin(null); setView('abilities') }}>Abilities</button></div>
+    </div></section>
+    <section className="resource-location-category"><h3>Useful Items</h3><div className="resource-location-index">{[['Battle','Battle'],['Utility','Utility'],['Berries','Berries'],['Poké Balls','Poké Balls'],['TMs/HMs','TM/HM'],['Misc.','Misc.']].map(([category,label]) => <div key={category}><button className="resource-location-link" onClick={() => { setItemCategory(category); setItemOrigin(null); setToolOrigin(null); setView('items') }}>{label}</button></div>)}</div></section>
+    <section className="resource-location-category"><h3>Locations</h3><div className="resource-location-index"><div><button className="resource-location-link" onClick={() => setView('location-database')}>Locations</button></div></div></section>
+    <section className="resource-location-category"><h3>Battle Frontier</h3><div className="resource-location-index">{['Pokémon Sets','Trainers'].map(section => <div key={section}><button className="resource-location-link" onClick={() => { setFrontierSection(section); setView('frontier-database') }}>{section}</button></div>)}</div></section>
+    <section className="resource-location-category"><h3>Breeding, Tools & Guides</h3><div className="resource-location-index">
+      <div><button className="resource-location-link" onClick={() => { setGuideSection('breeding'); setEggOrigin(null); setBreedingOrigin(null); setTutorOrigin(null); setGuideOrigin(null); setView('guides') }}>Breeding</button></div>
+      <div><button className="resource-location-link" onClick={() => { setToolOrigin(null); setView('tools') }}>Tools</button></div>
+      <div><button className="resource-location-link" onClick={() => { setGuideSection(null); setEggOrigin(null); setBreedingOrigin(null); setTutorOrigin(null); setGuideOrigin(null); setView('guides') }}>Guides</button></div>
+    </div></section>
   </div>
   return <div className="resources-page">
     {selected ? <>
@@ -169,16 +174,13 @@ export default function ResourcesPage() {
       {showingList && <div className="resource-list-heading"><button className="resources-back" onClick={goBack}>← Back</button><h2>Pokémon Database</h2><span>{matches.length} species</span></div>}
       <div className={showingList ? "resource-database-controls" : undefined}>
       <label className="resources-search"><input aria-label="Search Pokémon by name" type="search" placeholder="Search" value={query} onChange={e => setQuery(e.target.value)} /></label>
-      {showingList && <label className="resource-type-filter"><select aria-label="Type" value={type} onChange={e => setType(e.target.value)}><option value="" disabled hidden>Type</option><option value="all">All</option>{types.map(t => <option key={t}>{t}</option>)}</select></label>}
-      {showingList && <label className="resource-type-filter"><select aria-label="Generation" value={generation} onChange={e => setGeneration(e.target.value)}><option value="" disabled hidden>Gen</option><option value="all">All</option>{[1, 2, 3].map(gen => <option key={gen} value={gen}>Gen {gen}</option>)}</select></label>}
+      {showingList && <ResourceFilter label="Type" value={type} onChange={setType} options={types.map(t => ({value:t,label:t}))}/>}
+      {showingList && <ResourceFilter label="Gen" value={generation} onChange={setGeneration} options={[1,2,3].map(gen => ({value:String(gen),label:`Gen ${gen}`}))}/>}
       </div>
       {showingList ? <>
         <div className="resource-pokemon-grid">{matches.map(entry => { const [id, meta] = entry; return <button key={id} onClick={() => setSelected(entry)}><span>#{String(meta.dex).padStart(3, '0')}</span><img loading="lazy" src={`${import.meta.env.BASE_URL}sprites/emerald/${meta.dex}.png`} alt="" /><strong>{meta.name}</strong><ResourceTypeIcons types={meta.types} /></button> })}</div>
         {!matches.length && <p className="resource-empty">No results.</p>}
-      </> : <>
-        <div className="resources-categories">{categories.map(category => category.available ? <button key={category.title} onClick={() => { setLocationOrigin(null); setToolOrigin(null); setGuideOrigin(null); setTutorOrigin(null); setBreedingOrigin(null); setEggOrigin(null); setView(category.title === 'Database' ? 'database' : category.title === 'Tools & Charts' ? 'tools' : category.title === 'Guides' ? 'guides' : 'locations') }}><span className="resource-category-icon" aria-hidden="true">{category.icon}</span><h2>{category.title}</h2><p>{category.description}</p><b>{category.title === 'Database' ? 'Browse database →' : category.title === 'Tools & Charts' ? 'Open tools →' : category.title === 'Guides' ? 'Browse guides →' : 'Explore locations →'}</b></button> : <article key={category.title}><span className="resource-category-icon" aria-hidden="true">{category.icon}</span><h2>{category.title}</h2><p>{category.description}</p><b>Coming next</b></article>)}</div>
-        <p className="resource-note">Browse Pokémon, moves, and abilities in Database. This search currently finds Pokémon; more library sections will be added.</p>
-      </>}
+      </> : null}
     </>}
   </div>
 }

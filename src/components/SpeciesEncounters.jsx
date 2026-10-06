@@ -1,4 +1,5 @@
 import SpeciesLocationEntries from './SpeciesLocationEntries'
+import { groupedEncounterDisplay } from '../utils/groupEncounterLocations.js'
 import GameNames from './GameNames'
 import SpeciesPanel from './SpeciesPanel'
 import { bonusDiscEncounters } from '../data/bonusDiscEncounters.js'
@@ -9,6 +10,10 @@ import { speciesEncounters } from '../utils/speciesEncounters.js'
 import { speciesAvailability } from '../utils/speciesAvailability.js'
 import { availabilitySources } from '../data/availabilitySources.js'
 import { pokemonMeta } from '../data/pokemonMeta.js'
+import { acquisitionRoutes } from '../utils/acquisitionRoutes.js'
+import { locationResources } from '../data/locationResources.js'
+import { rubySapphireEncounters } from '../data/rubySapphireEncounters.js'
+import { fireRedLeafGreenEncounters } from '../data/fireRedLeafGreenEncounters.js'
 const gameName=game=>game
 const legendaryDex = new Set([144,145,146,150,151,243,244,245,249,250,251,377,378,379,380,381,382,383,384,385,386])
 function encounterNote(entry,dex,game='Emerald') {
@@ -34,15 +39,26 @@ function encounterNote(entry,dex,game='Emerald') {
   return entry.inlineNote ? <p className="resource-availability-kind">{entry.note}</p> : <details><summary>Requirements</summary><p>{entry.note}</p></details>
 }
 
-export default function SpeciesEncounters({ id, onLocation, onPokemon, embedded = false }) {
+export default function SpeciesEncounters({ id, onPokemon, embedded = false }) {
   const locations = speciesEncounters(id)
   const availability = speciesAvailability(id)
-  const pokemonLink = (other, label) => <button className="resource-ability-link" onClick={()=>onPokemon([other,pokemonMeta[other]])}>{label} {pokemonMeta[other].name} →</button>
+  const displayedLocationCount = entries => {
+    if (!entries.length) return 0
+    return groupedEncounterDisplay(entries, { combineMatchingRoutes: true, combineMatchingCities: true, splitMethodParents: ['*'], independentMethods: true, combineSeviiIslands: true }).reduce((count, group) => count + group.rows.length, 0)
+  }
+  const emeraldCount = displayedLocationCount(locations) + availability.special.length + (!locations.length && !availability.special.length ? acquisitionRoutes(availability.relatives, [], id).length : 0)
+  const locationEntries = (entries, game = 'Emerald') => {
+    const allLocations = game === 'Emerald' ? locationResources : rubySapphireEncounters[game] ?? fireRedLeafGreenEncounters[game] ?? []
+    return <SpeciesLocationEntries locations={entries} allLocations={allLocations} combineMatchingRoutes combineMatchingCities splitMethodParents={['*']} independentMethods combineSeviiIslands />
+  }
+  const pokemonLink = (other, label) => label === 'Evolve'
+    ? <span>Evolve {pokemonMeta[other].name}</span>
+    : <button className="resource-ability-link" onClick={()=>onPokemon([other,pokemonMeta[other]])}>{label} {pokemonMeta[other].name} →</button>
   return <SpeciesPanel embedded={embedded} anchor="locations" title="Locations">
-    {availability.hasEmeraldRoute && <details className="resource-game-encounters"><summary><GameNames>Emerald</GameNames></summary><div className="resource-game-encounter-content">
-    <SpeciesLocationEntries locations={locations} onLocation={onLocation} />
+    {availability.hasEmeraldRoute && <details key={`${id}-Emerald`} open={emeraldCount <= 3} className="resource-game-encounters"><summary><GameNames>Emerald</GameNames></summary><div className="resource-game-encounter-content">
+    {locationEntries(locations)}
     {availability.special.map((entry,index)=><div className="resource-availability-row" key={`special-${index}`}><strong>{entry.place}</strong><p className="resource-availability-kind">{entry.kind}{entry.level!=null?` · ${entry.kind==='Gift Egg'?'Hatches at':'Lv.'} ${entry.level}`:''}</p>{encounterNote(entry,pokemonMeta[id].dex)}</div>)}
-    {!locations.length&&!availability.special.length&&availability.relatives.length>0&&<div className="resource-availability-row">{availability.relatives.map(relative=><div key={relative.id}>{pokemonLink(relative.id,relative.method==='Evolve'?'Evolve':'Breed from')}</div>)}</div>}
+    {!locations.length&&!availability.special.length&&availability.relatives.length>0&&<div className="resource-availability-row">{acquisitionRoutes(availability.relatives, [], id).map(relative=><div key={relative.id}>{pokemonLink(relative.id,relative.method)}</div>)}</div>}
     </div></details>}
     {['Ruby','Sapphire','FireRed','LeafGreen','Colosseum','XD'].map(game => {
       const source = availabilitySources[pokemonMeta[id].dex]?.find(entry => entry.game === game)
@@ -50,15 +66,17 @@ export default function SpeciesEncounters({ id, onLocation, onPokemon, embedded 
       const bonusDiscs = game === 'Colosseum' ? bonusDiscEncounters[pokemonMeta[id].dex] || [] : []
       const hasDetails = bonusDiscs.length || (encounters && (encounters.locations.length || encounters.special.length || encounters.relatives.length))
       if (!hasDetails && !source?.native) return null
-      const routes = availability.imports.filter(entry => entry.game.includes(game) && entry.method)
-      return <details className="resource-game-encounters" key={game}><summary><GameNames>{gameName(game)}</GameNames></summary><div className="resource-game-encounter-content">
+      const hasDirectAcquisition = Boolean(encounters?.locations.length || encounters?.special.length || bonusDiscs.length)
+      const routes = acquisitionRoutes(encounters?.relatives, availability.imports.filter(entry => entry.game.includes(game) && entry.method), id)
+        .filter(route => !hasDirectAcquisition || route.method !== 'Evolve')
+      const entryCount = displayedLocationCount(encounters?.locations ?? []) + (encounters?.special.length ?? 0) + bonusDiscs.length + routes.length + (!hasDetails ? 1 : 0)
+      return <details className="resource-game-encounters" key={`${id}-${game}`} open={entryCount <= 3}><summary><GameNames>{gameName(game)}</GameNames></summary><div className="resource-game-encounter-content">
         {!hasDetails && <div className="resource-availability-row">{source.event ? 'Historical event access' : source.method}</div>}
-        <SpeciesLocationEntries locations={encounters?.locations ?? []} />
+        {locationEntries(encounters?.locations ?? [], game)}
         {encounters?.special.map((entry,index) => <div className="resource-availability-row" key={`special-${index}`}><strong>{entry.place}</strong><p className="resource-availability-kind">{entry.kind}{entry.level != null ? ` · ${entry.kind === 'Gift Egg' ? 'Hatches at' : 'Lv.'} ${entry.level}` : ''}{entry.trainer ? ` · ${entry.trainer}` : ''}{entry.rate != null ? ` · ${entry.rate}%` : ''}</p>{encounterNote(entry,pokemonMeta[id].dex,game)}</div>)}
         {bonusDiscs.map(entry => <div className="resource-availability-row" key={entry.source}><strong>{entry.source}</strong><p className="resource-availability-kind">Lv. {entry.level} · {entry.method}</p></div>)}
-        {encounters?.relatives.map(relative => <div className="resource-availability-row" key={relative.id}>{pokemonLink(relative.id,relative.method)}</div>)}
         {encounters?.routeNotes?.map(note=><p className="resource-note" key={note}>{note}</p>)}
-        {routes.map(entry => <div className="resource-trade-route" key={entry.id}>{entry.method && pokemonLink(entry.id,entry.method === 'Evolve' ? 'Evolve' : 'Breed from')}</div>)}
+        {routes.map(entry => <div className="resource-availability-row" key={`${entry.id}-${entry.method}`}>{pokemonLink(entry.id,entry.method)}</div>)}
       </div></details>
     })}
 
