@@ -61,10 +61,12 @@
 .home97-symbols .gold b { color: #f6d554; text-shadow: 1px 1px #796421; }
 .home97-symbols .none { opacity: .7; }
 .home97-symbols .none b { color: #96b5a3; }
-.bottom-nav.home97-nav { position: fixed!important; z-index: 300!important; inset: auto 0 0!important; display: grid!important; grid-template-columns: repeat(4,1fr)!important; width: min(100%,520px)!important; height: calc(var(--home97-nav) + env(safe-area-inset-bottom))!important; margin: auto!important; padding: 3px 5px env(safe-area-inset-bottom)!important; border: 0!important; border-top: 3px solid #3eaa71!important; border-radius: 0!important; background: linear-gradient(#004b39,#002e28)!important; box-shadow: 0 -3px 0 #082f28!important; }
-.bottom-nav.home97-nav button { display: flex!important; flex-direction: column!important; align-items: center!important; justify-content: center!important; gap: 4px!important; margin: 0!important; padding: 2px!important; border: 0!important; border-radius: 0!important; background: transparent!important; color: #a9c6bc!important; font-family: Arial,sans-serif; font-size: clamp(11px,3.2vw,16px)!important; font-weight: 800!important; }
-.bottom-nav.home97-nav button.active { color: #e8f6db!important; border-radius: 8px!important; background: linear-gradient(#086343,#005339)!important; box-shadow: none!important; }
-.bottom-nav.home97-nav button+button { border-left: 1px solid #106045!important; }
+.bottom-nav.home97-nav { position: fixed!important; z-index: 300!important; inset: auto 0 0!important; display: grid!important; grid-template-columns: repeat(4,1fr)!important; width: min(100%,520px)!important; height: calc(var(--home97-nav) + max(0px,calc(env(safe-area-inset-bottom) - 12px)))!important; margin: auto!important; padding: 3px env(safe-area-inset-right) max(0px,calc(env(safe-area-inset-bottom) - 12px)) env(safe-area-inset-left)!important; border: 0!important; border-top: 2px solid #7ca7cf!important; border-radius: 0!important; background: #3b3e42!important; box-shadow: 0 -1px 0 #25282c, 0 -4px 14px #253b4c20!important; }
+.bottom-nav.home97-nav button { display: flex!important; flex-direction: column!important; align-items: center!important; justify-content: center!important; gap: 3px!important; margin: 0!important; padding: 2px!important; border: 0!important; border-radius: 0!important; background: transparent!important; color: #b8c2cc!important; font-family: Arial,sans-serif; font-size: clamp(10px,2.8vw,13px)!important; font-weight: 800!important; }
+.bottom-nav.home97-nav button.active { color: #acd7f7!important; border-radius: 0!important; background: transparent!important; box-shadow: none!important; }
+.bottom-nav.home97-nav button+button,
+.bottom-nav.home97-nav button.active+button,
+.bottom-nav.home97-nav button+button.active { border-left: 1px solid #545f6b!important; }
 .bottom-nav .nav-icon svg { display: block; width: 29px; height: 29px; }
 .bottom-nav.home97-nav .nav-icon { font-size: 29px!important; line-height: 1!important; }
 @media(max-width:350px) { .home97 { gap: 9px; } .home97-save .update-save-button::before { display: none; } }
@@ -98,8 +100,8 @@
 
 /* Match the title's block lettering and the reference navigation silhouettes. */
 .home97-logo span { font-family: Impact,'Arial Black',sans-serif; font-weight: 900; font-size: 3.9cqw; line-height: 1.12; letter-spacing: .05em; margin-top: 2px; }
-.bottom-nav.home97-nav .nav-icon svg { width: 34px; height: 34px; filter: drop-shadow(1px 1px 0 #00281f); }
-.bottom-nav.home97-nav button.active .nav-icon { color: #bde8ab; }
+.bottom-nav.home97-nav .nav-icon svg { width: 29px; height: 29px; filter: drop-shadow(0 1px 0 #25282c); }
+.bottom-nav.home97-nav button.active .nav-icon { color: #acd7f7; }
 .home97-logo img { width: 145%; height: 14cqw; max-width: none; }
 /* A single continuous gold bevel, including the diagonal corner segments. */
 .home97-card {
@@ -356,8 +358,8 @@
     4px 0,calc(100% - 4px) 0,100% 4px,100% calc(100% - 4px),calc(100% - 4px) 100%,4px 100%,0 calc(100% - 4px),0 4px,4px 0,
     4.4px 1px,1px 4.4px,1px calc(100% - 4.4px),4.4px calc(100% - 1px),calc(100% - 4.4px) calc(100% - 1px),calc(100% - 1px) calc(100% - 4.4px),calc(100% - 1px) 4.4px,calc(100% - 4.4px) 1px,4.4px 1px);
 }
-:root { --home97-nav: 62px; }
-@media(max-width:350px) { :root { --home97-nav: 58px; } }
+:root { --home97-nav: 56px; }
+@media(max-width:350px) { :root { --home97-nav: 54px; } }
 /* Keep the homepage dashboard fixed within the phone viewport. */
 .app-shell:has(.home97) { min-height: 0; }
 .app-content:has(.home97) { padding: 0; }
@@ -415,3 +417,10 @@
 
 /* Pages use normal document scrolling while navigation stays fixed. */
 .app-content:has(.home97) { padding-bottom: calc(var(--home97-nav) + env(safe-area-inset-bottom) + 8px); }
+
+/* Reserve the full navigation height, including the iPhone gesture area. */
+:root { --app-nav-clearance:calc(var(--home97-nav) + env(safe-area-inset-bottom) + 8px); }
+.app-shell { padding-bottom:max(90px,var(--app-nav-clearance)); }
+
+.bottom-nav.home97-nav .nav-icon { display:grid; place-items:center; width:29px; height:29px; }
+.bottom-nav.home97-nav button { min-width:0; text-align:center; }

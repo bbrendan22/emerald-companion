@@ -11,7 +11,7 @@
 .resources-categories b { font-size:11px; color:var(--resource-accent); }
 .resource-note { color:var(--resource-muted); font-size:12px; line-height:1.6; padding:8px 4px; }
 .resources-back { border:1px solid var(--resource-line); background:#f4f5f6; border-radius:8px; color:var(--resource-accent); padding:8px 10px; font-size:12px; cursor:pointer; }
-.resource-list-heading { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:12px; padding:12px; border:1px solid #34373b; border-left:3px solid #4595d1; border-radius:12px; background:linear-gradient(90deg,#3b3e42,#43464b); color:#f9fafa; }
+.resource-list-heading { display:flex; flex-wrap:wrap; align-items:center; border:1px solid #34373b; border-left:3px solid #4595d1; border-radius:12px; background:linear-gradient(90deg,#3b3e42,#43464b); color:#f9fafa; }
 .resource-list-heading .resources-back { background:#ffffff12; border-color:#ffffff30; color:#f9fafa; }
 .resource-list-heading { gap:6px; padding:8px; margin-bottom:8px; }
 .resources-page .resource-list-heading h2 { font-size:15px; flex:1; }
@@ -32,7 +32,7 @@
 .resource-fit-filter-text { position:absolute; left:6px; right:18px; top:0; height:36px; display:flex; align-items:center; overflow:hidden; white-space:nowrap; pointer-events:none; color:#757575; font-weight:400; }
 .resource-fit-filter-arrow { position:absolute; right:7px; top:50%; width:6px; height:6px; border-right:1.5px solid #757575; border-bottom:1.5px solid #757575; transform:translateY(-70%) rotate(45deg); pointer-events:none; }
 .resource-pokemon-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:0; background:transparent; border-radius:10px; overflow:hidden; }
-.resource-pokemon-grid button { display:flex; flex-direction:column; align-items:center; padding:10px 4px; border:1px solid #d9dfe5; border-radius:12px; background:linear-gradient(#fff,#f5f8fc); color:var(--resource-ink); cursor:pointer; box-shadow:0 3px 9px #202d4010; }
+.resource-pokemon-grid button { display:flex; flex-direction:column; align-items:center; padding:10px 4px; color:var(--resource-ink); cursor:pointer; }
 .resource-pokemon-grid button:hover { border-color:#7ca7cf; background:linear-gradient(#fff,#eaf3fc); }
 .resource-pokemon-grid button { border:0; border-radius:0; box-shadow:inset 0 0 0 .5px #d5dce3; background:linear-gradient(#fff,#edf4fb); }
 .resource-pokemon-grid strong { color:#303942; }
@@ -173,15 +173,15 @@ h3 + .resource-type-group { border-top:1px solid var(--resource-line); }
 
 .resource-learnset-group { margin-top: 8px; border: 1px solid var(--resource-line); border-radius: 8px; overflow: hidden; }
 .resource-learnset-group summary { padding: 5px 8px; background: #f0f1f2; color: var(--resource-ink); font-size: 11px; line-height: 1.2; font-weight: 700; cursor: pointer; }
-.resource-learnset-group > div { padding: 6px 12px; border-top: 1px solid var(--resource-line); }
+.resource-learnset-group > div { border-top: 1px solid var(--resource-line); }
 .resource-learnset-group > .resource-note { padding: 0 12px; }
-.resource-learnset-move { display: flex; justify-content: space-between; align-items: center; gap: 12px; width: 100%; min-height: 44px; padding: 8px 0; border: 0; background: transparent; color: var(--resource-ink); text-align: left; cursor: pointer; }
+.resource-learnset-move { justify-content: space-between; align-items: center; gap: 12px; width: 100%; border: 0; background: transparent; color: var(--resource-ink); text-align: left; }
 .resource-learnset-move span { font-size: 12px; white-space: nowrap; }
 .resource-learnset-egg { padding-bottom: 2px; border-bottom: 1px solid var(--resource-line); }
 
-.resource-family-members { display: flex; flex-wrap: wrap; gap: 8px; }
-.resource-family-members .resource-ability-link { display: flex; flex-direction: column; align-items: center; min-width: 90px; padding: 10px; }
-.resource-family-members img { width: 48px; height: 48px; object-fit: contain; image-rendering: auto; }
+.resource-family-members { flex-wrap: wrap; }
+.resource-family-members .resource-ability-link { display: flex; flex-direction: column; align-items: center; }
+.resource-family-members img { object-fit: contain; image-rendering: auto; }
 .resource-family-members [aria-current="true"] strong { color:#3b3e42; text-decoration:underline; text-underline-offset:3px; }
 
 .resource-availability-game { background: #f0f1f2; padding: 10px 12px; border-radius: 8px; font-weight: 800; margin-bottom: 10px; }
@@ -230,10 +230,10 @@ h3 + .resource-type-group { border-top:1px solid var(--resource-line); }
 .resource-species-summary .resource-type-icons { gap:6px; margin:3px 0; }
 .resource-species-summary .resource-type-icons img { width:25px; height:25px; }
 .resource-species-profile { border-color:#e7e9ec; box-shadow:0 8px 24px #2c2f3224; background:#fafafb; }
-.resource-species-profile .resource-species-summary { background:radial-gradient(circle at 15% 40%,#ffffffb3,transparent 45%),linear-gradient(120deg,#e6e8eb,#f6f7f8 65%,#e4e6e9); border-bottom:3px solid #43464b; }
+.resource-species-profile .resource-species-summary { border-bottom:3px solid #43464b; }
 .resource-species-profile .resource-species-summary > img { filter:drop-shadow(0 5px 5px #32343833); }
 .resource-species-profile .resource-species-summary h2 { color:#323438; letter-spacing:-.5px; text-shadow:0 1px #fff; }
-.resource-species-profile .resource-species-summary > div > span { display:inline-block; padding:3px 6px; background:#ffffff9c; border:1px solid #eaebee; border-radius:5px; font-size:10px; font-weight:800; letter-spacing:.5px; color:#373a3e; }
+.resource-species-profile .resource-species-summary > div > span { display:inline-block; padding:3px 6px; border:1px solid #eaebee; border-radius:5px; font-size:10px; font-weight:800; letter-spacing:.5px; }
 .resource-species-profile .resource-species-panel > summary { background:linear-gradient(90deg,#3b3e42,#43464b); color:#f9fafa; border-left:3px solid #34373b; }
 .resource-species-profile .resource-species-panel > summary:hover { background:#3b3e43; }
 .resource-species-profile .resource-species-panel[open] > summary { border-bottom:1px solid var(--resource-line); border-left-color:#3c3f43; }
@@ -245,7 +245,6 @@ h3 + .resource-type-group { border-top:1px solid var(--resource-line); }
 .resource-species-profile .resource-species-summary > div > span { background:#e6f0fb; color:#285d8b; border-color:#c3d9ec; }
 .resource-species-profile .resource-overview-abilities .resource-ability-link { color:#286b9e; }
 .resource-species-profile .resource-species-overview > p { border-left-color:#86b5a2; }
-.resource-species-profile .resource-learnset-group summary { background:linear-gradient(90deg,#fff0d7,#fffaf1); }
 .resource-species-profile .resource-source-game:nth-child(odd) { background:#edf5fc; }
 .resource-species-profile .resource-other-game-move { background:#f1edf8; }
 .resources-categories > button:nth-child(1) .resource-category-icon { background:#e5effa; color:#2563a6; }
@@ -375,10 +374,21 @@ h3 + .resource-type-group { border-top:1px solid var(--resource-line); }
 
 .resource-item-groups h3 { font-size:12px; margin:12px 0 6px; padding-bottom:5px; border-bottom:1px solid #a8b4c0; }
 .resource-item-groups .resource-move-list { gap:4px; }
-.resource-item-entry { display:flex; align-items:center; gap:8px; padding:8px; border:1px solid var(--resource-line); border-radius:7px; background:#f6f7f8; color:var(--resource-ink); text-align:left; }
+.resource-item-entry { color:var(--resource-ink); text-align:left; }
+.resource-items-table .resource-item-main { display:flex; align-items:center; gap:8px; width:100%; text-align:left; }
+.resource-item-main strong { display:block; font-size:11px; line-height:1.25; }
+.resource-item-main small { display:block; margin-top:2px; font-size:11px; line-height:1.25; color:var(--resource-muted); }
 
-.resource-item-entry > img { width:32px; height:32px; flex-shrink:0; object-fit:contain; image-rendering:pixelated; }
-.resource-item-entry > div { min-width:0; flex:1; }
+.resource-item-main > img { width:32px; height:32px; flex-shrink:0; object-fit:contain; image-rendering:pixelated; }
+.resource-item-main > div { min-width:0; flex:1; }
+.resource-item-acquisition { margin:0; }
+.resource-item-source { padding:5px 0; }
+.resource-item-source + .resource-item-source { border-top:1px solid #e1e5e9; }
+.resource-item-source-heading { display:flex; justify-content:space-between; gap:8px; font-size:10px; color:#526981; }
+.resource-item-source-heading span:last-child { color:var(--resource-muted); text-align:right; }
+.resource-item-source p, .resource-item-acquisition-note { margin:2px 0 0; font-size:11px; line-height:1.4; overflow-wrap:anywhere; }
+.resource-item-source p strong { font-size:11px; font-weight:600; }
+.resource-item-source .resource-item-source-note { font-size:10px; color:var(--resource-muted); }
 
 .resource-item-entry .resource-item-prices { display:flex; flex-direction:column; flex-shrink:0; align-items:flex-end; color:var(--resource-muted); font-size:10px; line-height:1.5; white-space:nowrap; }
 
@@ -472,5 +482,517 @@ h3 + .resource-type-group { border-top:1px solid var(--resource-line); }
 .resource-island-area > strong { display:block; font-size:12px; font-weight:700; line-height:1.4; color:var(--resource-ink); }
 .resource-island-area > span { display:block; margin-left:10px; color:#525d67; overflow-wrap:anywhere; }
 
-:is(#species-locations,#pokemon-content-locations) .resource-encounter-category-label { margin:0 0 5px; font-size:10px; line-height:1.3; font-weight:500; color:#77838e; letter-spacing:.025em; }
-:is(#species-locations,#pokemon-content-locations) .resource-encounter-group + .resource-encounter-category-start { border-top:2px solid #99a8b6; margin-top:5px; padding-top:8px; }
+:is(#species-locations,#pokemon-content-locations) .resource-encounter-group { --encounter-category-color:#616b78; --encounter-category-divider:#bdc4cd; }
+:is(#species-locations,#pokemon-content-locations) [data-category="Routes"] { --encounter-category-color:#38704b; --encounter-category-divider:#a8c7b0; }
+:is(#species-locations,#pokemon-content-locations) [data-category="Caves"] { --encounter-category-color:#80613c; --encounter-category-divider:#cdbba3; }
+:is(#species-locations,#pokemon-content-locations) [data-category="Underwater"] { --encounter-category-color:#286f87; --encounter-category-divider:#9fc7d4; }
+:is(#species-locations,#pokemon-content-locations) [data-category="Cities & Towns"] { --encounter-category-color:#5268a0; --encounter-category-divider:#b1bedc; }
+:is(#species-locations,#pokemon-content-locations) [data-category="Sevii Islands"] { --encounter-category-color:#7a5792; --encounter-category-divider:#c6b3d5; }
+:is(#species-locations,#pokemon-content-locations) .resource-encounter-category-label { margin:0 0 5px; font-size:10px; line-height:1.3; font-weight:500; color:var(--encounter-category-color); letter-spacing:.025em; }
+:is(#species-locations,#pokemon-content-locations) .resource-encounter-group + .resource-encounter-category-start { border-top:2px solid var(--encounter-category-divider); margin-top:5px; padding-top:8px; }
+
+.resource-item-main .resource-item-secondary,
+.resource-item-secondary { font-size:10px; margin:0 0 6px; }
+.resource-item-source .resource-item-source-note { margin-left:8px; }
+.resource-item-acquisition .resource-item-acquisition-note { font-size:10px; margin-left:8px; color:var(--resource-muted); }
+
+.resource-frontier-number { color:var(--resource-muted); font-size:10px; font-weight:400; }
+.resource-frontier-sets .resource-item-main > .resource-type-icons { flex:0 0 auto; flex-wrap:nowrap; margin:0; gap:4px; }
+.resource-frontier-sets .resource-type-icons img { width:20px; height:20px; }
+.resource-frontier-detail > dl { display:grid; grid-template-columns:48px minmax(0,1fr); gap:4px 8px; margin:0 0 10px; font-size:11px; line-height:1.4; }
+.resource-frontier-detail dd { margin:0; overflow-wrap:anywhere; }
+.resource-frontier-stat-heading { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:5px; }
+.resource-frontier-stat-heading h3 { margin:0; }
+.resource-frontier-stat-heading button { border:1px solid var(--resource-line); padding:3px 6px; background:#fff; color:var(--resource-ink); font-size:10px; cursor:pointer; }
+.resource-frontier-stat-heading button[aria-pressed=true] { background:#e8edf0; }
+.resource-frontier-detail > .resource-frontier-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:5px 10px; }
+.resource-frontier-stats > div { display:flex; justify-content:space-between; gap:4px; }
+.resource-frontier-sets .resource-frontier-number { flex:0 0 32px; padding-top:7px; font-size:10px; }
+.resource-frontier-row-content { min-width:0; }
+.resource-frontier-identity { display:flex; align-items:center; }
+.resource-frontier-identity > img { width:32px; height:32px; object-fit:contain; image-rendering:pixelated; }
+.resource-frontier-type-item { display:flex; align-items:center; gap:6px; margin-top:2px; }
+.resource-frontier-type-item .resource-type-icons { margin:0; gap:3px; flex-wrap:nowrap; }
+.resource-frontier-type-item .resource-type-icons img { width:16px; height:16px; }
+.resource-frontier-type-item small { margin:0; }
+.resource-frontier-moves { margin:4px 0; font-size:11px; line-height:1.4; }
+.resource-frontier-row-content > .resource-frontier-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:3px 12px; margin:0; font-size:10px; line-height:1.4; }
+.resource-frontier-stats dd { margin:0; }
+
+.resource-frontier-sets .resource-item-main { gap:6px; padding:5px 8px; align-items:center; }
+.resource-frontier-sets .resource-frontier-number { flex-basis:28px; padding:0; }
+.resource-frontier-row-content { display:grid; gap:10px; align-items:center; }
+.resource-frontier-identity { gap:5px; min-width:0; }
+.resource-frontier-identity > div { min-width:0; }
+.resource-frontier-battle-info { min-width:0; }
+.resource-frontier-battle-info .resource-frontier-stats { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:3px; margin:0; font-size:10px; line-height:1.3; }
+.resource-frontier-battle-info .resource-frontier-stats > div { display:block; text-align:center; }
+.resource-frontier-battle-info .resource-frontier-moves { margin:3px 0 0; font-size:10px; line-height:1.3; white-space:nowrap; overflow-x:auto; }
+@media (max-width:440px) {
+  .resource-frontier-row-content { grid-template-columns:minmax(115px, 0.9fr) minmax(0, 1.2fr); gap:6px; }
+  .resource-frontier-sets .resource-frontier-number { flex-basis:24px; }
+  .resource-frontier-identity > img { width:26px; height:26px; }
+}
+
+.resource-frontier-sets .resource-item-main > .resource-frontier-sprite { align-self:center; }
+.resource-frontier-sets .resource-frontier-number { text-align:center; align-self:center; }
+.resource-frontier-row-content { row-gap:2px; }
+.resource-frontier-row-content > .resource-frontier-moves { grid-column:1 / -1; margin:0; font-size:10px; line-height:1.3; white-space:nowrap; overflow-x:auto; }
+.resource-frontier-identity { align-self:start; }
+.resource-frontier-type-item { flex-wrap:nowrap; }
+.resource-frontier-type-item small { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+@media (max-width:440px) {
+  .resource-frontier-row-content { grid-template-columns:minmax(105px,1fr) minmax(0,1.2fr); column-gap:5px; }
+  .resource-frontier-sets .resource-item-main > .resource-frontier-sprite { width:26px; height:26px; }
+}
+
+.resource-frontier-identity strong { color:#253b4c; font-weight:700; }
+.resource-frontier-sets .resource-frontier-number { color:#687480; }
+.resource-frontier-type-item small { color:#56636e; }
+.resource-frontier-battle-info .resource-frontier-stats { padding:3px 4px; }
+.resource-frontier-battle-info .resource-frontier-stats dt { color:#263c4d; font-size:9px; font-weight:600; }
+.resource-frontier-battle-info .resource-frontier-stats dd { color:#596976; font-weight:400; }
+.resource-frontier-row-content > .resource-frontier-moves { color:#374b5c; padding-top:3px; border-top:1px solid #e4e9ed; }
+.resource-frontier-detail > .resource-frontier-details-grid { grid-template-columns:max-content minmax(0,1fr); gap:3px 20px; margin:0; }
+.resource-frontier-details-grid > div { display:flex; align-items:baseline; gap:6px; min-width:0; }
+.resource-frontier-details-grid dt { color:#263c4d; font-weight:600; flex-shrink:0; }
+.resource-frontier-details-grid dd { color:#263c4d; }
+.resource-frontier-details-grid > .resource-frontier-evs { grid-column:1 / -1; }
+
+.resource-frontier-sets .resource-item-main > .resource-frontier-sprite { width:40px; height:40px; }
+@media (max-width:440px) {
+  .resource-frontier-sets .resource-item-main > .resource-frontier-sprite { width:36px; height:36px; }
+}
+
+.resource-frontier-controls { grid-template-columns:minmax(0,1fr) 110px; }
+
+.resource-frontier-sticky { position:sticky; top:0; z-index:5; background:#f3f4f5; padding-top:4px; }
+.resource-frontier-columns { display:flex; align-items:center; gap:6px; padding:5px 8px; border:1px solid #d5dce3; border-bottom:0; border-radius:8px 8px 0 0; font-size:10px; }
+.resource-frontier-columns > span { flex:0 0 40px; }
+.resource-frontier-columns > .resource-frontier-row-content { flex:1; }
+.resource-frontier-stat-labels { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:3px; padding:0 4px; text-align:center; font-weight:600; }
+.resource-frontier-battle-info .resource-frontier-stats dd { font-size:12px; margin:0; }
+.resource-frontier-battle-info .resource-frontier-stats .resource-frontier-sr-label { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+.resource-frontier-sticky + .resource-frontier-sets { border-top-left-radius:0; border-top-right-radius:0; }
+@media (max-width:440px) { .resource-frontier-columns > span { flex-basis:36px; } }
+
+.resource-frontier-battle-info .resource-frontier-stats,
+.resource-frontier-stat-labels { column-gap:8px; }
+.resource-frontier-row-content { grid-template-columns:minmax(120px,0.7fr) minmax(0,1.65fr); }
+@media (max-width:440px) {
+  .resource-frontier-row-content { grid-template-columns:minmax(100px,0.75fr) minmax(0,1.4fr); }
+  .resource-frontier-battle-info .resource-frontier-stats,
+  .resource-frontier-stat-labels { column-gap:5px; }
+}
+
+.resource-frontier-filter-row { align-items:center; margin-bottom:8px; }
+.resource-frontier-filter-row .resource-frontier-stat-heading { margin:0; }
+.resource-frontier-filter-row .resource-frontier-stat-heading > div { white-space:nowrap; }
+
+.resource-frontier-filter-row .resource-fit-filter { display:block; min-width:0; margin:0; height:30px; }
+.resource-frontier-filter-row .resource-fit-filter select { width:100%; height:30px; padding:4px 22px 4px 7px; border:1px solid var(--resource-line); border-radius:6px; background:#fff; color:transparent; appearance:none; font-size:12px; }
+.resource-frontier-filter-row .resource-fit-filter-text { height:30px; }
+.resource-frontier-filter-row .resource-frontier-stat-heading button:first-child { border-radius:6px 0 0 6px; }
+.resource-frontier-filter-row .resource-frontier-stat-heading button:last-child { border-radius:0 6px 6px 0; border-left:0; }
+
+.resource-frontier-page { box-sizing:border-box; }
+.resource-frontier-page .resource-frontier-sticky { background:#f3f4f6; }
+.resource-frontier-page .resource-frontier-sets { height:auto; max-height:none; }
+.resource-frontier-filter-row .resource-fit-filter select option { color:#263c4d; background:#fff; }
+.resource-frontier-filter-row .resource-fit-filter { background:#fff; border-radius:6px; }
+.resource-frontier-filter-row .resource-fit-filter-text { color:#526375; }
+.resource-frontier-filter-row .resource-fit-filter select { border-color:#d5dce3; }
+
+.resource-frontier-page .resource-list-heading { background:linear-gradient(90deg,#3b3e42,#43464b); border-color:#34373b; border-left-color:#4595d1; }
+.resource-frontier-columns { background:#edf4fb; color:#285d8b; border-color:#b9cddd; }
+.resource-frontier-stat-labels { color:#285d8b; }
+.resource-frontier-filter-row .resource-frontier-stat-heading button[aria-pressed=true] { background:#dcecf9; color:#285d8b; border-color:#8ab4d6; }
+.resource-frontier-detail .resource-frontier-trainers-heading { margin:8px 0 5px; color:#285d8b; font-size:11px; }
+.resource-frontier-trainers { display:grid; grid-template-columns:repeat(auto-fit,minmax(135px,1fr)); gap:4px 8px; }
+.resource-frontier-trainer { display:flex; align-items:center; min-width:0; padding:3px 0; }
+.resource-frontier-trainer img { object-fit:contain; image-rendering:pixelated; }
+.resource-frontier-trainer strong { display:block; color:#303942; font-size:10px; }
+.resource-frontier-trainer small { display:block; color:#596976; font-size:10px; line-height:1.3; }
+
+.resource-frontier-trainer-count { font-weight:400; font-size:10px; color:#596976; }
+.resource-frontier-sets .resource-expandable-entry { border-bottom-color:#b9cddd; }
+.resource-frontier-page .resource-frontier-sets { border-color:#b9cddd; }
+.resource-frontier-battle-info .resource-frontier-stats dd.resource-frontier-selected-stat { font-size:14px; font-weight:700; }
+.resource-frontier-battle-info .resource-frontier-stats { align-items:baseline; }
+
+.resource-frontier-page .resources-search input:focus,
+.resource-frontier-page .resources-search input:focus-visible,
+.resource-frontier-filter-row select:focus,
+.resource-frontier-filter-row select:focus-visible { outline:none; box-shadow:none; }
+
+.resource-frontier-filter-row .resource-frontier-stat-heading button:last-child[aria-pressed=true] { border-left:1px solid #8ab4d6; margin-left:-1px; }
+.resource-frontier-mode-row { display:flex; align-items:center; gap:12px; margin-bottom:8px; }
+.resource-frontier-mode-row .resource-frontier-stat-heading { margin:0; }
+.resource-frontier-mode-row button { height:30px; padding:4px 10px; font-size:12px; }
+.resource-frontier-mode-row button[aria-pressed=true] { background:#dcecf9; border-color:#8ab4d6; color:#285d8b; }
+.resource-frontier-iv { display:flex; align-items:center; gap:6px; font-size:12px; color:#526375; }
+.resource-frontier-iv select { height:30px; border:1px solid #d5dce3; border-radius:6px; background:#fff; color:#263c4d; padding:3px 8px; }
+.resource-frontier-filter-row .resource-frontier-stat-heading button { height:28px; }
+.resource-frontier-filter-row .resource-fit-filter, .resource-frontier-filter-row .resource-fit-filter select, .resource-frontier-filter-row .resource-fit-filter-text { height:28px; }
+.resource-frontier-filter-row .resource-frontier-iv { font-size:11px; }
+.resource-frontier-filter-row .resource-frontier-iv select { height:28px; padding:3px 4px; font-size:11px; }
+@media (max-width:440px) {
+  .resource-frontier-filter-row { grid-template-columns:auto auto minmax(49px,1fr) minmax(43px,1fr) auto; gap:3px; }
+  .resource-frontier-filter-row .resource-frontier-stat-heading button { padding:3px 4px; font-size:10px; }
+  .resource-frontier-filter-row .resource-frontier-iv { gap:2px; font-size:10px; }
+}
+.resource-frontier-filter-row .resource-frontier-stat-heading > div { display:flex; width:100%; }
+.resource-frontier-filter-row .resource-frontier-stat-heading button { flex:1; }
+.resource-frontier-brain { margin-top:6px; }
+
+@media (max-width:540px) {
+  .resource-frontier-filter-row { grid-template-columns:66px 92px minmax(45px,1fr) minmax(42px,1fr) 62px; }
+  .resource-frontier-filter-row .resource-frontier-iv select { width:43px; }
+}
+
+body:has(.resource-frontier-page) { overflow:auto; height:auto; }
+.app-shell:has(.resource-frontier-page) { height:auto; min-height:var(--resource-viewport-height,100dvh); overflow:visible; }
+.resource-frontier-page .resource-list-heading { margin-top:0; }
+.resource-frontier-page .resource-frontier-sets { overflow:visible; scrollbar-gutter:auto; }
+.resource-frontier-filter-row .resource-frontier-stat-heading { min-width:0; }
+.resource-frontier-filter-row .resource-frontier-stat-heading button { min-width:0; }
+.resource-frontier-fixed-ivs { font-size:11px; color:#526375; white-space:nowrap; }
+.app-shell:has(.resource-frontier-page) { padding-top:0; }
+.resource-frontier-page .resources-search input { font-size:14px; }
+.resource-frontier-filter-row .resource-filter-placeholder { font-size:14px !important; color:#757575; font-weight:400; }
+@media (max-width:540px) {
+  .resource-frontier-filter-row { grid-template-columns:88px 94px minmax(44px,1fr) minmax(42px,1fr) 62px; gap:4px; }
+  .resource-frontier-filter-row .resource-frontier-stat-heading button { padding:3px 2px; font-size:10px; }
+}
+
+/* Keep the document as the only vertical scroll area. */
+html:has(.resource-frontier-page) { overflow-y:auto; overscroll-behavior-y:none; }
+body:has(.resource-frontier-page),
+#root:has(.resource-frontier-page),
+.app-content:has(.resource-frontier-page) { height:auto; max-height:none; overflow:visible; }
+.resource-frontier-filter-row { flex-wrap:wrap; }
+.resource-frontier-filter-row > .resource-frontier-stat-heading:first-child { flex:0 0 100px; }
+.resource-frontier-filter-row > .resource-frontier-stat-heading:nth-child(2) { flex:0 0 118px; }
+.resource-frontier-filter-row > .resource-fit-filter { flex:0 0 90px; }
+.resource-frontier-filter-row > .resource-frontier-iv,
+.resource-frontier-filter-row > .resource-frontier-fixed-ivs { flex:0 0 78px; }
+
+.resource-frontier-filter-row .resource-frontier-stat-heading button { font-size:11px; padding:3px 4px; }
+
+/* One control row, with room reserved for both placeholders and fixed IVs. */
+.resource-frontier-filter-row {
+  display:grid;
+  grid-template-columns:88px 94px minmax(60px,85px) minmax(60px,65px) 57px;
+  gap:3px;
+  justify-content:start;
+}
+.resource-frontier-filter-row > * { min-width:0; }
+.resource-frontier-filter-row .resource-frontier-iv { gap:2px; }
+.resource-frontier-filter-row .resource-frontier-iv select { width:39px; }
+.resource-frontier-filter-row .resource-frontier-fixed-ivs { font-size:10px; }
+@media (max-width:380px) {
+  .resource-frontier-filter-row { grid-template-columns:76px 82px minmax(48px,1fr) minmax(48px,1fr) 49px; gap:2px; }
+  .resource-frontier-page .resources-search input,
+  .resource-frontier-filter-row .resource-filter-placeholder { font-size:12px !important; }
+  .resource-frontier-filter-row .resource-frontier-stat-heading button { font-size:9px; padding:3px 2px; }
+  .resource-frontier-filter-row .resource-frontier-iv select { width:33px; }
+}
+
+.resource-frontier-trainers-page .resource-frontier-trainer-filters { gap:6px; }
+.resource-frontier-trainer-columns { justify-content:space-between; }
+.resource-frontier-trainer-list .resource-item-main { padding:6px 8px; align-items:center; }
+.resource-frontier-trainer-list .resource-item-main > img { width:40px; height:44px; }
+.resource-frontier-pool-count { font-size:13px; font-weight:700; color:#285d8b; min-width:45px; text-align:center; }
+.resource-frontier-trainer-ivs { margin:0 0 6px; font-size:11px; color:#526375; }
+.resource-frontier-set-pool { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:3px 10px; }
+.resource-frontier-owned-set { display:flex; align-items:center; gap:6px; min-width:0; border-bottom:1px solid #e4e9ed; }
+.resource-frontier-owned-set img { width:36px; height:36px; object-fit:contain; image-rendering:pixelated; }
+.resource-frontier-owned-set strong { color:#303942; }
+.resource-frontier-owned-set small { display:block; color:#596976; }
+.resource-frontier-trainers-page .resource-frontier-trainer-filters .resource-fit-filter-text { font-size:inherit; }
+
+.resource-frontier-trainer-list .resource-frontier-owned-sets { padding:8px; margin:0; }
+.resource-frontier-owned-sets .resource-frontier-set-pool { grid-template-columns:repeat(2,minmax(0,1fr)); gap:3px 10px; }
+.resource-frontier-owned-sets .resource-frontier-owned-set { padding:3px 0; }
+.resource-frontier-owned-sets .resource-frontier-owned-set > div { min-width:0; }
+.resource-frontier-trainer-list .resource-frontier-main-ivs { color:#526375; font-size:10px; }
+.resource-frontier-trainers-page .resource-frontier-trainer-filters { grid-template-columns:118px minmax(0,210px) 60px; }
+@media (max-width:380px) {
+  .resource-frontier-trainers-page .resource-frontier-trainer-filters { grid-template-columns:94px minmax(0,1fr) 54px; }
+}
+
+/* Compact three-column pools in both Frontier databases. */
+.resource-frontier-trainers,
+.resource-frontier-owned-sets .resource-frontier-set-pool {
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:3px 6px;
+}
+.resource-frontier-trainer { gap:4px; }
+.resource-frontier-trainer img { flex:0 0 28px; width:28px; height:32px; }
+.resource-frontier-trainer > div { min-width:0; overflow-wrap:anywhere; }
+.resource-frontier-trainer strong,
+.resource-frontier-trainer small { font-size:9px; }
+.resource-frontier-owned-sets .resource-frontier-owned-set { gap:3px; min-height:36px; }
+.resource-frontier-owned-sets .resource-frontier-owned-set > img { flex:0 0 28px; width:28px; height:28px; }
+.resource-frontier-owned-set strong { font-size:10px; overflow-wrap:anywhere; }
+.resource-frontier-owned-set small { font-size:9px; }
+
+/* Pokémon database: fixed controls, independently scrolling species grid. */
+html:has(.resource-pokemon-database-page),
+body:has(.resource-pokemon-database-page) { height:100%; overflow:hidden; }
+.app-shell:has(.resource-pokemon-database-page) { height:var(--resource-viewport-height,100dvh); min-height:0; padding-top:0; overflow:hidden; }
+.resource-pokemon-database-page { height:calc(var(--resource-viewport-height,100dvh) - 90px); display:flex; flex-direction:column; min-height:0; padding-bottom:0; }
+.resource-pokemon-database-page > .resource-list-heading,
+.resource-pokemon-database-page > .resource-database-controls { flex-shrink:0; }
+.resource-pokemon-database-page > .resource-pokemon-grid { flex:1; min-height:0; overflow-y:auto; align-content:start; overscroll-behavior:contain; }
+
+/* Pokémon detail: summary and tabs remain visible above scrollable data. */
+html:has(.resource-pokemon-detail-page),
+body:has(.resource-pokemon-detail-page) { height:100%; overflow:hidden; }
+.app-shell:has(.resource-pokemon-detail-page) { height:var(--resource-viewport-height,100dvh); min-height:0; padding-top:0; overflow:hidden; }
+.resource-pokemon-detail-page { flex-direction:column; min-height:0; padding-bottom:0; }
+.resource-pokemon-detail-page > .resources-back { flex-shrink:0; align-self:flex-start; }
+.resource-pokemon-detail-page > .resource-species-profile { flex:1; flex-direction:column; }
+.resource-pokemon-detail-page .resource-species-summary,
+.resource-pokemon-detail-page .resource-profile-tabs { flex-shrink:0; }
+.resource-pokemon-detail-page .resource-profile-tab-content { flex:1; overscroll-behavior:contain; }
+
+/* Scroll surfaces continue to the bottom navigation without a visible end cap. */
+.resource-pokemon-database-page,
+.resource-pokemon-detail-page { height:var(--resource-viewport-height,100dvh); }
+.resource-pokemon-database-page > .resource-pokemon-grid {
+  border-bottom:0;
+  border-bottom-left-radius:0;
+  border-bottom-right-radius:0;
+  padding-bottom:max(90px,var(--app-nav-clearance));
+  scroll-padding-bottom:max(90px,var(--app-nav-clearance));
+}
+.resource-pokemon-detail-page > .resource-species-profile {
+  border-bottom:0;
+  border-bottom-left-radius:0;
+  border-bottom-right-radius:0;
+}
+.resource-pokemon-detail-page .resource-profile-tab-content {
+  scroll-padding-bottom:max(90px,var(--app-nav-clearance));
+}
+
+/* Moves and Abilities share the fixed-controls database layout. */
+html:has(.resource-scroll-database-page),
+body:has(.resource-scroll-database-page) { height:100%; overflow:hidden; }
+.app-shell:has(.resource-scroll-database-page) { height:var(--resource-viewport-height,100dvh); min-height:0; padding-top:0; overflow:hidden; }
+.resource-scroll-database-page { height:var(--resource-viewport-height,100dvh); display:flex; flex-direction:column; min-height:0; padding-bottom:0; }
+.resource-scroll-database-page > .resource-list-heading,
+.resource-scroll-database-page > .resource-database-controls { flex-shrink:0; }
+.resource-scroll-database-page > .resource-moves-table {
+  flex:1;
+  min-height:0;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  border-bottom:0;
+  border-bottom-left-radius:0;
+  border-bottom-right-radius:0;
+  padding-bottom:max(90px,var(--app-nav-clearance));
+  scroll-padding-top:28px;
+  scroll-padding-bottom:max(90px,var(--app-nav-clearance));
+}
+.resource-scroll-database-page > .resource-moves-table > .resource-learnset-columns { position:sticky; top:0; z-index:2; }
+
+/* Prevent focus from scrolling the fixed page's outer containers. */
+html:has(.resource-scroll-database-page),
+body:has(.resource-scroll-database-page),
+.app-shell:has(.resource-scroll-database-page),
+.app-content:has(.resource-scroll-database-page),
+.resource-scroll-database-page { overflow:clip; }
+.resource-scroll-database-page { margin:0 auto; }
+
+/* Keep Pokémon headers anchored when focus moves within their scroll areas. */
+html:has(.resource-pokemon-database-page),
+body:has(.resource-pokemon-database-page),
+.app-shell:has(.resource-pokemon-database-page),
+.app-content:has(.resource-pokemon-database-page),
+.resource-pokemon-database-page,
+html:has(.resource-pokemon-detail-page),
+body:has(.resource-pokemon-detail-page),
+.app-shell:has(.resource-pokemon-detail-page),
+.app-content:has(.resource-pokemon-detail-page),
+.resource-pokemon-detail-page { overflow:clip; }
+.resource-pokemon-database-page,
+.resource-pokemon-detail-page { margin:0 auto; }
+
+/* Resources menu and Items use the same fixed page with scrolling content. */
+html:has(.resource-home-scroll-page), body:has(.resource-home-scroll-page),
+html:has(.resource-items-scroll-page), body:has(.resource-items-scroll-page) { height:100%; overflow:clip; }
+.app-shell:has(.resource-home-scroll-page),
+.app-shell:has(.resource-items-scroll-page) { height:var(--resource-viewport-height,100dvh); min-height:0; padding-top:0; overflow:clip; }
+.app-content:has(.resource-home-scroll-page),
+.app-content:has(.resource-items-scroll-page) { overflow:clip; }
+.resource-home-scroll-page,
+.resource-items-scroll-page { height:var(--resource-viewport-height,100dvh); display:flex; flex-direction:column; min-height:0; padding-bottom:0; margin:0 auto; overflow:clip; }
+.resource-home-scroll-page > .resource-list-heading,
+.resource-items-scroll-page > .resource-list-heading,
+.resource-items-scroll-page > .resource-database-controls,
+.resource-items-scroll-page > .resource-profile-tabs,
+.resource-items-scroll-page > .resources-back { flex-shrink:0; }
+.resource-items-scroll-page > .resources-back { align-self:flex-start; }
+.resource-home-scroll-content,
+.resource-items-scroll-page > .resource-item-groups,
+.resource-items-detail-scroll-page > .resource-species {
+  flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain;
+  padding-bottom:max(90px,var(--app-nav-clearance)); scroll-padding-bottom:max(90px,var(--app-nav-clearance));
+  border-bottom:0; border-bottom-left-radius:0; border-bottom-right-radius:0;
+}
+
+/* Explicit bounded tracks keep the detail data scrollable on mobile Safari. */
+.resource-pokemon-detail-page {
+  display:grid;
+  align-content:stretch;
+}
+.resource-pokemon-detail-page > .resource-species-profile {
+  display:grid;
+  grid-template-rows:auto auto minmax(0,1fr);
+  min-height:0;
+}
+.resource-pokemon-detail-page .resource-profile-tab-content {
+  min-height:0;
+}
+
+/* Anchor detail sizing directly to the viewport, including mobile browsers. */
+.resource-pokemon-detail-page {
+  position:fixed;
+  top:16px;
+  bottom:0;
+  left:50%;
+  transform:translateX(-50%);
+  width:min(calc(100% - 24px),760px);
+  height:auto;
+  overflow:hidden;
+  grid-template-rows:auto minmax(0,1fr);
+}
+.resource-pokemon-detail-page > .resource-species-profile {
+  height:auto;
+  margin-bottom:0;
+  overflow:hidden;
+}
+.resource-pokemon-detail-page .resource-profile-tab-content {
+  height:auto;
+  max-height:100%;
+  overflow-x:hidden;
+  overflow-y:scroll;
+  touch-action:pan-y;
+  -webkit-overflow-scrolling:touch;
+  padding-bottom:max(90px,var(--app-nav-clearance));
+}
+
+/* iOS needs a fixed document body to prevent outer-page dragging. */
+html:has(.resource-pokemon-detail-page) {
+  height:100%;
+  overflow:hidden;
+  overscroll-behavior:none;
+}
+body:has(.resource-pokemon-detail-page) {
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:var(--resource-viewport-height,100dvh);
+  overflow:hidden;
+  overscroll-behavior:none;
+}
+#root:has(.resource-pokemon-detail-page) {
+  height:100%;
+  overflow:hidden;
+}
+
+/* Keep database scroll ownership stable during search and iOS keyboard focus. */
+html:has(:is(.resource-pokemon-database-page,.resource-pokemon-detail-page,.resource-scroll-database-page,.resource-items-scroll-page,.resource-frontier-page)),
+body:has(:is(.resource-pokemon-database-page,.resource-pokemon-detail-page,.resource-scroll-database-page,.resource-items-scroll-page,.resource-frontier-page)) {
+  overflow:hidden;
+  overscroll-behavior:none;
+}
+body:has(:is(.resource-pokemon-database-page,.resource-pokemon-detail-page,.resource-scroll-database-page,.resource-items-scroll-page,.resource-frontier-page)) {
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:var(--resource-viewport-height,100dvh);
+}
+#root:has(:is(.resource-pokemon-database-page,.resource-scroll-database-page,.resource-items-scroll-page,.resource-frontier-page)) { height:100%; overflow:hidden; }
+.resource-frontier-page {
+  display:flex;
+  flex-direction:column;
+  height:var(--resource-viewport-height,100dvh);
+  min-height:0;
+  padding-top:16px;
+  padding-bottom:0;
+  margin:0 auto;
+  overflow:clip;
+}
+.resource-frontier-page .resource-frontier-sticky { position:relative; top:auto; flex-shrink:0; padding-top:0; }
+.resource-frontier-page .resource-frontier-sets {
+  flex:1;
+  min-height:0;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  padding-bottom:max(90px,var(--app-nav-clearance));
+  border-bottom:0;
+  border-bottom-left-radius:0;
+  border-bottom-right-radius:0;
+}
+.resources-page .resources-search input,
+.resource-frontier-page .resources-search input { font-size:16px !important; }
+.resource-frontier-page .resources-search input::placeholder { font-size:14px; }
+@media (max-width:380px) {
+  .resource-frontier-page .resources-search input::placeholder { font-size:12px; }
+}
+
+/* Resources landing uses the same outer-document lock as its databases. */
+html:has(.resource-home-scroll-page) { overflow:hidden; overscroll-behavior:none; }
+body:has(.resource-home-scroll-page) { position:fixed; inset:0; width:100%; height:var(--resource-viewport-height,100dvh); overflow:hidden; overscroll-behavior:none; }
+#root:has(.resource-home-scroll-page) { height:100%; overflow:hidden; }
+
+/* Keep search and filter focus free of the browser's blue outline. */
+.resources-page input[type="search"]:is(:focus,:focus-visible),
+.resources-page .resource-type-filter select:is(:focus,:focus-visible),
+.resources-page .resource-frontier-iv select:is(:focus,:focus-visible),
+.resources-page .resource-frontier-stat-heading button:is(:focus,:focus-visible),
+.resources-page .resource-profile-tabs button:is(:focus,:focus-visible),
+.resources-page .resource-trainer-filter > button:is(:focus,:focus-visible) {
+  outline:none !important;
+  box-shadow:none !important;
+}
+
+/* Shared solid charcoal for Resources headers, tabs, and navigation. */
+.resources-page .resource-list-heading,
+.resource-frontier-page .resource-list-heading,
+.resources-page .resource-profile-tabs,
+.resources-page .resource-species-panel > summary {
+  background:#3b3e42;
+}
+.resources-page .resource-profile-tabs button,
+.resources-page .resource-profile-tabs button[aria-selected="true"] {
+  background:transparent;
+}
+
+/* Home-screen app status bar matches the Resources background. */
+@media (display-mode:standalone) {
+  body::before {
+    content:"";
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    height:env(safe-area-inset-top);
+    background:#f3f4f6;
+    z-index:1000;
+    pointer-events:none;
+  }
+  .app-content { padding-top:env(safe-area-inset-top); }
+  :is(.resource-pokemon-database-page,.resource-scroll-database-page,.resource-items-scroll-page,.resource-home-scroll-page,.resource-frontier-page) {
+    height:calc(var(--resource-viewport-height,100dvh) - env(safe-area-inset-top));
+  }
+  .resource-pokemon-detail-page { top:calc(16px + env(safe-area-inset-top)); }
+}
+
+/* Fixed detail tracks follow the visible viewport while the keyboard is open. */
+.resource-pokemon-detail-page { bottom:auto; height:calc(var(--resource-viewport-height,100dvh) - 16px); }
+@media (display-mode:standalone) {
+  .resource-pokemon-detail-page { height:calc(var(--resource-viewport-height,100dvh) - 16px - env(safe-area-inset-top)); }
+}

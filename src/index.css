@@ -2995,3 +2995,5 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline-color:var(
 @media(max-width:600px) {
   .detail-sheet.exact-sheet { height: 100dvh; max-height: 100dvh !important; margin: 0; }
 }
+
+input[type="search"]:is(:focus,:focus-visible) { outline:none!important; box-shadow:none!important; }

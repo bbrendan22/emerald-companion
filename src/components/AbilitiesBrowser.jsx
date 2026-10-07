@@ -17,12 +17,12 @@ export default function AbilitiesBrowser({ onBack, onPokemon, initialAbility, em
   const setSelected=value => onBrowserState ? onBrowserState(previous => ({...previous, selected:value})) : setLocalSelected(value)
   const matches=matchingAbilities({search})
   const holders=selected?species.filter(([id])=>speciesInfo[id]?.abilities?.includes(Number(selected.id))):[]
-  return <div className="resources-page">
+  return <div className={`resources-page${!embedded ? ' resource-scroll-database-page' : ''}`}>
       {!embedded && <div className="resource-list-heading"><button className="resources-back" onClick={onBack}>← Back</button><h2>Abilities</h2><span>{matches.length} abilities</span></div>}
       <div className="resource-database-controls resource-abilities-controls">
         <label className="resources-search"><input aria-label="Search abilities" type="search" placeholder="Search" value={search} onChange={e=>setSearch(e.target.value)}/></label>
       </div>
-      <div className="resource-moves-table resource-abilities-table">
+      <div tabIndex={0} aria-label="Abilities list" className="resource-moves-table resource-abilities-table">
         <div className="resource-learnset-columns" aria-hidden="true"><span>Ability</span></div>
         {matches.map(ability=><div className="resource-expandable-entry" key={ability.id}><button className="resource-learnset-move" aria-expanded={selected?.id === ability.id} aria-controls={`ability-holders-${ability.id}`} onClick={()=>setSelected(selected?.id === ability.id ? null : ability)}>
           <strong>{ability.name}</strong>

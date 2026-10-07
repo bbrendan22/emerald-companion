@@ -6,7 +6,7 @@
   "scope": "/emerald-companion/",
   "display": "standalone",
   "background_color": "#eaf6ff",
-  "theme_color": "#173a67",
+  "theme_color": "#f3f4f6",
   "orientation": "portrait",
   "icons": [
     {

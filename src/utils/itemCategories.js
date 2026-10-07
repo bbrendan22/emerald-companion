@@ -9,8 +9,6 @@ export const utilityGroups = {
 export const miscGroups = {
   'Evolution Stones': [93,94,95,96,97,98],
   'Evolution Items': [201,218],
-  Fossils: [286,287,354,357,358],
-  'Event Passes': [275,370,371,376],
   'Exchange Items': [46,47,48,49,50,51],
 }
 export const battleGroups = {

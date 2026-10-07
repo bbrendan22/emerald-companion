@@ -22,14 +22,14 @@ export default function MovesBrowser({ onBack, initialMove, onPokemon, embedded 
   const selected=browserState ? browserState.selected : localSelected
   const setSelected=value => onBrowserState ? onBrowserState(previous => ({...previous, selected:value})) : setLocalSelected(value)
   const matches=matchingMoves({search,type,kind})
-  return <div className="resources-page">
+  return <div className={`resources-page${!embedded ? ' resource-scroll-database-page' : ''}`}>
       {!embedded && <div className="resource-list-heading"><button className="resources-back" onClick={onBack}>← Back</button><h2>Moves</h2><span>{matches.length} moves</span></div>}
       <div className="resource-database-controls resource-moves-controls">
         <label className="resources-search"><input aria-label="Search moves" type="search" placeholder="Search" value={search} onChange={event=>setSearch(event.target.value)} /></label>
         <ResourceFilter label="Type" value={type} onChange={setType} options={types.map(t => ({value:t,label:t}))}/>
         <ResourceFilter label="Category" value={kind} onChange={setKind} options={['Physical','Special','Status'].map(k => ({value:k,label:k}))}/>
       </div>
-      <div className="resource-moves-table">
+      <div tabIndex={0} aria-label="Moves list" className="resource-moves-table">
         <div className="resource-learnset-columns" aria-hidden="true"><span /><span>Move</span><span>Pow</span><span>Acc</span><span>PP</span><span>Eff</span></div>
         {matches.map(move => <div className="resource-expandable-entry" key={move.id}><button className="resource-learnset-move" aria-expanded={selected?.id === move.id} aria-controls={`move-learners-${move.id}`} onClick={() => setSelected(selected?.id === move.id ? null : move)}>
           <div className="resource-learnset-heading">

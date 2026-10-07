@@ -1,4 +1,5 @@
 import ResourceFilter from './ResourceFilter'
+import useResourceViewport from './useResourceViewport'
 import { deoxysForms } from '../data/deoxysForms'
 import { pokedexEntries } from '../data/pokedexEntries'
 import GameNames from './GameNames'
@@ -11,6 +12,8 @@ import LocationsBrowser from './LocationsBrowser'
 import LocationDatabase from './LocationDatabase'
 import TrainersBrowser from './TrainersBrowser'
 import ItemsBrowser from './ItemsBrowser'
+import FrontierSetsBrowser from './FrontierSetsBrowser'
+import FrontierTrainersBrowser from './FrontierTrainersBrowser'
 import AbilitiesBrowser from './AbilitiesBrowser'
 import GuidesBrowser from './GuidesBrowser'
 import ToolsBrowser from './ToolsBrowser'
@@ -45,6 +48,7 @@ function genderRatio(value) {
 }
 
 export default function ResourcesPage() {
+  useResourceViewport()
   const [guideSection, setGuideSection] = useState(null)
   const [view, updateView] = useState('home')
   const [itemCategory, setItemCategory] = useState('Battle')
@@ -71,8 +75,9 @@ export default function ResourcesPage() {
   const [learnsetOrigin, setLearnsetOrigin] = useState(null)
   const [encounterOrigin, setEncounterOrigin] = useState(null)
   const history = useRef([])
+  const pokemonGrid = useRef(null)
   const [previousPage, setPreviousPage] = useState(null)
-  const snapshot = { scroll:window.scrollY, view, selected, query, type, generation, abilityOrigin, itemOrigin, linkedMove, eggOrigin, breedingOrigin, tutorOrigin, guideOrigin, toolOrigin, locationOrigin, learnsetOrigin, encounterOrigin }
+  const snapshot = { pokemonScroll:pokemonGrid.current?.scrollTop ?? 0, scroll:window.scrollY, view, selected, query, type, generation, abilityOrigin, itemOrigin, linkedMove, eggOrigin, breedingOrigin, tutorOrigin, guideOrigin, toolOrigin, locationOrigin, learnsetOrigin, encounterOrigin }
   const remember = () => {
     if (history.current.at(-1) !== snapshot) { history.current.push(snapshot); setPreviousPage(snapshot) }
   }
@@ -103,7 +108,10 @@ export default function ResourcesPage() {
     if (previous.view === 'items' || previous.view === 'machines') previous.itemOrigin = itemOrigin
     if (previous.view === 'guides') Object.assign(previous, { eggOrigin, breedingOrigin, tutorOrigin, guideOrigin })
     if (previous.view === 'tools') previous.toolOrigin = toolOrigin
-    requestAnimationFrame(() => window.scrollTo(0, previous.scroll ?? 0))
+    requestAnimationFrame(() => {
+      window.scrollTo(0, previous.scroll ?? 0)
+      if (pokemonGrid.current) pokemonGrid.current.scrollTop = previous.pokemonScroll ?? 0
+    })
     updateView(previous.view); updateSelected(previous.selected); setPokemonTab('overview')
     setQuery(previous.query); setType(previous.type); setGeneration(previous.generation)
     setAbilityOrigin(previous.abilityOrigin); setItemOrigin(previous.itemOrigin); setLinkedMove(previous.linkedMove)
@@ -128,30 +136,33 @@ export default function ResourcesPage() {
   if (view === 'moves') return <MovesBrowser onPokemon={(entry, move) => { setSelected(entry); const origin = history.current.at(-1); if (origin?.view === 'moves') origin.linkedMove = move; setLinkedMove(move); setView('pokemon') }} initialMove={linkedMove} onDetailBack={linkedMove ? goBack : null} onBack={goBack} />
   if (view === 'trainers') return <TrainersBrowser onBack={goBack} onPokemon={entry=>{setAbilityOrigin(null);setItemOrigin(null);setLocationOrigin(null);setSelected(entry);setView('pokemon')}} />
   if (view === 'location-database') return <LocationDatabase onBack={goBack}/>
+  if (view === 'frontier-database' && frontierSection === 'Pokémon Sets') return <FrontierSetsBrowser onBack={goBack}/>
+  if (view === 'frontier-database' && frontierSection === 'Trainers') return <FrontierTrainersBrowser onBack={goBack}/>
   if (view === 'frontier-database') return <div className="resources-page"><div className="resource-list-heading"><button className="resources-back" onClick={goBack}>← Back</button><h2>Battle Frontier · {frontierSection}</h2></div><p className="resource-note">This database will be added here.</p></div>
-  if (view === 'home' && !selected) return <div className="resources-page">
+  if (view === 'home' && !selected) return <div className="resources-page resource-home-scroll-page">
     <div className="resource-list-heading"><h2>Resources</h2></div>
+    <div className="resource-home-scroll-content" tabIndex={0} aria-label="Resources categories">
     <section className="resource-location-category"><h3>Pokémon</h3><div className="resource-location-index">
       <div><button className="resource-location-link" onClick={() => { updateSelected(null); setView('pokemon') }}>Pokémon Database</button></div>
       <div><button className="resource-location-link" onClick={() => { setLinkedMove(null); setView('moves') }}>Moves</button></div>
       <div><button className="resource-location-link" onClick={() => { setAbilityOrigin(null); setView('abilities') }}>Abilities</button></div>
     </div></section>
     <section className="resource-location-category"><h3>Useful Items</h3><div className="resource-location-index">{[['Battle','Battle'],['Utility','Utility'],['Berries','Berries'],['Poké Balls','Poké Balls'],['TMs/HMs','TM/HM'],['Misc.','Misc.']].map(([category,label]) => <div key={category}><button className="resource-location-link" onClick={() => { setItemCategory(category); setItemOrigin(null); setToolOrigin(null); setView('items') }}>{label}</button></div>)}</div></section>
-    <section className="resource-location-category"><h3>Locations</h3><div className="resource-location-index"><div><button className="resource-location-link" onClick={() => setView('location-database')}>Locations</button></div></div></section>
     <section className="resource-location-category"><h3>Battle Frontier</h3><div className="resource-location-index">{['Pokémon Sets','Trainers'].map(section => <div key={section}><button className="resource-location-link" onClick={() => { setFrontierSection(section); setView('frontier-database') }}>{section}</button></div>)}</div></section>
     <section className="resource-location-category"><h3>Breeding, Tools & Guides</h3><div className="resource-location-index">
       <div><button className="resource-location-link" onClick={() => { setGuideSection('breeding'); setEggOrigin(null); setBreedingOrigin(null); setTutorOrigin(null); setGuideOrigin(null); setView('guides') }}>Breeding</button></div>
       <div><button className="resource-location-link" onClick={() => { setToolOrigin(null); setView('tools') }}>Tools</button></div>
       <div><button className="resource-location-link" onClick={() => { setGuideSection(null); setEggOrigin(null); setBreedingOrigin(null); setTutorOrigin(null); setGuideOrigin(null); setView('guides') }}>Guides</button></div>
     </div></section>
+    </div>
   </div>
-  return <div className="resources-page">
+  return <div className={`resources-page${selected ? ' resource-pokemon-detail-page' : showingList ? ' resource-pokemon-database-page' : ''}`}>
     {selected ? <>
       <button className="resources-back" onClick={goBack}>← Back</button>
       <article className="resource-species resource-species-profile" key={selected[0]}>
         <div className="resource-species-summary"><img className={selected[1].dex === 201 ? "resource-unown-sprite" : undefined} src={`${import.meta.env.BASE_URL}${selected[1].dex === 201 ? `sprites/unown/${showShiny ? 'shiny/' : ''}${unownForm}.png` : `sprites/artwork/${showShiny && !(weatherForm && castformForm !== 'normal') ? 'shiny' : 'normal'}/${weatherForm?.artwork ?? form?.artwork ?? selected[1].dex}.png`}`} alt={`${showShiny ? 'Shiny ' : ''}${selected[1].name}`} /><button className="resource-shiny-toggle" aria-label="Show shiny artwork" aria-pressed={showShiny} title={showShiny ? 'Show normal artwork' : 'Show shiny artwork'} onClick={() => setShowShiny(value => !value)}><span aria-hidden="true">{showShiny ? '★' : '☆'}</span></button><div><span>#{String(selected[1].dex).padStart(3, '0')} · GEN {selected[1].generation}</span><div className="resource-species-name"><h2>{selected[1].name}</h2>{form && <select aria-label="Deoxys form" value={deoxysForm} onChange={event => setDeoxysForm(event.target.value)}>{Object.entries(deoxysForms).map(([key,entry]) => <option key={key} value={key}>{entry.name}</option>)}</select>}{selected[1].dex === 201 && <select aria-label="Unown form" value={unownForm} onChange={event => setUnownForm(event.target.value)}>{unownForms.map(entry => <option key={entry.key} value={entry.key}>{entry.name}</option>)}</select>}{weatherForm && <select aria-label="Castform form" value={castformForm} onChange={event => setCastformForm(event.target.value)}>{Object.entries(castformForms).map(([key,entry]) => <option key={key} value={key}>{entry.name}</option>)}</select>}</div><ResourceTypeIcons types={displayTypes} /><p>{profile?.genderRatio === 255 ? '\u00a0' : genderRatio(profile?.genderRatio)}</p></div></div>
         <div className="resource-profile-tabs" role="tablist" aria-label="Pokémon information">{[['overview','Overview'],['stats','Stats & Matchups'],['locations','Locations'],['moves','Learnset'],['extra','More']].map(([tab,label]) => <button key={tab} id={`pokemon-tab-${tab}`} role="tab" aria-selected={pokemonTab === tab} aria-controls={`pokemon-content-${tab}`} onClick={() => { if (tab !== pokemonTab) setEntryGame('Emerald'); setPokemonTab(tab) }}>{label}</button>)}</div>
-        <div className="resource-profile-tab-content" id={`pokemon-content-${pokemonTab}`} role="tabpanel" aria-labelledby={`pokemon-tab-${pokemonTab}`}>
+        <div className="resource-profile-tab-content" tabIndex={0} key={pokemonTab} id={`pokemon-content-${pokemonTab}`} role="tabpanel" aria-labelledby={`pokemon-tab-${pokemonTab}`}>
         {pokemonTab === 'overview' && <section className="resource-species-overview">
 
           <h3>Abilities</h3><div className="resource-overview-abilities">{profile?.abilities?.map(id => <div key={id}><button className="resource-ability-link" onClick={() => { setSelected(null); setLocationOrigin(null); setItemOrigin(null); setAbilityOrigin(id); setView('abilities') }}>{abilityNames[id] ?? 'Unknown'}</button><p>{abilityDescriptions[id]}{abilityFieldEffects[id] && <> {abilityFieldEffects[id].games && <><GameNames>{abilityFieldEffects[id].games}</GameNames>: </>}{abilityFieldEffects[id].description}</>}</p></div>)}</div>
@@ -178,7 +189,7 @@ export default function ResourcesPage() {
       {showingList && <ResourceFilter label="Gen" value={generation} onChange={setGeneration} options={[1,2,3].map(gen => ({value:String(gen),label:`Gen ${gen}`}))}/>}
       </div>
       {showingList ? <>
-        <div className="resource-pokemon-grid">{matches.map(entry => { const [id, meta] = entry; return <button key={id} onClick={() => setSelected(entry)}><span>#{String(meta.dex).padStart(3, '0')}</span><img loading="lazy" src={`${import.meta.env.BASE_URL}sprites/emerald/${meta.dex}.png`} alt="" /><strong>{meta.name}</strong><ResourceTypeIcons types={meta.types} /></button> })}</div>
+        <div ref={pokemonGrid} tabIndex={0} aria-label="Pokémon list" className="resource-pokemon-grid">{matches.map(entry => { const [id, meta] = entry; return <button key={id} onClick={() => setSelected(entry)}><span>#{String(meta.dex).padStart(3, '0')}</span><img loading="lazy" src={`${import.meta.env.BASE_URL}sprites/emerald/${meta.dex}.png`} alt="" /><strong>{meta.name}</strong><ResourceTypeIcons types={meta.types} /></button> })}</div>
         {!matches.length && <p className="resource-empty">No results.</p>}
       </> : null}
     </>}

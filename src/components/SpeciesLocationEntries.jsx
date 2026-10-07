@@ -10,7 +10,7 @@ export default function SpeciesLocationEntries({ locations, onLocation, allLocat
     subareas.get(parent).add(location.id)
   }
   const groups = groupedEncounterDisplay(locations, { combineMatchingRoutes, combineMatchingCities, splitMethodParents, independentMethods, combineSeviiIslands })
-  return groups.map((group, index) => <div key={`${group.parent}-${index}`} className={`resource-encounter-group${group.parent ? ' resource-location-family' : ''}${index === 0 || groups[index - 1].category !== group.category ? ' resource-encounter-category-start' : ''}`}>
+  return groups.map((group, index) => <div key={`${group.parent}-${index}`} data-category={group.category} className={`resource-encounter-group${group.parent ? ' resource-location-family' : ''}${index === 0 || groups[index - 1].category !== group.category ? ' resource-encounter-category-start' : ''}`}>
     {(index === 0 || groups[index - 1].category !== group.category) && <div className="resource-encounter-category-label">{group.category}</div>}
     {group.parent && <h4>{group.parent}</h4>}
     {group.rows.map(({ entries, methods, requirements, islands }) => <div className="resource-availability-row resource-encounter-row" key={`${entries[0].location.id}-${methods.map(method => method.name).join('-')}`}>

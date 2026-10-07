@@ -22,7 +22,7 @@ export default function ResourceFilter({ label, value, onChange, options }) {
       <option value="all">All</option>
       {options.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
     </select>
-    <span ref={textRef} className="resource-fit-filter-text" aria-hidden="true">{text}</span>
+    <span ref={textRef} className={`resource-fit-filter-text${!value || value === 'all' ? ' resource-filter-placeholder' : ''}`} aria-hidden="true">{text}</span>
     <span className="resource-fit-filter-arrow" aria-hidden="true" />
   </label>
 }
