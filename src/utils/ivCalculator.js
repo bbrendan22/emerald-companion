@@ -1,6 +1,12 @@
 export const ivStats = [['hp','HP'],['attack','Attack'],['defense','Defense'],['spAttack','Sp. Attack'],['spDefense','Sp. Defense'],['speed','Speed']]
 export const ivNatures = ['Hardy','Lonely','Brave','Adamant','Naughty','Bold','Docile','Relaxed','Impish','Lax','Timid','Hasty','Serious','Jolly','Naive','Modest','Mild','Quiet','Bashful','Rash','Calm','Gentle','Sassy','Careful','Quirky']
 const natureOrder=['attack','defense','speed','spAttack','spDefense']
+export function natureStatEffect(nature,key) {
+ const index=ivNatures.indexOf(nature)
+ if(index<0 || key==='hp')return 0
+ const up=Math.floor(index/5),down=index%5
+ return up===down ? 0 : natureOrder[up]===key ? 1 : natureOrder[down]===key ? -1 : 0
+}
 export function emeraldStat(base,key,iv,ev,level,nature,shedinja=false){
  if(key==='hp'&&shedinja)return 1
  const value=Math.floor((2*base+iv+Math.floor(ev/4))*level/100)

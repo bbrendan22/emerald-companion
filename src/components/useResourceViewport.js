@@ -1,11 +1,12 @@
 import { useEffect } from 'react'
 
-const lockedPages = '.resource-pokemon-database-page,.resource-pokemon-detail-page,.resource-scroll-database-page,.resource-items-scroll-page,.resource-frontier-page,.resource-home-scroll-page'
+const lockedPages = '.collection-database-page,.resource-pokemon-database-page,.resource-pokemon-detail-page,.resource-scroll-database-page,.resource-items-scroll-page,.resource-frontier-page,.resource-home-scroll-page'
 
 export default function useResourceViewport() {
   useEffect(() => {
     const viewport = window.visualViewport
     const updateSize = () => {
+      if(document.querySelector('.resource-stats-tool') && document.documentElement.style.getPropertyValue('--resource-viewport-height')) return
       // dvh alone does not shrink with the iPhone's on-screen keyboard.
       document.documentElement.style.setProperty('--resource-viewport-height', `${viewport?.height ?? window.innerHeight}px`)
     }

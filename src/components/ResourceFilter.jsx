@@ -9,7 +9,7 @@ export default function ResourceFilter({ label, value, onChange, options }) {
     const fit = () => {
       element.style.fontSize = '16px'
       let size = 16
-      while (element.scrollWidth > element.clientWidth && size > 9) element.style.fontSize = `${--size}px`
+      while (element.scrollWidth > element.clientWidth && size > 7) element.style.fontSize = `${--size}px`
     }
     fit()
     const observer = new ResizeObserver(fit)

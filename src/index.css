@@ -2997,3 +2997,368 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline-color:var(
 }
 
 input[type="search"]:is(:focus,:focus-visible) { outline:none!important; box-shadow:none!important; }
+
+/* Collection uses the Pokémon database's card layout. */
+.collection-database-page .collection-header {
+  padding:8px!important; border:1px solid #34373b; border-left:3px solid #4595d1;
+  border-radius:12px; background:#3b3e42; color:#f9fafa;
+}
+.collection-database-page .collection-header h2 { color:#f9fafa; font-size:15px!important; }
+.collection-database-page .collection-header>div>p:last-child { color:#d9eafa; }
+.collection-database-page .pokemon-tools { background:transparent; border:0; box-shadow:none; padding:0!important; }
+.collection-database-page .collection-database-grid {
+  grid-template-columns:repeat(3,minmax(0,1fr))!important; gap:0!important;
+  border-radius:10px; overflow-y:auto; flex:1; overscroll-behavior:contain;
+}
+.collection-database-grid .collection-database-card {
+  display:flex; flex-direction:column; align-items:center; padding:10px 4px;
+  border:0; border-radius:0; box-shadow:inset 0 0 0 .5px #d5dce3;
+  background:linear-gradient(#fff,#edf4fb); color:#303942; cursor:pointer; min-width:0;
+}
+.collection-database-card>span { align-self:flex-start; margin-left:3px; padding:2px 5px; border-radius:4px; background:#e6f0fb; font-size:10px; font-weight:700; color:#285d8b; }
+.collection-database-card>img { width:64px; height:64px; object-fit:contain; image-rendering:pixelated; }
+.collection-database-card>strong { font-size:12px; max-width:100%; overflow-wrap:anywhere; }
+.collection-database-card .resource-type-icons { justify-content:center; gap:5px; margin:6px 0 0; }
+.collection-database-card .resource-type-icons img { width:22px; height:22px; image-rendering:auto; }
+
+.collection-database-page .collection-header { min-height:44px; box-sizing:border-box; margin-bottom:1px; }
+.collection-database-page .collection-header>div { flex:1; }
+.collection-database-page .collection-header h2 { line-height:normal!important; }
+.collection-database-page .pokemon-tools { padding:0!important; }
+.collection-database-page .pokemon-search {
+  height:36px!important; padding:8px!important; font-size:16px!important; font-weight:400;
+  background:#fff; border:1px solid #d5dce3; border-radius:7px!important; color:#303942;
+}
+.collection-database-page .pokemon-search::placeholder { color:#757575; opacity:1; }
+.collection-database-page .filter-grid { gap:6px!important; margin-top:6px!important; grid-template-columns:repeat(4,minmax(0,1fr)) 36px!important; }
+.collection-database-page .resource-fit-filter { margin:0; min-width:0; height:36px; }
+.collection-database-page .resource-fit-filter select {
+  width:100%; height:36px; padding:8px; border:1px solid #d5dce3; border-radius:7px;
+  background:#fff; color:transparent; appearance:none; font-size:16px;
+}
+.collection-database-page .resource-fit-filter select option { color:#303942; }
+.collection-database-page .shiny-filter-toggle { width:36px; height:36px; border-radius:7px; background:#fff; }
+.collection-database-page .resource-fit-filter select:focus { outline:none; box-shadow:none; }
+
+/* App-wide page canvas and standard title bars. */
+:root { --app-page-background:#f3f4f6; --app-page-header-height:44px; }
+body { background:var(--app-page-background); }
+.app-shell, .app-content, .page { background-color:var(--app-page-background); }
+.resource-list-heading,
+.collection-database-page .collection-header {
+  min-height:var(--app-page-header-height); padding:8px!important; box-sizing:border-box;
+  gap:6px; border-radius:12px; flex-shrink:0;
+}
+.resource-list-heading h2,
+.collection-database-page .collection-header h2 {
+  margin:0!important; font-size:15px!important; line-height:20px!important; letter-spacing:normal;
+}
+.resource-list-heading .resources-back { padding:5px 6px; font-size:10px; }
+.resources-page .resource-species-hero:not(:has(img)) {
+  min-height:var(--app-page-header-height); padding:8px; align-items:flex-start;
+  justify-content:center; gap:2px; background:#3b3e42; color:#f9fafa;
+}
+.resources-page .resource-species-hero:not(:has(img)) h2 { margin:0; font-size:15px; line-height:20px; }
+.resources-page .resource-species-hero:not(:has(img))>span { font-size:9px; color:#d9eafa; }
+
+/* My Pokémon owns one bounded collection scroll surface. */
+html:has(.collection-database-page), body:has(.collection-database-page) {
+  height:100%; overflow:hidden; overscroll-behavior:none;
+}
+body:has(.collection-database-page) {
+  position:fixed; inset:0; width:100%; height:var(--resource-viewport-height,100dvh);
+}
+#root:has(.collection-database-page) { height:100%; overflow:hidden; }
+.app-shell:has(.collection-database-page) {
+  height:var(--resource-viewport-height,100dvh); min-height:0; padding-top:0; padding-bottom:0; overflow:clip;
+}
+.app-content:has(.collection-database-page) { min-height:0; overflow:clip; }
+.pokemon-page.collection-database-page {
+  height:var(--resource-viewport-height,100dvh); min-height:0!important; padding:0 2px 0!important;
+  margin:0 auto; width:min(100%,760px); overflow:clip; gap:8px;
+}
+.collection-database-page .collection-header { height:44px; min-height:44px; max-height:44px; }
+.collection-database-page .add-pokemon-button {
+  flex:0 0 26px; width:26px; height:26px; min-height:0; padding:5px;
+  background:#ffffff12; border-color:#ffffff30; color:#f9fafa;
+}
+.collection-database-page .collection-database-grid {
+  flex:1 1 0!important; height:0; min-height:0!important; overflow-y:auto!important;
+  padding-bottom:max(90px,var(--app-nav-clearance)); scroll-padding-bottom:max(90px,var(--app-nav-clearance));
+  border-bottom-left-radius:0; border-bottom-right-radius:0;
+}
+@media(display-mode:standalone) {
+  .pokemon-page.collection-database-page { height:calc(var(--resource-viewport-height,100dvh) - env(safe-area-inset-top)); }
+}
+
+/* Feraligatr detail prototype; other collection profiles retain their layout. */
+.collection-profile-overlay { position:fixed; inset:0; z-index:90; background:#f3f4f6; padding:16px 12px 0; display:flex; justify-content:center; }
+.collection-profile { width:min(100%,760px); height:100%; min-height:0; display:flex; flex-direction:column; color:#303942; }
+.collection-profile-heading { margin:0 0 8px; display:flex; align-items:center; background:#3b3e42; color:#f9fafa; border:1px solid #34373b; border-left:3px solid #4595d1; }
+.collection-profile-heading h2 { flex:1; color:inherit; }
+.collection-profile-edit { background:#ffffff12; color:#f9fafa; border:1px solid #ffffff30; border-radius:5px; font-size:11px; padding:5px 9px; }
+.collection-profile-content { flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain; padding:14px 12px max(90px,var(--app-nav-clearance)); background:#fff; }
+.collection-profile-content h3 { font-size:14px; margin:18px 0 10px; color:#303942; }
+.collection-profile-content h3:first-child { margin-top:0; }
+.collection-profile-facts { margin:0; }
+.collection-profile-facts>div { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:9px 0; border-bottom:1px solid #e8eaec; font-size:13px; }
+.collection-profile-facts dt { color:#526375; }
+.collection-profile-facts dd { margin:0; display:flex; align-items:center; gap:5px; font-weight:600; }
+.collection-profile-stats { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:5px; }
+.collection-profile-stats>div { display:flex; flex-direction:column; align-items:center; gap:6px; }
+.collection-profile-stats span { font-size:11px; color:#526375; }
+.collection-profile-stats strong { font-size:18px; }
+.collection-profile-roles { display:flex; gap:6px; }
+.collection-profile-roles button { flex:1; padding:8px 4px; font-size:11px; background:#f3f4f6; border:1px solid #d5dce3; border-radius:6px; color:#303942; }
+.collection-profile-roles button[aria-pressed=true] { background:#e6f0fb; border-color:#80b8df; }
+.collection-profile-moves details { border-bottom:1px solid #d5dce3; padding:12px 0; }
+.collection-profile-moves summary { display:flex; gap:10px; align-items:center; cursor:pointer; }
+.collection-profile-moves summary strong { flex:1; font-size:14px; }
+.collection-profile-moves summary>span { font-size:12px; color:#526375; }
+.collection-profile-training { width:100%; border-collapse:collapse; font-size:13px; }
+.collection-profile-training th,.collection-profile-training td { padding:10px; text-align:center; border-bottom:1px solid #e8eaec; }
+.collection-profile-training th:first-child { text-align:left; }
+.collection-profile-training thead { background:#edf4fb; }
+.collection-profile-training tfoot { font-size:11px; }
+.collection-profile-content .exp-track { margin:10px 0 16px; }
+.collection-profile-delete { margin-top:24px; padding:8px 12px; background:transparent; color:#a83939; border:1px solid #ddbaba; border-radius:6px; font-size:12px; }
+@media(display-mode:standalone) { .collection-profile-overlay { top:env(safe-area-inset-top); } }
+
+/* Reuse the database profile summary and tabs without collection overrides. */
+.collection-profile.resource-species-profile { background:transparent; box-shadow:none; }
+.collection-profile .collection-profile-summary { flex-shrink:0; border:0; border-bottom:3px solid #7ca7cf; border-radius:16px 16px 0 0; }
+.collection-profile .collection-profile-tabs { flex-shrink:0; border-radius:0; }
+.collection-profile .resource-profile-tabs button[aria-selected=true] { background:transparent; }
+.collection-profile { --resource-muted:#373a3e; }
+
+.collection-profile .collection-profile-summary .gender-mark { font-size:16px!important; vertical-align:baseline; }
+.collection-profile .collection-profile-summary {
+  background:radial-gradient(circle at 15% 40%,#ffffffb3,transparent 45%),linear-gradient(120deg,#dcecfb,#f8fbff 60%,#e9e1f6);
+}
+/* Keep the prototype summary at the database's measured 107px height. */
+.collection-profile .collection-profile-summary { height:107px; min-height:107px; max-height:107px; }
+.collection-profile .collection-profile-summary h2 { margin-bottom:0; }
+.collection-profile .collection-profile-summary .collection-profile-nickname { font-size:10px; line-height:12px; margin:0; }
+.collection-profile .collection-profile-summary>div>span { padding-top:1px; padding-bottom:1px; }
+.collection-profile .collection-profile-summary .resource-type-icons { margin:2px 0; }
+.collection-profile .collection-profile-summary>div>p:last-child { margin-top:1px; }
+
+/* Stable text symbols and vertical spacing on iOS. */
+.collection-profile .collection-profile-summary h2 { display:flex; align-items:center; gap:5px; font-size:20px; line-height:23px; margin:1px 0 0; }
+.collection-profile-gender { flex-shrink:0; font-family:Arial,sans-serif; font-size:15px; line-height:1; font-variant-emoji:text; }
+.collection-profile-gender.male { color:#4595d1; }
+.collection-profile-gender.female { color:#d05d83; }
+.collection-profile .collection-profile-summary>div { padding:3px 0; }
+.collection-profile .collection-profile-summary>div>span { line-height:12px; }
+.collection-profile .collection-profile-summary .resource-type-icons { margin:1px 0; }
+.collection-profile .collection-profile-summary .resource-type-icons img { width:22px; height:22px; }
+.collection-profile .collection-profile-summary>div>p:last-child { font-size:11px; line-height:13px; margin:0; }
+
+.collection-profile .collection-profile-name { display:flex; align-items:baseline; flex-wrap:wrap; column-gap:7px; row-gap:0; }
+.collection-profile .collection-profile-name h2 { flex:0 1 auto; }
+.collection-profile .collection-profile-name .collection-profile-nickname { font-size:10px; line-height:12px; color:#526375; font-weight:400; }
+.collection-profile .collection-profile-summary .resource-type-icons { margin:4px 0; }
+.collection-profile .collection-profile-summary>div>p:last-child { margin-top:2px; }
+/* One shared database panel frame around summary, tabs, and content. */
+.collection-profile-frame.resource-species-profile {
+  --resource-line:#e8eaec; --resource-muted:#373a3e;
+  display:flex; flex-direction:column; flex:1; min-height:0; margin-top:12px;
+  border-bottom:0; border-bottom-left-radius:0; border-bottom-right-radius:0;
+}
+.collection-profile .collection-profile-frame .collection-profile-summary {
+  border-top:0; border-left:0; border-right:0; border-radius:0;
+}
+.collection-profile-frame .collection-profile-content { background:#fafafb; }
+/* Match the database's inset and clipped shadow around its detail panel. */
+.collection-profile { padding:0 2px; overflow:clip; }
+.collection-profile-frame { box-shadow:0 8px 24px #2c2f3224; }
+.collection-profile-frame .collection-profile-facts { display:block; }
+
+.collection-profile .collection-profile-overview h3 { font-size:16px; margin:0 0 8px; }
+.collection-profile-overview .resource-overview-abilities { margin-bottom:16px; }
+.collection-profile-info-name { display:flex; align-items:center; gap:6px; color:#286b9e; font-size:13px; }
+.collection-profile-overview .resource-overview-abilities p { font-size:12px; line-height:1.5; margin:5px 0 0; }
+.collection-profile-stat-table th,.collection-profile-stat-table td { padding:8px 5px; }
+.collection-profile-stat-table td:nth-child(2) { width:45%; }
+.collection-current-stat { display:flex; align-items:center; gap:8px; }
+.collection-current-stat>strong { min-width:28px; font-size:13px; }
+.collection-current-stat>.resource-base-stats { flex:1; }
+.collection-current-stat .resource-base-stats>div { display:block; margin:0; }
+.collection-profile-content .resource-species-embedded>h3 { margin-top:20px; }
+.collection-hidden-power { display:flex; align-items:center; gap:8px; font-size:12px; }
+.collection-profile-content .resource-type-icons { display:flex; gap:6px; }
+.collection-profile-content .resource-type-icons img { width:25px; height:25px; }
+.collection-profile-tabs button { font-size:11px; padding:10px 5px; }
+
+/* Database-height stat rows with narrow reference columns. */
+.collection-profile-stat-table { table-layout:fixed; }
+.collection-profile-stat-table .collection-stat-label { width:34px; }
+.collection-profile-stat-table .collection-stat-small { width:32px; }
+.collection-profile-stat-table th,.collection-profile-stat-table td { padding:3px 2px; font-size:12px; line-height:16px; }
+.collection-profile-stat-table td:nth-child(2) { width:auto; }
+.collection-profile-stat-table thead th { font-size:10px; font-weight:600; }
+.collection-profile-stat-table tfoot th,.collection-profile-stat-table tfoot td { font-size:10px; padding-top:5px; }
+.collection-current-stat { gap:5px; }
+.collection-current-stat>strong { min-width:25px; font-size:12px; }
+.collection-profile-content .resource-species-embedded>h3 { margin:12px 0 8px; font-size:16px; }
+
+/* Align the prototype's header and panel with database detail coordinates. */
+.collection-profile .collection-profile-heading { height:32px; min-height:32px; max-height:32px; margin:0; padding:5px 8px!important; }
+.collection-profile .collection-profile-heading h2 { font-size:12px!important; line-height:20px!important; }
+.collection-profile-stat-table .collection-stat-current { width:43px; }
+.collection-profile-stat-table .collection-stat-current-value { text-align:center; }
+/* Detail prototype uses the main database page's 44px title bar. */
+.collection-profile .collection-profile-heading {
+  height:44px; min-height:44px; max-height:44px;
+  padding:8px!important;
+}
+.collection-profile .collection-profile-heading h2 {
+  font-size:15px!important; line-height:20px!important;
+}
+.collection-profile-frame.resource-species-profile { margin-top:8px; }
+/* Keep collection headers identical when opening a profile. */
+.collection-database-page .collection-header,
+.collection-profile .collection-profile-heading {
+  background:#3b3e42!important;
+  transition:none!important;
+  animation:none!important;
+}
+@media(max-width:780px) {
+  .collection-profile-overlay { padding-left:10px; padding-right:10px; }
+  .collection-profile-frame.resource-species-profile { margin-left:2px; margin-right:2px; }
+}
+
+.collection-profile-move { padding:0 0 14px; margin-bottom:14px; border-bottom:1px solid #e8eaec; }
+.collection-profile-move-heading { display:flex; align-items:center; gap:8px; }
+.collection-profile-move-heading>strong { flex:1; }
+.collection-profile-move-heading>span { font-size:12px; color:#526375; white-space:nowrap; }
+.collection-profile-move>p { font-size:12px; line-height:1.5; margin:5px 0 0; }
+
+/* Match Overview typography while keeping all four moves compact. */
+.collection-profile-moves>h3 { font-size:16px; margin:0 0 8px; }
+.collection-profile-moves>h3:not(:first-child) { margin:12px 0 8px; }
+.collection-profile-move { padding-bottom:8px; margin-bottom:8px; }
+.collection-profile-move .collection-profile-info-name { font-size:13px; }
+.collection-profile-move>p { font-size:12px; line-height:1.5; margin:5px 0 0; }
+.collection-profile-move-heading .resource-type-icons img { width:22px; height:22px; }
+/* Remove inherited type-icon margins that stretched every move heading. */
+.collection-profile-content .collection-profile-move-heading .resource-type-icons { margin:0; }
+.collection-profile-content .collection-profile-move { padding-bottom:5px; margin-bottom:5px; }
+.collection-profile-content .collection-profile-move>p { margin-top:2px; line-height:1.4; }
+.collection-profile-content .collection-profile-moves>h3 { margin:0 0 6px; }
+.collection-profile-content .collection-profile-moves>h3:not(:first-child) { margin:10px 0 6px; }
+
+/* Fixed prototype detail content; aligned move type and PP/Pwr columns. */
+.collection-profile .collection-profile-content { overflow:hidden; }
+.collection-profile-content .collection-profile-move-heading {
+  display:grid; grid-template-columns:minmax(0,1fr) 22px 48px; gap:8px;
+}
+.collection-profile-move-heading>span { text-align:right; }
+
+.collection-profile-content .collection-profile-move-heading { grid-template-columns:minmax(0,1fr) 22px 40px; gap:5px; }
+.collection-profile-content .collection-profile-hidden-heading { grid-template-columns:minmax(0,1fr) 22px 62px; }
+.collection-profile-content .collection-profile-move-heading {
+  grid-template-columns:minmax(0,1fr) 22px 34px;
+  column-gap:2px;
+}
+.collection-profile-content .collection-profile-hidden-heading {
+  grid-template-columns:minmax(0,1fr) 22px 54px;
+}
+
+.collection-profile-details>h3 { margin:0 0 6px; font-size:16px; }
+.collection-profile-details>h3:not(:first-child) { margin-top:12px; }
+.collection-experience-copy { display:flex; justify-content:space-between; gap:8px; font-size:12px; color:#526375; }
+.collection-experience-copy strong { color:#286b9e; }
+.collection-profile-details .exp-track { margin:7px 0 10px; height:6px; }
+.collection-profile-details .collection-profile-facts>div { padding:6px 0; font-size:12px; }
+.collection-ribbon-grid { display:grid; grid-template-columns:repeat(8,minmax(0,1fr)); gap:4px; }
+.collection-ribbon { display:flex; align-items:center; justify-content:center; height:30px; border-radius:4px; background:#eef0f3; }
+.collection-ribbon img { width:26px; height:26px; object-fit:contain; image-rendering:pixelated; filter:grayscale(1); opacity:.3; }
+.collection-ribbon.earned { background:#e6f0fb; }
+.collection-ribbon.earned img { filter:none; opacity:1; }
+.collection-profile-details .collection-profile-delete { margin-top:12px; padding:5px 9px; font-size:11px; }
+
+.collection-ribbon { border:0; padding:0; cursor:pointer; }
+.collection-ribbon-popup-backdrop { position:fixed; inset:0; z-index:110; background:#30394225; display:flex; align-items:center; justify-content:center; padding:20px; }
+.collection-ribbon-popup { display:flex; align-items:center; gap:16px; max-width:100%; padding:14px 16px; background:#fafafb; color:#303942; border:1px solid #d5dce3; border-radius:10px; box-shadow:0 8px 24px #2c2f3233; font-size:14px; }
+.collection-ribbon-popup button { background:transparent; border:0; padding:3px 6px; color:#526375; font-size:20px; cursor:pointer; }
+
+.collection-ribbon-popup-backdrop { background:transparent; display:block; padding:0; }
+.collection-ribbon-popup {
+  position:absolute; transform:translate(-50%,-100%); display:block;
+  width:max-content; max-width:190px; padding:6px 8px; border-radius:5px;
+  font-size:11px; line-height:14px; text-align:center; box-shadow:0 3px 10px #2c2f3226;
+}
+
+.collection-ribbon-popup { white-space:normal; overflow-wrap:normal; word-break:normal; }
+
+/* Collection editor shares the profile's charcoal and light-blue theme. */
+.collection-themed-editor { width:min(calc(100% - 24px),520px); max-height:calc(100dvh - 32px); padding:0; border:1px solid #e7e9ec; border-radius:12px; background:#fafafb; color:#303942; box-shadow:0 8px 24px #2c2f3233; }
+.collection-themed-editor::backdrop { background:#30394266; }
+.collection-themed-editor>header { position:sticky; top:0; z-index:1; background:#3b3e42; color:#f9fafa; padding:10px 12px; border-left:3px solid #4595d1; }
+.collection-themed-editor>header h2 { color:inherit; font-size:15px; margin:0; }
+.collection-themed-editor>header button { color:#d9eafa; background:transparent; border:0; }
+.collection-themed-editor form,.collection-editor-delete-confirm { padding:12px; }
+.collection-themed-editor h3 { font-size:14px; margin:0 0 10px; }
+.collection-themed-editor .pokemon-editor-fields { gap:10px; }
+.collection-themed-editor label { font-size:11px; color:#526375; gap:4px; }
+.collection-themed-editor input:not([type=checkbox]),.collection-themed-editor select { background:#fff; border:1px solid #d5dce3; border-radius:6px; color:#303942; padding:7px; font-size:16px; height:36px; }
+.collection-themed-editor fieldset { border:1px solid #e7e9ec; border-radius:8px; margin:14px 0; padding:10px; }
+.collection-themed-editor legend,.collection-themed-editor details>summary { font-size:13px; color:#303942; font-weight:700; }
+.collection-themed-editor details { background:#edf4fb; border:1px solid #d5dce3; border-radius:8px; padding:10px; }
+.collection-themed-editor details>p,.collection-editor-delete-confirm p { font-size:12px; line-height:1.5; }
+.collection-editor-ev-total { font-size:11px; color:#526375; }
+.collection-themed-editor footer { display:flex; gap:7px; justify-content:flex-end; margin-top:14px; }
+.collection-themed-editor footer button { padding:8px 10px; border:1px solid #d5dce3; border-radius:6px; background:#fff; color:#303942; font-size:12px; }
+.collection-themed-editor footer button[type=submit] { background:#3b3e42; border-color:#3b3e42; color:#a9d6f5; }
+.collection-themed-editor footer .collection-editor-delete { color:#a83939; border-color:#ddbaba; margin-right:auto; background:transparent; }
+
+.collection-themed-editor .pokemon-editor-shiny { display:flex; align-items:center; }
+.collection-themed-editor .pokemon-editor-shiny>label { display:inline-flex; align-items:center; gap:6px; width:max-content; cursor:pointer; }
+.collection-themed-editor .collection-editor-placeholder { margin-top:10px; }
+.collection-editor-placeholder[open]>div { min-height:12px; }
+
+/* Only editor fields scroll; title and actions remain visible. */
+.collection-themed-editor { overflow:hidden; }
+.collection-themed-editor[open] { display:flex; flex-direction:column; }
+.collection-themed-editor>header { position:static; flex-shrink:0; }
+.collection-themed-editor>form { display:flex; flex-direction:column; flex:1; min-height:0; overflow:hidden; padding:0; }
+.collection-editor-scroll { overflow-y:auto; overscroll-behavior:contain; min-height:0; padding:12px; }
+.collection-themed-editor>form>footer { flex-shrink:0; margin:0; padding:10px 12px; border-top:1px solid #e7e9ec; background:#fafafb; }
+/* Give iOS dialog flex children an explicit height instead of max-height alone. */
+.collection-themed-editor {
+  height:min(680px,calc(var(--resource-viewport-height,100dvh) - 32px));
+  max-height:calc(var(--resource-viewport-height,100dvh) - 32px);
+}
+.collection-themed-editor>form { flex:1 1 0; height:0; }
+.collection-editor-scroll { flex:1 1 0; height:0; -webkit-overflow-scrolling:touch; }
+
+.collection-editor-details-fields { margin-top:10px; }
+.collection-editor-wide { grid-column:1 / -1; }
+.collection-themed-editor .collection-editor-ribbons-checked { display:flex; flex-direction:row; align-items:center; width:max-content; margin:10px 0; }
+.collection-themed-editor .collection-ribbon { padding:0; border:0; }
+.collection-ribbon-unknown { font-size:10px; color:#526375; font-weight:400; }
+.collection-profile-details .collection-profile-facts dd { font-size:11px; text-align:right; max-width:75%; }
+
+.collection-themed-editor details h4 { font-size:12px; margin:12px 0 8px; }
+.collection-editor-ribbon-names { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+.collection-themed-editor .collection-editor-ribbon-names label { display:flex; align-items:center; gap:5px; font-size:11px; width:max-content; max-width:100%; cursor:pointer; }
+
+.collection-themed-editor footer button[type=submit] {
+  background:transparent; color:#287647; border-color:#a9cbb6;
+}
+
+/* Anchor the editor to the visual viewport, including the iPhone keyboard. */
+.collection-themed-editor {
+  position:fixed; inset:auto; top:var(--editor-top,16px); left:50%; transform:translateX(-50%);
+  margin:0; height:var(--editor-height,680px); max-height:var(--editor-height,calc(100dvh - 32px));
+  transition:none; animation:none;
+}
+.collection-fit-select { display:block; position:relative; min-width:0; height:36px; }
+.collection-themed-editor .collection-fit-select select { color:transparent; width:100%; appearance:none; font-size:16px; }
+.collection-themed-editor .collection-fit-select select option { color:#303942; }
+.collection-fit-select>span { position:absolute; top:0; bottom:0; left:8px; right:20px; display:flex; align-items:center; overflow:hidden; white-space:nowrap; pointer-events:none; font-weight:400; color:#303942; }
+.collection-fit-select::after { content:''; position:absolute; right:8px; top:14px; width:5px; height:5px; border-right:1px solid #526375; border-bottom:1px solid #526375; transform:rotate(45deg); pointer-events:none; }
+
+.collection-database-grid .collection-database-card { position:relative; }
+.collection-database-card .collection-card-level { position:absolute; top:12px; right:7px; font-size:10px; line-height:14px; color:#526375; font-weight:600; }

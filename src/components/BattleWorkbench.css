@@ -1,0 +1,135 @@
+.battle-workbench { background:#f3f4f6; }
+.battle-active-selects { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; flex-shrink:0; margin-bottom:7px; }
+.battle-active-selects label { font-size:10px; color:#526375; }
+.battle-active-selects label>span { display:flex; align-items:center; height:15px; gap:4px; }
+.battle-active-selects label>span img { width:20px; height:20px; object-fit:contain; image-rendering:pixelated; }
+.battle-workbench .collection-fit-select { display:block; width:100%; height:30px; margin-top:3px; }
+.battle-workbench .collection-fit-select select { height:30px; width:100%; color:transparent; appearance:none; background:white; border:1px solid #d5dce3; border-radius:5px; }
+.battle-workbench .collection-fit-select select option { color:#303942; }
+.battle-tabs { flex-shrink:0; margin:0; }
+.battle-tabs button { flex:1; }
+.battle-tabs button[aria-pressed=true] { color:#a9d6f5; background:#3b3e42; }
+.battle-tab-content { flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain; padding:7px 0 var(--app-nav-clearance,90px); }
+.battle-matchup-panel { background:#fafafb; border:1px solid #d5dce3; margin-bottom:7px; }
+.battle-matchup-panel h3 { margin:0; padding:5px 8px; background:#3b3e42; color:#f9fafa; font-size:11px; display:flex; justify-content:space-between; }
+.battle-matchup-panel h3 small { color:#a9d6f5; font-size:10px; }
+.battle-summary { display:flex; align-items:center; gap:6px; padding:4px 6px; }
+.battle-summary>img { width:48px; height:48px; image-rendering:pixelated; flex-shrink:0; }
+.battle-summary>div { min-width:0; }
+.battle-summary strong { display:block; font-size:13px; color:#286b9e; }
+.battle-summary small { font-size:10px; color:#526375; }
+.battle-summary .resource-type-icons { gap:3px; margin:3px 0; }
+.battle-summary .resource-type-icons img { width:20px; height:20px; }
+.battle-summary-extra { margin-left:auto; text-align:right; font-size:10px; max-width:42%; color:#526375; }
+.battle-summary-extra span { display:block; margin:3px 0; }
+.battle-stat-line { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); padding:3px 5px; border-top:1px solid #e3e7eb; border-bottom:1px solid #e3e7eb; }
+.battle-stat-line>div { text-align:center; }
+.battle-stat-line small { display:block; font-size:9px; color:#526375; }
+.battle-stat-line strong { display:block; font-size:14px; color:#303942; line-height:18px; }
+.battle-stat-line .battle-fast-stat { color:#287647; font-weight:800; }
+.battle-move-line { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:3px 8px; padding:5px 8px; font-size:11px; color:#286b9e; }
+.battle-type-line { display:flex; flex-wrap:wrap; gap:3px 6px; padding:4px 7px; border-top:1px solid #e3e7eb; }
+.battle-type-line>span { display:flex; align-items:center; gap:3px; }
+.battle-type-line .resource-type-icons { margin:0; }
+.battle-type-line .resource-type-icons img { width:17px; height:17px; }
+.battle-type-line b { font-size:9px; color:#526375; }
+.battle-empty { font-size:12px; color:#526375; margin:9px; }
+.battle-speed-tie { font-size:11px; text-align:center; color:#526375; margin:2px; }
+.battle-mode-toggle { display:flex; gap:0; margin-bottom:7px; }
+.battle-mode-toggle button { padding:6px 14px; font-size:12px; border:1px solid #d5dce3; background:white; color:#303942; }
+.battle-mode-toggle button[aria-pressed=true] { background:#3b3e42; color:#a9d6f5; }
+.battle-workbench .resource-pokemon-search-picker { margin-bottom:8px; }
+.battle-workbench .resource-picker-trigger { width:100%; height:32px; text-align:left; background:white; color:#303942; padding:5px 8px; border:1px solid #d5dce3; border-radius:5px; font-size:13px; }
+.battle-workbench .resource-picker-menu { width:100%; box-sizing:border-box; }
+.battle-workbench .resource-picker-menu input { box-sizing:border-box; width:100%; height:34px; border:1px solid #d5dce3; border-radius:5px; background:white; color:#303942; font-size:16px; padding:7px; }
+.battle-workbench .resource-picker-options button { display:block; width:100%; text-align:left; background:white; color:#303942; border:0; border-bottom:1px solid #e8eaec; border-radius:0; padding:7px; font-size:13px; }
+.battle-opponent-list .battle-set-select { display:flex; gap:7px; align-items:center; width:100%; text-align:left; background:transparent; border:0; border-bottom:1px solid #d5dce3; padding:3px; }
+.battle-opponent-list img { width:40px; height:40px; image-rendering:pixelated; }
+.battle-opponent-list span { flex:1; }
+.battle-opponent-list strong { display:block; color:#286b9e; font-size:13px; }
+.battle-opponent-list small { display:block; color:#526375; font-size:10px; margin-top:2px; }
+.battle-opponent-list b { color:#526375; font-size:18px; }
+.battle-tab-content>h3 { font-size:13px; color:#303942; margin:5px 0 8px; }
+.battle-team-members { display:flex; gap:6px; margin-bottom:8px; }
+.battle-team-members>div { flex:1; position:relative; text-align:center; border:1px solid #d5dce3; border-radius:5px; padding:4px; }
+.battle-team-members img { display:block; width:48px; height:48px; margin:auto; image-rendering:pixelated; }
+.battle-team-members strong { font-size:11px; color:#286b9e; }
+.battle-team-members button { position:absolute; top:0; right:0; background:transparent; border:0; color:#526375; }
+.battle-save-team { display:flex; gap:6px; margin:8px 0 12px; }
+.battle-save-team input { width:100%; min-width:0; height:30px; border:1px solid #d5dce3; border-radius:5px; padding:4px 8px; font-size:16px; }
+.battle-save-team button { background:#3b3e42; color:#a9d6f5; border:0; border-radius:5px; padding:4px 12px; }
+.battle-save-team button:disabled { opacity:0.5; }
+.battle-preset { display:flex; border-bottom:1px solid #d5dce3; }
+.battle-preset button { border:0; background:transparent; padding:7px 3px; text-align:left; color:#526375; }
+.battle-preset button:first-child { flex:1; }
+.battle-preset strong,.battle-preset small { display:block; }
+.battle-preset strong { color:#286b9e; font-size:13px; }
+.battle-preset small { font-size:10px; margin-top:3px; }
+.battle-rules { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; font-size:11px; color:#526375; }
+.battle-rules p { grid-column:1/-1; line-height:1.5; }
+.battle-move-line { gap:2px 8px; padding:4px 7px; }
+.battle-move-line>span { display:grid; grid-template-columns:minmax(0,1fr) 16px 32px; align-items:center; gap:3px; min-height:18px; font-size:10px; }
+.battle-move-line .resource-type-icons { margin:0; }
+.battle-move-line .resource-type-icons img { width:15px; height:15px; }
+.battle-move-line small { font-size:9px; color:#526375; text-align:right; }
+.battle-set-search { display:block; font-size:11px; color:#526375; margin-bottom:8px; }
+.battle-set-search input { display:block; box-sizing:border-box; width:100%; height:32px; padding:5px 8px; margin-top:4px; border:1px solid #d5dce3; border-radius:5px; background:white; color:#303942; font-size:16px; }
+.battle-active-selects label>span { height:25px; }
+.battle-active-selects label>span img { width:30px; height:30px; }
+.battle-move-line>span { grid-template-columns:16px minmax(0,1fr) 32px; }
+/* Match the quiet focus treatment used throughout Resources. */
+.battle-workbench input:focus,.battle-workbench input:focus-visible,.battle-workbench select:focus,.battle-workbench select:focus-visible,.battle-workbench button:focus,.battle-workbench button:focus-visible { outline:none!important; box-shadow:none!important; }
+.battle-workbench input:focus,.battle-workbench select:focus,.battle-workbench .resource-picker-trigger:focus { border-color:#d5dce3!important; }
+.battle-active-selects label>span>span { min-width:0; font-size:10px; line-height:12px; }
+.battle-summary { display:grid; grid-template-columns:42px minmax(0,1fr) minmax(0,1fr); gap:5px; padding:3px 6px; }
+.battle-summary>img { width:42px; height:42px; }
+.battle-summary strong { font-size:12px; }
+.battle-summary .resource-type-icons { margin:2px 0; gap:3px; }
+.battle-summary .resource-type-icons img { width:17px; height:17px; }
+.battle-summary small { font-size:9px; }
+.battle-summary-extra { margin-left:0; max-width:none; font-size:10px; line-height:13px; }
+.battle-summary-extra span { margin:2px 0; }
+.battle-summary-extra .battle-held-item { display:flex; align-items:center; justify-content:flex-end; gap:3px; }
+.battle-held-item img { width:18px; height:18px; object-fit:contain; image-rendering:pixelated; }
+.battle-type-details { border-top:1px solid #e3e7eb; }
+.battle-type-details summary { padding:4px 8px; font-size:10px; color:#526375; cursor:pointer; }
+.battle-type-details .battle-type-line { border-top:0; padding-top:2px; }
+.battle-opponent-list .battle-set-select { gap:6px; padding:5px 2px; }
+.battle-opponent-list .battle-set-select>img { width:44px; height:44px; flex-shrink:0; }
+.battle-set-body { flex:1; min-width:0; }
+.battle-set-heading { display:flex; justify-content:space-between; align-items:center; gap:6px; }
+.battle-set-heading strong { font-size:12px; white-space:nowrap; }
+.battle-set-heading small { font-size:9px; margin:0; text-align:right; }
+.battle-set-stats { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); text-align:center; margin:3px 0; }
+.battle-set-stats span { min-width:0; }
+.battle-set-stats small { font-size:8px; margin:0; }
+.battle-opponent-list .battle-set-stats b { font-size:12px; color:#303942; }
+.battle-set-moves { display:flex; flex-wrap:wrap; gap:2px 8px; font-size:9px; color:#286b9e; }
+.battle-opponent-list .battle-set-brain-item { font-size:9px; margin-top:2px; }
+/* Compact set rows: identity beside the sprite, stats and moves to the right. */
+.battle-opponent-list .battle-set-select { padding:4px 2px; gap:5px; }
+.battle-opponent-list .battle-set-select>img { width:38px; height:38px; }
+.battle-set-body { display:grid; grid-template-columns:minmax(85px,0.85fr) minmax(0,1.65fr); column-gap:6px; align-items:center; }
+.battle-set-heading { grid-column:1; grid-row:1/3; display:block; min-width:0; }
+.battle-set-heading strong { font-size:11px; white-space:normal; }
+.battle-set-heading small { text-align:left; font-size:9px; margin-top:2px; }
+.battle-set-stats { grid-column:2; grid-row:1; margin:0 0 3px; }
+.battle-set-stats small { font-size:7px; }
+.battle-opponent-list .battle-set-stats b { font-size:10px; font-weight:500; }
+.battle-set-moves { grid-column:2; grid-row:2; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:2px 4px; font-size:8px; }
+.battle-set-heading { grid-row:1; }
+.battle-set-moves { grid-column:1/-1; grid-row:2; display:flex; flex-wrap:nowrap; justify-content:space-between; gap:6px; margin-top:3px; }
+.battle-set-moves>span { white-space:nowrap; }
+.battle-set-moves { justify-content:flex-start; gap:0; }
+.battle-set-moves>span+span::before { content:'·'; display:inline-block; margin:0 5px; color:#697581; }
+.battle-opponent-list .battle-set-moves { display:block; white-space:nowrap; }
+.battle-opponent-list .battle-set-moves span { display:inline; flex:none; margin:0; padding:0; }
+.battle-set-moves>span+span::before { content:none; }
+.battle-move-separator { color:#697581; white-space:pre; }
+
+.battle-set-entry { position:relative; }
+.battle-opponent-list .battle-set-select { padding-right:17px; }
+.battle-opponent-list .battle-hide-set { position:absolute; top:1px; right:0; display:grid; place-items:center; width:18px; height:18px; padding:0; border:0; background:transparent; color:#78848e; font-size:15px; line-height:1; cursor:pointer; }
+.battle-restore-candidates { background:none; border:0; padding:0 0 5px; font-size:10px; color:#286b9e; cursor:pointer; }
+.battle-panel-actions { display:flex; align-items:center; gap:8px; }
+.battle-panel-actions button { border:0; background:transparent; color:#d9eafa; font-size:15px; line-height:1; padding:0 2px; cursor:pointer; }

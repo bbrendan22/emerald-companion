@@ -1,3 +1,4 @@
+import ResourceHeading from './ResourceHeading'
 import { useState } from 'react'
 import { frontierBrainPokemon } from '../data/frontierBrains'
 import { speciesInfo } from '../data/emeraldData'
@@ -40,7 +41,7 @@ export default function FrontierSetsBrowser({ onBack }) {
   })
   return <div className="resources-page resource-frontier-page">
     <div className="resource-frontier-sticky">
-    <div className="resource-list-heading"><button className="resources-back" onClick={onBack}>← Back</button><h2>Pokémon Sets</h2><span>{matches.length} sets</span></div>
+    <div className="resource-list-heading"><button className="resources-back" onClick={onBack}>← Back</button><ResourceHeading>Pokémon Sets</ResourceHeading><span>{matches.length} sets</span></div>
     <div className="resource-database-controls resource-abilities-controls"><label className="resources-search"><input aria-label="Search Frontier sets" type="search" placeholder="Search Pokémon" value={search} onChange={event => setSearch(event.target.value)} /></label></div>
     <div className="resource-frontier-filter-row">
       <div className="resource-frontier-stat-heading"><div role="group" aria-label="Stat level">{['50', '100'].map(value => <button key={value} aria-pressed={level === value} onClick={() => setLevel(value)}>Lv. {value}</button>)}</div></div>

@@ -1,3 +1,4 @@
+import ResourceHeading from './ResourceHeading'
 import ResourceFilter from './ResourceFilter'
 import { moves, matchingMoves } from '../utils/resourceSearch'
 import MoveLearners from './MoveLearners'
@@ -23,7 +24,7 @@ export default function MovesBrowser({ onBack, initialMove, onPokemon, embedded 
   const setSelected=value => onBrowserState ? onBrowserState(previous => ({...previous, selected:value})) : setLocalSelected(value)
   const matches=matchingMoves({search,type,kind})
   return <div className={`resources-page${!embedded ? ' resource-scroll-database-page' : ''}`}>
-      {!embedded && <div className="resource-list-heading"><button className="resources-back" onClick={onBack}>← Back</button><h2>Moves</h2><span>{matches.length} moves</span></div>}
+      {!embedded && <div className="resource-list-heading"><button className="resources-back" onClick={onBack}>← Back</button><ResourceHeading>Moves</ResourceHeading><span>{matches.length} moves</span></div>}
       <div className="resource-database-controls resource-moves-controls">
         <label className="resources-search"><input aria-label="Search moves" type="search" placeholder="Search" value={search} onChange={event=>setSearch(event.target.value)} /></label>
         <ResourceFilter label="Type" value={type} onChange={setType} options={types.map(t => ({value:t,label:t}))}/>

@@ -66,7 +66,7 @@ export default function LearnsetSection({ id, embedded = false }) {
       {[...tutorGroups.values()].map(({move,locations,costs}) => <div key={move}>{moveRow(move, [...costs].find(cost => cost.endsWith(' BP')) ?? 'Tutor')}<p className="resource-tutor-location">{locations.map(({game,location},index) => <span key={`${game}-${location}`}>{index > 0 && ' · '}<GameNames>{game}</GameNames>{location !== game && ` · ${location}`}</span>)}</p></div>)}
       {!tutorGroups.size && <p className="resource-note">No compatible move tutors.</p>}
     </details>
-    <details className="resource-learnset-group"><summary>Egg moves · {new Set(eggFamilies.flatMap(parent => eggMoves[parent])).size + ([172,25,26].includes(pokemonMeta[id].dex) ? 1 : 0)}</summary><h4 className="resource-learnset-subheading"><GameNames>Ruby / Sapphire / Emerald / FireRed / LeafGreen</GameNames></h4>{columns}
+    <details className="resource-learnset-group"><summary>Egg moves · {new Set(eggFamilies.flatMap(parent => eggMoves[parent])).size + ([172,25,26].includes(pokemonMeta[id].dex) ? 1 : 0)}</summary>{columns}
       {eggFamilies.map(parent => <div key={parent}>
         {eggMoves[parent].map(move => <div className="resource-learnset-egg" key={move}>{moveRow(move, 'Egg')}</div>)}
       </div>)}

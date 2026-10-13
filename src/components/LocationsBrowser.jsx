@@ -1,3 +1,4 @@
+import ResourceHeading from './ResourceHeading'
 import { useState } from 'react'
 import { locationResources } from '../data/locationResources'
 import { shopLocations } from '../data/locationShops'
@@ -32,7 +33,7 @@ export default function LocationsBrowser({ onBack, onPokemon, onItem, initialLoc
  <p className="resource-note">These are the standard wild encounter tables. Gift Pokémon, static encounters, swarms, and special encounters such as Feebas tiles are not included yet. Rematch teams, dynamically selected battles, decoration shops, special exchanges, and variable or shared-script item rewards are not included yet.</p>
  <p className="resource-note">Source: <a href="https://github.com/pret/pokeemerald/blob/master/src/data/wild_encounters.json" target="_blank" rel="noreferrer">Emerald encounter tables</a> and <a href="https://github.com/pret/pokeemerald/blob/master/src/data/trainers.h" target="_blank" rel="noreferrer">trainer data</a>. Items come from <a href="https://github.com/pret/pokeemerald/tree/master/data/maps" target="_blank" rel="noreferrer">map events and scripts</a>; initial berries use <a href="https://github.com/pret/pokeemerald/blob/master/data/scripts/new_game.inc" target="_blank" rel="noreferrer">new-game planting data</a>.</p>
  </article>:<>
- <div className="resource-list-heading"><h2>Explore Hoenn</h2><span>{matches.length} locations</span></div>
+ <div className="resource-list-heading"><ResourceHeading>Explore Hoenn</ResourceHeading><span>{matches.length} locations</span></div>
  <label className="resources-search"><span>Search locations</span><input type="search" placeholder="Try Route 102 or Granite Cave…" value={search} onChange={e=>setSearch(e.target.value)}/></label>
  <label className="resource-type-filter">Method<select value={method} onChange={e=>setMethod(e.target.value)}><option value="all">All locations</option><option value="trainers">With trainers</option><option value="items">With items</option><option value="shops">With shops</option><option value="trees">With berry trees</option>{methods.map(name=><option key={name}>{name}</option>)}</select></label>
  <div className="resource-move-list">{matches.map(location=><button key={location.id} onClick={()=>setSelected(location)}><div><strong>{location.name}</strong><small>{[...location.methods.map(m=>m.name),...(location.shops.length?['Shops']:[]),...(location.trees.length?['Berry trees']:[]),...(location.items.length?[`${location.items.length} ${location.items.length===1?'item':'items'}`]:[]),...(location.trainers.length?[`${location.trainers.length} trainers`]:[])].join(' · ')}</small></div><b aria-hidden="true">›</b></button>)}</div>

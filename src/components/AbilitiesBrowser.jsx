@@ -1,3 +1,4 @@
+import ResourceHeading from './ResourceHeading'
 import { useState } from 'react'
 import { speciesInfo } from '../data/emeraldData'
 import { abilities, matchingAbilities } from '../utils/resourceSearch'
@@ -18,7 +19,7 @@ export default function AbilitiesBrowser({ onBack, onPokemon, initialAbility, em
   const matches=matchingAbilities({search})
   const holders=selected?species.filter(([id])=>speciesInfo[id]?.abilities?.includes(Number(selected.id))):[]
   return <div className={`resources-page${!embedded ? ' resource-scroll-database-page' : ''}`}>
-      {!embedded && <div className="resource-list-heading"><button className="resources-back" onClick={onBack}>← Back</button><h2>Abilities</h2><span>{matches.length} abilities</span></div>}
+      {!embedded && <div className="resource-list-heading"><button className="resources-back" onClick={onBack}>← Back</button><ResourceHeading>Abilities</ResourceHeading><span>{matches.length} abilities</span></div>}
       <div className="resource-database-controls resource-abilities-controls">
         <label className="resources-search"><input aria-label="Search abilities" type="search" placeholder="Search" value={search} onChange={e=>setSearch(e.target.value)}/></label>
       </div>

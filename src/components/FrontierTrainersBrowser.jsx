@@ -1,3 +1,4 @@
+import ResourceHeading from './ResourceHeading'
 import { useState } from 'react'
 import { frontierTrainers } from '../data/frontierTrainers'
 import { frontierPokemon } from '../data/frontierPokemon'
@@ -27,7 +28,7 @@ export default function FrontierTrainersBrowser({ onBack }) {
   const toggle = key => setExpanded(previous => { const next = new Set(previous); if (next.has(key)) next.delete(key); else next.add(key); return next })
   return <div className="resources-page resource-frontier-page resource-frontier-trainers-page">
     <div className="resource-frontier-sticky">
-      <div className="resource-list-heading"><button className="resources-back" onClick={onBack}>← Back</button><h2>Trainers</h2><span>{matches.length} {mode === 'trainer' ? 'trainers' : 'brains'}</span></div>
+      <div className="resource-list-heading"><button className="resources-back" onClick={onBack}>← Back</button><ResourceHeading>Trainers</ResourceHeading><span>{matches.length} {mode === 'trainer' ? 'trainers' : 'brains'}</span></div>
       <div className="resource-database-controls resource-abilities-controls"><label className="resources-search"><input type="search" aria-label="Search Frontier trainers" placeholder="Search trainer or class" value={search} onChange={event => setSearch(event.target.value)} /></label></div>
       <div className="resource-frontier-filter-row resource-frontier-trainer-filters">
         <div className="resource-frontier-stat-heading"><div role="group" aria-label="Trainer source">{['trainer','brains'].map(value => <button key={value} aria-pressed={mode === value} onClick={() => { setMode(value); setClass('all'); setIV('all') }}>{value === 'trainer' ? 'Trainer' : 'Brains'}</button>)}</div></div>

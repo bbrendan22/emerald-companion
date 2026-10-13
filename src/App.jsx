@@ -1,19 +1,28 @@
+import BattleWorkbench from './components/BattleWorkbench'
 import {
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from 'react'
 
 import { emeraldTypes } from './utils/typeMatchups'
 import ResourcesPage from './components/ResourcesPage'
+import { createCollectionId } from './utils/collectionId'
 import PokemonEditor from './components/PokemonEditor'
+import ResourceTypeIcons from './components/ResourceTypeIcons'
+import ResourceFilter from './components/ResourceFilter'
+import useResourceViewport from './components/useResourceViewport'
+import { abilityDescriptions } from './data/abilityDescriptions'
+import { itemResources } from './data/itemResources'
+import { moveResources } from './data/moveResources'
+import { itemDescription } from './utils/itemCategories'
+import SpeciesFacts from './components/SpeciesFacts'
+import { collectionRibbonCatalog, ribbonEarned, friendshipDisplay, pokerusDisplay, expForLevel, levelFromExperience } from './utils/collectionDetails'
+import { deoxysForms } from './data/deoxysForms'
 import HomeSaveDialog from './components/HomeSaveDialog'
 import { Pokeball, FrontierEmblem, HomeIcon, TrainerStatIcon } from './components/HomeArtwork'
 import { pokemonMeta } from './data/pokemonMeta'
-import { speciesInfo, moveInfo, moveNames, itemNames } from './data/emeraldData'
-import { frontierTrainers } from './data/frontierTrainers'
-import { frontierPokemon } from './data/frontierPokemon'
+import { speciesInfo, moveInfo, itemNames } from './data/emeraldData'
 
 const SAVE_STORAGE_KEY =
   'emerald-companion-save-v1'
@@ -331,62 +340,13 @@ function PokemonTile({
     return null
   }
 
-  const type1 =
-    meta.types[0]
-      .toLowerCase()
-
-  const type2 =
-    meta.types[1]
-      ?.toLowerCase()
-
-  const style = {
-    '--type-1':
-      `var(--type-${type1})`,
-
-    '--type-2':
-      `var(--type-${
-        type2 ?? type1
-      })`,
-  }
-
-  return (
-    <button
-      className={
-        pokemon.shiny
-          ? 'pokemon-tile shiny-tile'
-          : 'pokemon-tile'
-      }
-      style={style}
-      onClick={() =>
-        onOpen(pokemon)
-      }
-    >
-      {pokemon.shiny && (
-        <span className="tile-shiny">
-          ★
-        </span>
-      )}
-
-      <div className="sprite-wrap">
-        <img
-          src={spritePath(
-            pokemon
-          )}
-          alt={
-            pokemon.speciesName
-          }
-          draggable="false"
-        />
-      </div>
-
-      <span className="dex-number">
-        #
-        {String(
-          meta.dex
-        ).padStart(3, '0')}
-      </span>
-    </button>
-  )
+  return <button className="collection-database-card" onClick={() => onOpen(pokemon)}>
+    <span>#{String(meta.dex).padStart(3, '0')}{pokemon.shiny ? ' ★' : ''}</span>
+    <small className="collection-card-level">Lv. {pokemon.level ?? levelFromExperience(pokemon.experience,speciesInfo[pokemon.species]?.growthRate) ?? '—'}</small>
+    <img loading="lazy" src={spritePath(pokemon)} alt="" draggable="false" />
+    <strong>{pokemon.nickname || pokemon.speciesName}</strong>
+    <ResourceTypeIcons types={meta.types} />
+  </button>
 }
 
 function sumStats(stats) {
@@ -496,18 +456,7 @@ function getHiddenPower(ivs) {
   }
 }
 
-function getPokerusStatus(pokemon) {
-  const pokerus =
-    Number(pokemon.pokerus ?? 0)
-
-  if (!pokerus) {
-    return 'None'
-  }
-
-  return (pokerus & 0x0f) > 0
-    ? 'Infected'
-    : 'Cured'
-}
+function getPokerusStatus(pokemon) { return pokerusDisplay(pokemon) }
 
 function getCurrentStats(pokemon) {
   return {
@@ -544,59 +493,6 @@ const NATURE_MODIFIERS = {
   Quirky: [null, null],
 }
 
-const TYPE_CHART = {
-  NORMAL: { ROCK: .5, GHOST: 0, STEEL: .5 },
-  FIRE: { FIRE: .5, WATER: .5, GRASS: 2, ICE: 2, BUG: 2, ROCK: .5, DRAGON: .5, STEEL: 2 },
-  WATER: { FIRE: 2, WATER: .5, GRASS: .5, GROUND: 2, ROCK: 2, DRAGON: .5 },
-  ELECTRIC: { WATER: 2, ELECTRIC: .5, GRASS: .5, GROUND: 0, FLYING: 2, DRAGON: .5 },
-  GRASS: { FIRE: .5, WATER: 2, GRASS: .5, POISON: .5, GROUND: 2, FLYING: .5, BUG: .5, ROCK: 2, DRAGON: .5, STEEL: .5 },
-  ICE: { FIRE: .5, WATER: .5, GRASS: 2, ICE: .5, GROUND: 2, FLYING: 2, DRAGON: 2, STEEL: .5 },
-  FIGHTING: { NORMAL: 2, ICE: 2, POISON: .5, FLYING: .5, PSYCHIC: .5, BUG: .5, ROCK: 2, GHOST: 0, DARK: 2, STEEL: 2 },
-  POISON: { GRASS: 2, POISON: .5, GROUND: .5, ROCK: .5, GHOST: .5, STEEL: 0 },
-  GROUND: { FIRE: 2, ELECTRIC: 2, GRASS: .5, POISON: 2, FLYING: 0, BUG: .5, ROCK: 2, STEEL: 2 },
-  FLYING: { ELECTRIC: .5, GRASS: 2, FIGHTING: 2, BUG: 2, ROCK: .5, STEEL: .5 },
-  PSYCHIC: { FIGHTING: 2, POISON: 2, PSYCHIC: .5, DARK: 0, STEEL: .5 },
-  BUG: { FIRE: .5, GRASS: 2, FIGHTING: .5, POISON: .5, FLYING: .5, PSYCHIC: 2, GHOST: .5, DARK: 2, STEEL: .5 },
-  ROCK: { FIRE: 2, ICE: 2, FIGHTING: .5, GROUND: .5, FLYING: 2, BUG: 2, STEEL: .5 },
-  GHOST: { NORMAL: 0, PSYCHIC: 2, GHOST: 2, DARK: .5, STEEL: .5 },
-  DRAGON: { DRAGON: 2, STEEL: .5 },
-  DARK: { FIGHTING: .5, PSYCHIC: 2, GHOST: 2, DARK: .5, STEEL: .5 },
-  STEEL: { FIRE: .5, WATER: .5, ELECTRIC: .5, ICE: 2, ROCK: 2, STEEL: .5 },
-}
-
-function expForLevel(level, growthRate) {
-  const n = level
-  switch (growthRate) {
-    case 'GROWTH_ERRATIC':
-      if (n <= 50) return Math.floor(n ** 3 * (100 - n) / 50)
-      if (n <= 68) return Math.floor(n ** 3 * (150 - n) / 100)
-      if (n <= 98) return Math.floor(n ** 3 * Math.floor((1911 - 10 * n) / 3) / 500)
-      return Math.floor(n ** 3 * (160 - n) / 100)
-    case 'GROWTH_FAST':
-      return Math.floor(4 * n ** 3 / 5)
-    case 'GROWTH_MEDIUM_SLOW':
-      return Math.floor(6 * n ** 3 / 5 - 15 * n ** 2 + 100 * n - 140)
-    case 'GROWTH_SLOW':
-      return Math.floor(5 * n ** 3 / 4)
-    case 'GROWTH_FLUCTUATING':
-      if (n <= 15) return Math.floor(n ** 3 * (Math.floor((n + 1) / 3) + 24) / 50)
-      if (n <= 36) return Math.floor(n ** 3 * (n + 14) / 50)
-      return Math.floor(n ** 3 * (Math.floor(n / 2) + 32) / 50)
-    default:
-      return n ** 3
-  }
-}
-
-function levelFromExperience(experience, growthRate) {
-  if (experience == null) return null
-  const exp = Number(experience)
-  let level = 1
-  for (let candidate = 2; candidate <= 100; candidate++) {
-    if (exp >= expForLevel(candidate, growthRate)) level = candidate
-    else break
-  }
-  return level
-}
 
 function natureMultiplier(nature, stat) {
   const [up, down] = NATURE_MODIFIERS[nature] ?? [null, null]
@@ -615,36 +511,10 @@ function calculateStats(pokemon, profile, level) {
   return { hp, maxHp: hp, attack: calc('attack'), defense: calc('defense'), spAttack: calc('spAttack'), spDefense: calc('spDefense'), speed: calc('speed') }
 }
 
-function getTypeMatchups(types) {
-  const allTypes = emeraldTypes
-  const defense = []
-  for (const attacking of allTypes) {
-    let mult = 1
-    for (const defending of types) mult *= TYPE_CHART[attacking]?.[defending] ?? 1
-    if (mult !== 1) defense.push({ type: attacking, multiplier: mult })
-  }
-  return {
-    weak: defense.filter((x) => x.multiplier > 1).sort((a, b) => b.multiplier - a.multiplier),
-    advantage: defense.filter((x) => x.multiplier < 1).sort((a, b) => a.multiplier - b.multiplier),
-  }
-}
-
 function getMoveMaxPp(basePp, ppBonuses, slot) {
   if (basePp == null) return null
   const ups = ppBonuses == null ? 0 : (Number(ppBonuses) >> (slot * 2)) & 0x3
   return Math.floor(Number(basePp) * (5 + ups) / 5)
-}
-
-function TypeIcon({ type, compact = false }) {
-  const key = String(type || 'NORMAL').toUpperCase()
-  const slug = key.toLowerCase()
-  return (
-    <img
-      className={`type-symbol-img ${compact ? 'compact' : ''}`}
-      src={`${import.meta.env.BASE_URL}type-icons/${slug}.png`}
-      alt={`${key} type`}
-    />
-  )
 }
 
 function assetSlug(value) {
@@ -682,32 +552,7 @@ function ItemIcon({ name }) {
   )
 }
 
-function RibbonIcon({ ribbon }) {
-  const slug=assetSlug(ribbon)
-  return <span className="ribbon-icon-wrap" title={ribbon}>
-    <img className="official-ribbon-icon"
-      src={`https://raw.githubusercontent.com/msikma/pokesprite/master/misc/ribbon/${slug}.png`}
-      alt="" onError={(e)=>{e.currentTarget.style.display='none';e.currentTarget.nextElementSibling.style.display='grid'}} />
-    <span className="ribbon-fallback">★</span>
-  </span>
-}
-
-function DeletePokemonConfirmation({ pokemon, onConfirm, onClose }) {
-  const ref = useRef(null)
-  useEffect(() => {
-    const dialog = ref.current
-    dialog.showModal()
-    return () => dialog.close()
-  }, [])
-  return <dialog ref={ref} className="pokemon-editor pokemon-delete-confirm" aria-labelledby="delete-pokemon-title" onCancel={onClose}>
-    <h2 id="delete-pokemon-title">Delete {pokemon.nickname || pokemon.speciesName}?</h2>
-    <p>This removes the Pokémon from your tracked collection and cannot be undone. Your original save file and Pokédex caught count stay unchanged.</p>
-    <footer><button onClick={onClose} autoFocus>Cancel</button><button className="pokemon-delete-button" onClick={onConfirm}>Delete</button></footer>
-  </dialog>
-}
-
 function PokemonDetail({
-  onDelete,
   onEdit,
   pokemon,
   role,
@@ -715,7 +560,7 @@ function PokemonDetail({
   onClose,
 }) {
   const [detailTab, setDetailTab] = useState('summary')
-  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [selectedRibbon, setSelectedRibbon] = useState(null)
 
   if (!pokemon) return null
   const meta = getMeta(pokemon)
@@ -735,36 +580,13 @@ function PokemonDetail({
     speed: live.speed ?? calculated?.speed ?? null,
   }
   const base = profile?.baseStats ?? meta.baseStats ?? pokemon.baseStats ?? null
-  const nickname = pokemon.nickname && pokemon.nickname !== pokemon.speciesName ? pokemon.nickname : null
+  const distinctNickname = pokemon.nickname?.trim() && pokemon.nickname.trim().toLowerCase() !== pokemon.speciesName?.trim().toLowerCase() ? pokemon.nickname.trim() : null
   const hiddenPower = getHiddenPower(pokemon.ivs)
   const ivTotal = sumStats(pokemon.ivs)
   const evTotal = sumStats(pokemon.evs)
-  const matchups = getTypeMatchups(meta.types)
-  const genderMark = pokemon.gender === 'Male' ? '♂' : pokemon.gender === 'Female' ? '♀' : ''
-  const genderClass = pokemon.gender === 'Male' ? 'male' : pokemon.gender === 'Female' ? 'female' : ''
   const heldItem = !pokemon.heldItem ? 'None' : (itemNames?.[pokemon.heldItem] || pokemon.heldItemName || `Item ${pokemon.heldItem}`)
   const pokerusStatus = getPokerusStatus(pokemon)
 
-  const statRows = [
-    ['HP', current.maxHp != null ? `${current.hp ?? current.maxHp}` : current.hp, 'hp'],
-    ['Attack', current.attack, 'attack'],
-    ['Defense', current.defense, 'defense'],
-    ['Sp. Atk', current.spAttack, 'spattack'],
-    ['Sp. Def', current.spDefense, 'spdefense'],
-    ['Speed', current.speed, 'speed'],
-  ]
-  const statKeysForBars = [
-    ['hp','hp'],['attack','attack'],['defense','defense'],
-    ['spattack','spAttack'],['spdefense','spDefense'],['speed','speed'],
-  ]
-  const allSpeciesBaseMax = Object.fromEntries(statKeysForBars.map(([barKey,statKey]) => {
-    const vals = Object.values(speciesInfo || {}).map(s => Number(s?.baseStats?.[statKey] ?? 0))
-    return [barKey, Math.max(1,...vals)]
-  }))
-  const currentBaseForBar = {
-    hp:Number(base?.hp ?? 0), attack:Number(base?.attack ?? 0), defense:Number(base?.defense ?? 0),
-    spattack:Number(base?.spAttack ?? 0), spdefense:Number(base?.spDefense ?? 0), speed:Number(base?.speed ?? 0),
-  }
   const statKeys = [['HP','hp'],['Atk','attack'],['Def','defense'],['SpA','spAttack'],['SpD','spDefense'],['Spe','speed']]
 
   const expNow = Number(pokemon.experience ?? 0)
@@ -773,203 +595,35 @@ function PokemonDetail({
   const expRemaining = Math.max(0, nextLevelExp - expNow)
   const expPct = nextLevelExp > thisLevelExp ? Math.max(0, Math.min(100, ((expNow - thisLevelExp) / (nextLevelExp - thisLevelExp)) * 100)) : 100
 
-  const resists = matchups.advantage.filter(x => x.multiplier > 0)
-  const immune = matchups.advantage.filter(x => x.multiplier === 0)
 
-  return (
-    <div className="detail-overlay exact-overlay" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose() }}>
-      {confirmDelete && <DeletePokemonConfirmation pokemon={pokemon} onClose={() => setConfirmDelete(false)} onConfirm={() => onDelete(pokemon)} />}
-      <div className="detail-sheet exact-sheet">
-        <div className="pokemon-detail-actions">
-          <button className="pokemon-edit-button" onClick={() => onEdit(pokemon)}>Edit</button>
-          <button className="pokemon-edit-button pokemon-delete-button" onClick={() => setConfirmDelete(true)}>Delete</button>
-        </div>
-        <button className="exact-close" onClick={onClose} aria-label="Close">×</button>
-
-        <header className="exact-hero">
-          <div className="exact-pokeball" aria-hidden="true"><i /></div>
-          <div className="sprite-stage">
-            <img src={artworkSpritePath(pokemon)} alt={pokemon.speciesName} />
-            {pokemon.pokeBall && (
-              <img
-                className="capture-ball-corner"
-                src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${pokemon.pokeBall === 'Poké Ball' ? 'poke-ball' : assetSlug(pokemon.pokeBall)}.png`}
-                alt=""
-                title={pokemon.pokeBall}
-              />
-            )}
-            {pokemon.shiny && <span className="shiny-star">★</span>}
+  return <div className="collection-profile-overlay">
+    {selectedRibbon && <div className="collection-ribbon-popup-backdrop" onClick={() => setSelectedRibbon(null)}><div className="collection-ribbon-popup" role="tooltip" style={{left:selectedRibbon.x,top:selectedRibbon.y,maxWidth:selectedRibbon.width}}>{selectedRibbon.name}</div></div>}
+    <article className="collection-profile">
+      <div className="resource-list-heading collection-profile-heading"><button className="resources-back" onClick={onClose}>← Back</button><h2>My Pokémon</h2><button className="collection-profile-edit" onClick={() => onEdit(pokemon)}>Edit</button></div>
+      <div className="collection-profile-frame resource-species resource-species-profile">
+      <header className="collection-profile-summary resource-species-summary">
+        <img src={artworkSpritePath(pokemon)} alt={pokemon.speciesName} />
+        <div><span>#{String(meta.dex).padStart(3, '0')} · GEN {meta.generation}</span><div className="resource-species-name collection-profile-name"><h2>{pokemon.speciesName}{pokemon.shiny && ' ★'}</h2>{distinctNickname && <span className="collection-profile-nickname">“{distinctNickname}”</span>}</div><ResourceTypeIcons types={meta.types} /><p>Lv. {level ?? '—'}{pokemon.gender && pokemon.gender !== 'Unknown' ? ` · ${pokemon.gender}` : ''} · {pokemon.nature || 'Unknown nature'}</p></div>
+      </header>
+      <div className="collection-profile-tabs resource-profile-tabs" role="tablist" aria-label="Pokémon information">{[['summary','Overview'],['moves','Moves'],['training','Stats & Matchups'],['details','Details']].map(([key,label]) => <button key={key} role="tab" id={`collection-tab-${key}`} aria-selected={detailTab === key} aria-controls="collection-profile-content" onClick={() => setDetailTab(key)}>{label}</button>)}</div>
+      <div className="collection-profile-content" key={detailTab} id="collection-profile-content" role="tabpanel" aria-labelledby={`collection-tab-${detailTab}`} tabIndex={0}>
+        {detailTab === 'summary' && <>
+          <div className="collection-profile-overview resource-species-overview">
+            <h3>Ability</h3><div className="resource-overview-abilities"><div><strong className="collection-profile-info-name">{pokemon.ability || 'Unknown'}</strong><p>{abilityDescriptions[pokemon.abilityId ?? profile?.abilities?.[pokemon.abilitySlot ?? 0]] || 'Ability description unavailable.'}</p></div></div>
+            <h3>Held item</h3><div className="resource-overview-abilities"><div><strong className="collection-profile-info-name">{heldItem}<ItemIcon name={heldItem} /></strong>{pokemon.heldItem ? <p>{itemResources[pokemon.heldItem] ? itemDescription({...itemResources[pokemon.heldItem],id:pokemon.heldItem}) : 'Item description unavailable.'}</p> : <p>No held item.</p>}</div></div>
+            <dl className="collection-profile-facts"><div><dt>Origin game</dt><dd>{pokemon.originGame || 'Unknown'}</dd></div><div><dt>OT</dt><dd>{pokemon.otName || 'Unknown'}</dd></div></dl>
           </div>
-          <div className="exact-name-line">
-            <h2>{pokemon.speciesName}</h2>
-            {genderMark && <span className={`gender-mark ${genderClass}`}>{genderMark}</span>}
-          </div>
-          {nickname && <div className="exact-nickname">“{nickname}”</div>}
-          <div className="exact-dex">#{String(meta.dex).padStart(3,'0')}
-          {pokemon.otName && (
-            <div className="exact-ot-name">
-              OT {pokemon.otName}{pokemon.originGame && pokemon.originGame !== 'Unknown' ? ` · ${pokemon.originGame.toUpperCase()}` : ''}
-            </div>
-          )}</div>
-          <div className="exact-types">
-            {meta.types.map(type => <span className={`exact-type type-${type.toLowerCase()}`} key={type}><TypeIcon type={type} compact />{type}</span>)}
-          </div>
-        </header>
+          <h3>Role</h3><div className="collection-profile-roles">{ROLES.map(item => <button key={item.id} aria-pressed={role === item.id} onClick={() => onRoleChange(pokemon.companionId,item.id)}>{item.label}</button>)}</div>
+        </>}
+        {detailTab === 'moves' && <div className="collection-profile-moves"><h3>Moves</h3>{(pokemon.moves || []).map((move,index) => {const info=moveResources[move.id] ?? moveInfo[move.id] ?? {}; const type=info.type ?? move.type ?? 'NORMAL'; return <div className="collection-profile-move" key={`${move.id}-${index}`}><div className="collection-profile-move-heading"><strong className="collection-profile-info-name">{move.name}</strong><ResourceTypeIcons types={[type]} /><span>PP {getMoveMaxPp(info.pp ?? move.maxPp,pokemon.ppBonuses,index) ?? '—'}</span></div><p>{info.description || 'Move description unavailable.'}</p></div>})}{!pokemon.moves?.length && <p>No moves recorded.</p>}<h3>Hidden Power</h3><div className="collection-profile-move-heading collection-profile-hidden-heading"><strong className="collection-profile-info-name">{hiddenPower?.type ?? 'Unknown'}</strong><ResourceTypeIcons types={hiddenPower ? [hiddenPower.type] : []} /><span>Power {hiddenPower?.power ?? '—'}</span></div></div>}
+        {detailTab === 'training' && <><table className="collection-profile-training collection-profile-stat-table"><colgroup><col className="collection-stat-label" /><col className="collection-stat-current" /><col /><col className="collection-stat-small" /><col className="collection-stat-small" /><col className="collection-stat-small" /></colgroup><thead><tr><th>Stat</th><th>Current</th><th aria-label="Base stat bar"></th><th>Base</th><th>IV</th><th>EV</th></tr></thead><tbody>{statKeys.map(([label,key]) => {const value=(key === 'hp' ? current.maxHp : current[key]); const maximum=Math.max(1,...Object.entries(pokemonMeta).filter(([,meta]) => meta.dex >= 1 && meta.dex <= 386 && meta.generation <= 3).map(([id]) => speciesInfo[id]?.baseStats?.[key] ?? 0),...Object.values(deoxysForms).map(form => form.baseStats[key])); return <tr key={key}><th>{label}</th><td className="collection-stat-current-value"><strong>{value ?? '—'}</strong></td><td><div className="collection-current-stat"><div className="resource-base-stats"><div data-stat={key}><div><i style={{width:`${Math.min(100,(base?.[key] ?? 0) / maximum * 100)}%`}} /></div></div></div></div></td><td>{base?.[key] ?? '—'}</td><td>{pokemon.ivs?.[key] ?? '—'}</td><td>{pokemon.evs?.[key] ?? '—'}</td></tr>})}</tbody><tfoot><tr><th>Total</th><td>{sumStats({...current,hp:current.maxHp}) ?? '—'}</td><td></td><td>{sumStats(base) ?? '—'}</td><td>{ivTotal ?? '—'}</td><td>{evTotal ?? '—'}</td></tr></tfoot></table><SpeciesFacts embedded mode="stats" id={pokemon.species} types={meta.types} /></>}
+        {detailTab === 'details' && <div className="collection-profile-details"><h3>Experience</h3>{pokemon.experience != null ? <><div className="collection-experience-copy"><span>Current <strong>{expNow.toLocaleString()}</strong></span><span>To next level <strong>{expRemaining.toLocaleString()}</strong></span></div><div className="exp-track"><i style={{width:`${expPct}%`}} /></div></> : <p>Experience not recorded.</p>}<dl className="collection-profile-facts"><div><dt>Friendship</dt><dd>{friendshipDisplay(pokemon)}</dd></div><div><dt>Pokérus</dt><dd>{pokerusStatus}</dd></div><div><dt>Poké Ball</dt><dd>{pokemon.pokeBall || 'Unknown'}</dd></div></dl><h3>Ribbons{pokemon.ribbonsChecked === false || (pokemon.ribbonsChecked == null && pokemon.ribbons == null) ? <small className="collection-ribbon-unknown"> · Not recorded</small> : null}</h3><div className="collection-ribbon-grid">{collectionRibbonCatalog.map(ribbon => {const earned=ribbonEarned(pokemon.ribbons,ribbon);return <button type="button" className={`collection-ribbon${earned ? ' earned' : ''}`} key={ribbon.name} title={`${ribbon.name} · ${earned ? 'Earned' : 'Not earned'}`} onClick={event => {const rect=event.currentTarget.getBoundingClientRect(); setSelectedRibbon({name:ribbon.name,x:rect.left+rect.width/2,y:rect.top-5,width:Math.min(190,2*Math.min(rect.left+rect.width/2-8,window.innerWidth-(rect.left+rect.width/2)-8))})}} aria-label={`${ribbon.name}: ${earned ? 'earned' : 'not earned'}`}><img src={`${import.meta.env.BASE_URL}ribbons/${ribbon.sprite}.png`} alt="" /></button>})}</div></div>}
 
-        <div className="exact-tabs">
-          <button className={detailTab === 'summary' ? 'active' : ''} onClick={() => setDetailTab('summary')}>Summary</button>
-          <button className={detailTab === 'advanced' ? 'active' : ''} onClick={() => setDetailTab('advanced')}>Advanced</button>
-        </div>
-
-        {detailTab === 'summary' ? (
-          <div className="exact-page summary-page">
-            <div className="summary-top">
-              <section className="exact-card info-card">
-                <h3>Pokémon Info</h3>
-                <div className="exact-info-row"><span>Level</span><b>{level ?? '—'}</b></div>
-                <div className="exact-info-row"><span>Nature</span><b>{pokemon.nature || '—'}</b></div>
-                <div className="exact-info-row"><span>Ability</span><b>{pokemon.ability || '—'}</b></div>
-                <div className="exact-info-row"><span>Held Item</span><b>{heldItem}<ItemIcon name={heldItem} /></b></div>
-              </section>
-              <section className="exact-card role-card">
-                <h3>Role</h3>
-                <div className="exact-role-buttons">
-                  {ROLES.map(item => <button key={item.id} className={role === item.id ? 'active' : ''} onClick={() => onRoleChange(pokemon.companionId,item.id)}>{item.label}</button>)}
-                </div>
-              </section>
-            </div>
-
-            <section className="exact-card stats-card">
-              <h3>Current Stats</h3>
-              <div className="exact-stats">
-                {statRows.map(([label,value,key]) => <div className="exact-stat-row" key={key}>
-                  <span>{label}</span><b>{value ?? '—'}</b>
-                  <div className="exact-stat-track"><i className={`exact-stat-fill ${key}`} style={{width:`${Math.max(8,Math.min(100,(currentBaseForBar[key]/(allSpeciesBaseMax[key] || 1))*100))}%`}} /></div>
-                </div>)}
-              </div>
-            </section>
-
-            <section className="exact-card moves-card">
-              <h3>Moves</h3>
-              <div className="exact-moves">
-                {(pokemon.moves || []).map((move,index) => {
-                  const info = moveInfo?.[move.id] ?? {}
-                  const type = info.type ?? move.type ?? 'NORMAL'
-                  const maxPp = getMoveMaxPp(info.pp ?? move.maxPp, pokemon.ppBonuses, index)
-                  return <div className={`exact-move type-border-${String(type).toLowerCase()}`} key={`${move.id}-${index}`}>
-                    <TypeIcon type={type} />
-                    <div><b>{move.name}</b><span>PP {maxPp ?? '—'}</span></div>
-                  </div>
-                })}
-              </div>
-            </section>
-          </div>
-        ) : (
-          <div className="exact-page advanced-page">
-            <div className="advanced-top-row">
-              <section className="exact-card advanced-stat-card">
-                <h3>IVs</h3>
-                <div className="exact-six">{statKeys.map(([label,key]) => {
-                  const v=pokemon.ivs?.[key]
-                  return <div key={key}><span>{label}</span><b className={v===31?'perfect':v===30?'near-perfect':''}>{v ?? '—'}</b></div>
-                })}</div>
-                <div className="exact-total">Total: <b>{ivTotal ?? '—'} / 186</b></div>
-              </section>
-              <section className="exact-card advanced-stat-card">
-                <h3>EVs</h3>
-                <div className="exact-six">{statKeys.map(([label,key]) => <div key={key}><span>{label}</span><b>{pokemon.evs?.[key] ?? '—'}</b></div>)}</div>
-                <div className="exact-total">Total: <b>{evTotal ?? '—'} / 510</b></div>
-              </section>
-            </div>
-
-            <div className="advanced-second-row">
-              <section className="exact-card base-card">
-                <h3>Base Stats (Species)</h3>
-                <div className="exact-six">{statKeys.map(([label,key]) => <div key={key}><span>{label}</span><b>{base?.[key] ?? '—'}</b></div>)}</div>
-              </section>
-              <section className="exact-card hidden-card">
-                <h3>Hidden Power</h3>
-                <div className={`hidden-type type-${String(hiddenPower?.type || 'normal').toLowerCase()}`}><TypeIcon type={hiddenPower?.type || 'NORMAL'} compact />{hiddenPower?.type || '—'}</div>
-                <div>Power: <b>{hiddenPower?.power ?? '—'}</b></div>
-              </section>
-            </div>
-
-            <div className="advanced-third-row">
-              <section className="exact-card experience-card">
-                <h3>Experience</h3>
-                <div className="exp-copy"><span>Current: <b>{expNow.toLocaleString()}</b><br/>Next Lv.: <b>{expRemaining.toLocaleString()}</b></span><b>Lv. {level ?? '—'}</b></div>
-                <div className="exp-track"><i style={{width:`${expPct}%`}} /></div>
-              </section>
-              <section className="exact-card friendship-card"><h3>Friendship</h3><svg className="friendship-heart" viewBox="0 0 24 24" aria-label="Friendship" role="img">
-  <path d="M12 21s-8-4.7-8-11a4.8 4.8 0 0 1 8-3.6A4.8 4.8 0 0 1 20 10c0 6.3-8 11-8 11Z" />
-</svg><b>{pokemon.friendship ?? '—'}</b></section>
-              <section className="exact-card pokerus-card"><h3>Pokérus</h3><span className="pkrs-badge">PkRS</span><b>{pokerusStatus}</b></section>
-            </div>
-
-            <section className="exact-card matchups-card">
-              <h3>Type Matchups (Defensive)</h3>
-              <div className="matchup-three matchup-fixed">
-                {[
-                  ['Weak to', matchups.weak, 4],
-                  ['Resists', resists, 6],
-                  ['Immune', immune, 2],
-                ].map(([label, items, maxCols]) => {
-                  const cols = Math.max(1, items.length <= maxCols ? (items.length || 1) : Math.ceil(items.length / 2))
-                  const rows = Math.max(1, Math.ceil(items.length / maxCols))
-                  return <div key={label} className="matchup-group">
-                    <b>{label}</b>
-                    <div
-                      className="matchup-icons matchup-icons-fixed"
-                      style={{
-                        '--match-cols': cols,
-                        '--match-rows': rows,
-                      }}
-                    >
-                      {items.length ? items.map(x =>
-                        <span key={x.type}>
-                          <TypeIcon type={x.type}/>
-                          <small>{label === 'Immune' ? '0' : x.multiplier === 0.5 ? '1/2' : x.multiplier === 0.25 ? '1/4' : x.multiplier}×</small>
-                        </span>
-                      ) : <em>—</em>}
-                    </div>
-                  </div>
-                })}
-              </div>
-            </section>
-
-            <section className="exact-card exact-ribbons">
-              <h3>Ribbons</h3>
-              <div className={`ribbon-list ribbon-count-${pokemon.ribbons?.length || 0}`}>{pokemon.ribbons?.length ? pokemon.ribbons.map((r,index)=><RibbonIcon ribbon={r} key={`${r}-${index}`} />) : <small>No ribbons yet</small>}</div>
-            </section>
-          </div>
-        )}
       </div>
-    </div>
-  )
-}
+      </div>
+    </article>
+  </div>
 
-function SelectFilter({
-  label,
-  value,
-  onChange,
-  children,
-}) {
-  return (
-    <label className="filter-select">
-      <span>{label}</span>
-
-      <select
-        value={value}
-        onChange={(event) =>
-          onChange(
-            event.target.value
-          )
-        }
-      >
-        {children}
-      </select>
-    </label>
-  )
 }
 
 function MyPokemonPage({
@@ -979,6 +633,7 @@ function MyPokemonPage({
   designations,
   onRoleChange,
 }) {
+  useResourceViewport()
   const [editor, setEditor] = useState(null)
   const [search, setSearch] =
     useState('')
@@ -1168,9 +823,9 @@ function MyPokemonPage({
   }
 
   return (
-    <div className="page pokemon-page">
-      {editor && <PokemonEditor pokemon={editor.pokemon} onClose={() => setEditor(null)} onSave={pokemon => { onPokemonSave(pokemon); if (editor.pokemon) setSelectedPokemon(null) }} />}
-      <header className="collection-header">
+    <div className="page pokemon-page collection-database-page">
+      {editor && <PokemonEditor pokemon={editor.pokemon} onDelete={pokemon => { onPokemonDelete(pokemon.companionId); setSelectedPokemon(null) }} onClose={() => setEditor(null)} onSave={pokemon => { const saved=onPokemonSave(pokemon); setSelectedPokemon(saved) }} />}
+      <header className="collection-header resource-list-heading">
         <div>
           <p className="page-eyebrow">
             YOUR SAVE
@@ -1209,92 +864,13 @@ function MyPokemonPage({
         />
 
         <div className="filter-grid">
-          <SelectFilter
-            label="TYPE"
-            value={type}
-            onChange={
-              setType
-            }
-          >
-            <option value="all">
-              All Types
-            </option>
+          <ResourceFilter label="Type" value={type} onChange={setType} options={emeraldTypes.map(type => ({ value:type, label:type.charAt(0) + type.slice(1).toLowerCase() }))} />
 
-            {emeraldTypes.map(
-              (item) => (
-                <option
-                  key={item}
-                  value={item}
-                >
-                  {item}
-                </option>
-              )
-            )}
-          </SelectFilter>
+          <ResourceFilter label="Gen" value={generation} onChange={setGeneration} options={[{"value": "1", "label": "Gen I"}, {"value": "2", "label": "Gen II"}, {"value": "3", "label": "Gen III"}]} />
 
-          <SelectFilter
-            label="GENERATION"
-            value={
-              generation
-            }
-            onChange={
-              setGeneration
-            }
-          >
-            <option value="all">
-              All Generations
-            </option>
+          <ResourceFilter label="Game" value={game} onChange={setGame} options={[{"value": "Ruby", "label": "Ruby"}, {"value": "Sapphire", "label": "Sapphire"}, {"value": "Emerald", "label": "Emerald"}, {"value": "FireRed", "label": "FireRed"}, {"value": "LeafGreen", "label": "LeafGreen"}, {"value": "Colosseum / XD", "label": "Colo / XD"}]} />
 
-            <option value="1">
-              Gen I
-            </option>
-
-            <option value="2">
-              Gen II
-            </option>
-
-            <option value="3">
-              Gen III
-            </option>
-          </SelectFilter>
-
-          <SelectFilter
-            label="GAME"
-            value={game}
-            onChange={setGame}
-          >
-            <option value="all">All Games</option>
-            <option value="Ruby">Ruby</option>
-            <option value="Sapphire">Sapphire</option>
-            <option value="Emerald">Emerald</option>
-            <option value="FireRed">FireRed</option>
-            <option value="LeafGreen">LeafGreen</option>
-            <option value="Colosseum / XD">Colosseum / XD</option>
-          </SelectFilter>
-
-          <SelectFilter
-            label="ROLE"
-            value={role}
-            onChange={
-              setRole
-            }
-          >
-            <option value="all">
-              All Roles
-            </option>
-
-            <option value="bf">
-              BF Trained
-            </option>
-
-            <option value="utility">
-              Utility
-            </option>
-
-            <option value="pokedex">
-              Pokédex
-            </option>
-          </SelectFilter>
+          <ResourceFilter label="Role" value={role} onChange={setRole} options={[{"value": "bf", "label": "BF Trained"}, {"value": "utility", "label": "Utility"}, {"value": "pokedex", "label": "Pokédex"}]} />
 
           <button
             className={`shiny-filter-toggle ${shininess === 'shiny' ? 'active' : ''}`}
@@ -1323,7 +899,7 @@ function MyPokemonPage({
         </button>
       </section>
 
-      <div className="pokedex-grid">
+      <div className="pokedex-grid collection-database-grid" tabIndex={0} aria-label="My Pokémon collection">
         {filteredPokemon.map(
           (pokemon) => (
             <PokemonTile
@@ -1369,991 +945,6 @@ function MyPokemonPage({
           )
         }
       />
-    </div>
-  )
-}
-
-const DUPLICATE_MOVE_CLASSES = [
-  'duplicate-move-1',
-  'duplicate-move-2',
-  'duplicate-move-3',
-  'duplicate-move-4',
-  'duplicate-move-5',
-  'duplicate-move-6',
-]
-
-function getDuplicateMoveColors(pokemonSets) {
-  const moveCounts = new Map()
-
-  pokemonSets.forEach((pokemon) => {
-    pokemon.moves.forEach((move) => {
-      moveCounts.set(move, (moveCounts.get(move) || 0) + 1)
-    })
-  })
-
-  const duplicateMoves = new Map()
-  let duplicateIndex = 0
-
-  moveCounts.forEach((count, move) => {
-    if (count > 1) {
-      duplicateMoves.set(
-        move,
-        DUPLICATE_MOVE_CLASSES[
-          duplicateIndex % DUPLICATE_MOVE_CLASSES.length
-        ]
-      )
-      duplicateIndex += 1
-    }
-  })
-
-  return duplicateMoves
-}
-
-const BATTLE_SETTINGS_KEY = 'emerald-companion-battle-settings-v1'
-
-function loadBattleSettings() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(BATTLE_SETTINGS_KEY) || '{}')
-    return {
-      level: saved.level === 100 ? 100 : 50,
-      facility: saved.facility === 'Dome' ? 'Dome' : 'Tower',
-      format: saved.format === 'Doubles' ? 'Doubles' : 'Singles',
-      streak: 0,
-    }
-  } catch {
-    return { level: 50, facility: 'Tower', format: 'Singles', streak: 0 }
-  }
-}
-
-function formatMatchupEvs(evs, frontier = false) {
-  if (!evs) return '0 EVs'
-
-  const rows = frontier
-    ? [
-        ['HP', 'hp'], ['Atk', 'atk'], ['Def', 'def'],
-        ['SpA', 'spa'], ['SpD', 'spd'], ['Spe', 'spe'],
-      ]
-    : [
-        ['HP', 'hp'], ['Atk', 'attack'], ['Def', 'defense'],
-        ['SpA', 'spAttack'], ['SpD', 'spDefense'], ['Spe', 'speed'],
-      ]
-
-  const active = rows
-    .map(([label, key]) => [label, Number(evs[key] ?? 0)])
-    .filter(([, value]) => value > 0)
-
-  if (!active.length) return '0 EVs'
-  return active.map(([label, value]) => `${label} ${value}`).join(' · ')
-}
-
-function getBattleTypeMatchupRows(types) {
-  if (!types?.length) return []
-  const matchups = getTypeMatchups(types)
-  const rows = new Map()
-
-  ;[...matchups.weak, ...matchups.advantage].forEach(({ type, multiplier }) => {
-    if (!rows.has(multiplier)) rows.set(multiplier, [])
-    rows.get(multiplier).push(type)
-  })
-
-  return [4, 2, 0.5, 0.25, 0]
-    .filter((multiplier) => rows.has(multiplier))
-    .map((multiplier) => ({ multiplier, types: rows.get(multiplier) }))
-}
-
-function formatBattleMultiplier(multiplier) {
-  if (multiplier === 0.5) return '½×'
-  if (multiplier === 0.25) return '¼×'
-  return `${multiplier}×`
-}
-
-function MatchupTypeAdvantages({ types }) {
-  const rows = getBattleTypeMatchupRows(types)
-  if (!rows.length) return null
-
-  return (
-    <div className="matchup-type-advantages">
-      {rows.map(({ multiplier, types: rowTypes }) => (
-        <div className="matchup-type-advantage-row" key={multiplier}>
-          <span className={`matchup-multiplier matchup-multiplier-${String(multiplier).replace('.', '-')}`}>
-            {formatBattleMultiplier(multiplier)}
-          </span>
-          <div className="matchup-advantage-icons">
-            {rowTypes.map((type) => (
-              <TypeIcon type={type} compact key={`${multiplier}-${type}`} />
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-}
-
-function getFrontierMoveInfo(moveName) {
-  const normalize = (value) =>
-    String(value || '').toLowerCase().replace(/[^a-z0-9]/g, '')
-
-  const wanted = normalize(moveName)
-  const moveId = Object.entries(moveNames || {}).find(
-    ([, name]) => normalize(name) === wanted
-  )?.[0]
-
-  return moveId != null ? moveInfo?.[moveId] ?? null : null
-}
-
-function getMatchupCurrentStats(pokemon) {
-  if (!pokemon) return null
-  const profile = speciesInfo?.[pokemon.species] ?? null
-  const level =
-    pokemon.level ??
-    levelFromExperience(pokemon.experience, profile?.growthRate)
-  const calculated = calculateStats(pokemon, profile, level)
-  const live = getCurrentStats(pokemon)
-
-  return {
-    hp: live.maxHp ?? calculated?.maxHp ?? live.hp ?? calculated?.hp ?? null,
-    attack: live.attack ?? calculated?.attack ?? null,
-    defense: live.defense ?? calculated?.defense ?? null,
-    spAttack: live.spAttack ?? calculated?.spAttack ?? null,
-    spDefense: live.spDefense ?? calculated?.spDefense ?? null,
-    speed: live.speed ?? calculated?.speed ?? null,
-  }
-}
-
-function calculateFrontierMatchupStats(pokemon, level, iv) {
-  if (!pokemon) return null
-
-  const metaEntry = Object.entries(pokemonMeta).find(
-    ([, entry]) =>
-      entry.name.toLowerCase() === pokemon.species.toLowerCase()
-  )
-  const speciesId = metaEntry?.[0]
-  const profile = speciesId ? speciesInfo?.[speciesId] : null
-  const base = profile?.baseStats
-  if (!base) return null
-
-  const evs = pokemon.evs || {}
-  const frontierEv = (key) => Number(evs[key] ?? 0)
-  const core = (baseStat, evKey) =>
-    Math.floor(
-      ((2 * Number(baseStat ?? 0) +
-        Number(iv) +
-        Math.floor(frontierEv(evKey) / 4)) *
-        Number(level)) /
-        100
-    )
-
-  const hp =
-    pokemon.species === 'Shedinja'
-      ? 1
-      : core(base.hp, 'hp') + Number(level) + 10
-
-  const stat = (baseStat, evKey, natureKey) =>
-    Math.floor(
-      (core(baseStat, evKey) + 5) *
-        natureMultiplier(pokemon.nature, natureKey)
-    )
-
-  return {
-    hp,
-    attack: stat(base.attack, 'atk', 'attack'),
-    defense: stat(base.defense, 'def', 'defense'),
-    spAttack: stat(base.spAttack, 'spa', 'spAttack'),
-    spDefense: stat(base.spDefense, 'spd', 'spDefense'),
-    speed: stat(base.speed, 'spe', 'speed'),
-  }
-}
-
-function BattlePage({ collection, designations }) {
-  const [battleSettings, setBattleSettings] = useState(loadBattleSettings)
-  const [trainerSearch, setTrainerSearch] = useState('')
-  const [selectedTrainer, setSelectedTrainer] = useState(null)
-  const [opponentSearch, setOpponentSearch] = useState('')
-  const [hiddenOpponentSetIds, setHiddenOpponentSetIds] = useState(new Set())
-  const [myTeam, setMyTeam] = useState([])
-  const [opponentTeam, setOpponentTeam] = useState([])
-  const [activeMySlot, setActiveMySlot] = useState(null)
-  const [activeOpponentSlot, setActiveOpponentSlot] = useState(null)
-  const [matchupMyPokemon, setMatchupMyPokemon] = useState(null)
-  const [matchupOpponentPokemon, setMatchupOpponentPokemon] = useState(null)
-
-  const teamSize = battleSettings.format === 'Doubles' ? 4 : 3
-
-  const battleFrontierPokemon = useMemo(() => {
-    const selectedSpecies = new Set(
-      myTeam
-        .filter(Boolean)
-        .map((pokemon) => pokemon.species)
-    )
-
-    return collection
-      .filter(
-        (pokemon) =>
-          getRole(pokemon, designations) === 'bf' &&
-          !selectedSpecies.has(pokemon.species)
-      )
-      .sort((a, b) => {
-        const aDex = pokemonMeta[a.species]?.dex ?? 999
-        const bDex = pokemonMeta[b.species]?.dex ?? 999
-        return aDex - bDex
-      })
-  }, [collection, designations, myTeam])
-
-  function frontierSpritePath(pokemon) {
-    const meta = Object.values(pokemonMeta).find(
-      (entry) => entry.name.toLowerCase() === pokemon.species.toLowerCase()
-    )
-    return meta
-      ? `${import.meta.env.BASE_URL}sprites/emerald/${meta.dex}.png`
-      : ''
-  }
-
-  function frontierArtworkSpritePath(pokemon) {
-    const meta = Object.values(pokemonMeta).find(
-      (entry) => entry.name.toLowerCase() === pokemon.species.toLowerCase()
-    )
-    return meta
-      ? `${import.meta.env.BASE_URL}sprites/artwork/normal/${meta.dex}.png`
-      : ''
-  }
-
-  const trainerMatches = useMemo(() => {
-    const query = trainerSearch.trim().toLowerCase()
-
-    if (!query) {
-      return []
-    }
-
-    return frontierTrainers.filter((trainer) =>
-      trainer.name.toLowerCase().startsWith(query)
-    )
-  }, [trainerSearch])
-
-  const availableOpponentSets = useMemo(() => {
-    if (!selectedTrainer) {
-      return frontierPokemon
-    }
-
-    const allowedSetIds = new Set(selectedTrainer.pokemonSetIds)
-
-    return frontierPokemon.filter((pokemon) =>
-      allowedSetIds.has(pokemon.id)
-    )
-  }, [selectedTrainer])
-
-  const opponentMatches = useMemo(() => {
-    const query = opponentSearch.trim().toLowerCase()
-
-    if (!query) {
-      return []
-    }
-
-    const selectedSpecies = new Set(
-      opponentTeam
-        .filter(Boolean)
-        .map((pokemon) => pokemon.species.toLowerCase())
-    )
-
-    return availableOpponentSets.filter((pokemon) =>
-      pokemon.species.toLowerCase().startsWith(query) &&
-      !selectedSpecies.has(pokemon.species.toLowerCase()) &&
-      !hiddenOpponentSetIds.has(pokemon.id)
-    )
-  }, [
-    availableOpponentSets,
-    opponentSearch,
-    hiddenOpponentSetIds,
-    opponentTeam,
-  ])
-
-  const duplicateMoveColors = useMemo(
-    () => getDuplicateMoveColors(opponentMatches),
-    [opponentMatches]
-  )
-
-  function chooseTrainer(trainer) {
-    setSelectedTrainer(trainer)
-    setTrainerSearch(trainer.name)
-    setOpponentSearch('')
-    setHiddenOpponentSetIds(new Set())
-  }
-
-  function clearTrainer() {
-    setSelectedTrainer(null)
-    setTrainerSearch('')
-    setOpponentSearch('')
-    setHiddenOpponentSetIds(new Set())
-  }
-
-  function chooseOpponent(pokemon) {
-    if (activeOpponentSlot === null) return
-
-    setOpponentTeam((current) => {
-      const next = [...current]
-      next[activeOpponentSlot] = pokemon
-      return next
-    })
-    setOpponentSearch('')
-    setHiddenOpponentSetIds(new Set())
-    setActiveOpponentSlot(null)
-  }
-
-  function chooseMyPokemon(pokemon) {
-    if (activeMySlot === null) return
-
-    setMyTeam((current) => {
-      const next = [...current]
-      next[activeMySlot] = pokemon
-      return next
-    })
-    setActiveMySlot(null)
-  }
-
-  function removeMyPokemon(index) {
-    setMyTeam((current) => {
-      const removed = current[index]
-      const next = [...current]
-      next[index] = null
-
-      if (
-        removed &&
-        matchupMyPokemon &&
-        removed.companionId === matchupMyPokemon.companionId
-      ) {
-        setMatchupMyPokemon(null)
-      }
-
-      return next
-    })
-  }
-
-  function removeOpponentPokemon(index) {
-    setOpponentTeam((current) => {
-      const removed = current[index]
-      const next = [...current]
-      next[index] = null
-
-      if (
-        removed &&
-        matchupOpponentPokemon &&
-        removed.id === matchupOpponentPokemon.id
-      ) {
-        setMatchupOpponentPokemon(null)
-      }
-
-      return next
-    })
-  }
-
-  function closeOpponentPicker() {
-    setActiveOpponentSlot(null)
-    setOpponentSearch('')
-    setHiddenOpponentSetIds(new Set())
-  }
-
-  function hideOpponentSet(event, pokemonId) {
-    event.stopPropagation()
-    setHiddenOpponentSetIds((current) => {
-      const next = new Set(current)
-      next.add(pokemonId)
-      return next
-    })
-  }
-
-  useEffect(() => {
-    const { level, facility, format } = battleSettings
-    const persistentSettings = { level, facility, format }
-    localStorage.setItem(
-      BATTLE_SETTINGS_KEY,
-      JSON.stringify(persistentSettings)
-    )
-  }, [battleSettings])
-
-  function updateBattleSetting(key, value) {
-    if (key === 'format' && value !== battleSettings.format) {
-      const nextTeamSize = value === 'Doubles' ? 4 : 3
-      setMyTeam((current) => current.slice(0, nextTeamSize))
-      setOpponentTeam((current) => current.slice(0, nextTeamSize))
-      setActiveMySlot(null)
-      setActiveOpponentSlot(null)
-    }
-
-    setBattleSettings((current) => ({
-      ...current,
-      [key]: value,
-    }))
-  }
-
-  function changeStreak(amount) {
-    setBattleSettings((current) => ({
-      ...current,
-      streak: Math.max(0, current.streak + amount),
-    }))
-  }
-
-  const matchupMyStats = getMatchupCurrentStats(matchupMyPokemon)
-  const matchupMyLevel = matchupMyPokemon
-    ? matchupMyPokemon.level ??
-      levelFromExperience(
-        matchupMyPokemon.experience,
-        speciesInfo?.[matchupMyPokemon.species]?.growthRate
-      )
-    : null
-  const opponentIv =
-    battleSettings.facility === 'Dome'
-      ? 3
-      : selectedTrainer
-        ? Number(selectedTrainer.ivs ?? 31)
-        : 31
-  const matchupOpponentStats = calculateFrontierMatchupStats(
-    matchupOpponentPokemon,
-    battleSettings.level,
-    opponentIv
-  )
-  const matchupMyTypes = matchupMyPokemon
-    ? getMeta(matchupMyPokemon)?.types || []
-    : []
-  const matchupOpponentTypes = matchupOpponentPokemon
-    ? Object.values(pokemonMeta).find(
-        (entry) =>
-          entry.name.toLowerCase() ===
-          matchupOpponentPokemon.species.toLowerCase()
-      )?.types || []
-    : []
-
-  const matchupSpeedWinner =
-    matchupMyStats?.speed != null && matchupOpponentStats?.speed != null
-      ? matchupMyStats.speed > matchupOpponentStats.speed
-        ? 'my'
-        : matchupOpponentStats.speed > matchupMyStats.speed
-          ? 'opponent'
-          : null
-      : null
-
-  return (
-    <div className="page battle-page">
-      <section className="battle-control-row">
-        <div className="battle-toggle-group">
-          <button
-            className={`battle-toggle ${battleSettings.level === 50 ? 'active' : ''}`}
-            type="button"
-            onClick={() => updateBattleSetting('level', 50)}
-          >
-            Lvl 50
-          </button>
-          <button
-            className={`battle-toggle ${battleSettings.level === 100 ? 'active' : ''}`}
-            type="button"
-            onClick={() => updateBattleSetting('level', 100)}
-          >
-            Lvl 100
-          </button>
-        </div>
-
-        <div className="battle-toggle-group">
-          <button
-            className={`battle-toggle ${battleSettings.facility === 'Tower' ? 'active' : ''}`}
-            type="button"
-            onClick={() => updateBattleSetting('facility', 'Tower')}
-          >
-            Tower
-          </button>
-          <button
-            className={`battle-toggle ${battleSettings.facility === 'Dome' ? 'active' : ''}`}
-            type="button"
-            onClick={() => updateBattleSetting('facility', 'Dome')}
-          >
-            Dome
-          </button>
-        </div>
-
-        <div className="battle-toggle-group">
-          <button
-            className={`battle-toggle ${battleSettings.format === 'Singles' ? 'active' : ''}`}
-            type="button"
-            onClick={() => updateBattleSetting('format', 'Singles')}
-          >
-            Singles
-          </button>
-          <button
-            className={`battle-toggle ${battleSettings.format === 'Doubles' ? 'active' : ''}`}
-            type="button"
-            onClick={() => updateBattleSetting('format', 'Doubles')}
-          >
-            Doubles
-          </button>
-        </div>
-
-        <div className="streak-control">
-          <span className="streak-label">Current Streak</span>
-          <div className="streak-stepper">
-            <button
-              type="button"
-              aria-label="Decrease current streak"
-              onClick={() => changeStreak(-1)}
-            >
-              −
-            </button>
-            <input
-              type="number"
-              min="0"
-              inputMode="numeric"
-              value={battleSettings.streak}
-              onChange={(event) => {
-                const value = Math.max(
-                  0,
-                  Math.floor(Number(event.target.value) || 0)
-                )
-                updateBattleSetting('streak', value)
-              }}
-            />
-            <button
-              type="button"
-              aria-label="Increase current streak"
-              onClick={() => changeStreak(1)}
-            >
-              +
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <section className="battle-searches">
-        <div className="trainer-search-wrap">
-          <input
-            className="pokemon-search trainer-search battle-search-input"
-            type="search"
-            spellCheck={false}
-            autoCorrect="off"
-            autoCapitalize="none"
-            placeholder="Trainer"
-            value={trainerSearch}
-            autoComplete="off"
-            onChange={(event) => {
-              setTrainerSearch(event.target.value)
-              setSelectedTrainer(null)
-              setOpponentSearch('')
-            }}
-          />
-
-          {selectedTrainer && (
-            <button
-              className="battle-search-clear"
-              type="button"
-              aria-label="Clear selected trainer"
-              onClick={clearTrainer}
-            >
-              ×
-            </button>
-          )}
-
-          {trainerSearch.trim() && !selectedTrainer && (
-            <div className="trainer-search-popup">
-              {trainerMatches.length ? (
-                trainerMatches.map((trainer) => (
-                  <button
-                    className="trainer-search-result"
-                    type="button"
-                    key={`${trainer.name}-${trainer.trainerClass}`}
-                    onClick={() => chooseTrainer(trainer)}
-                  >
-                    <span className="trainer-result-main">
-                      <strong>{trainer.name}</strong>
-                      <span>{trainer.trainerClass}</span>
-                    </span>
-
-                    <span className="trainer-result-count">
-                      {trainer.pokemonSetIds.length} Pokémon
-                    </span>
-                  </button>
-                ))
-              ) : (
-                <div className="trainer-search-empty">
-                  No results.
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        <div className="battle-team-row">
-          <div className="battle-team-side">
-            <span className="battle-team-label">My Team</span>
-            <div className="battle-team-slots">
-              {Array.from({ length: teamSize }).map((_, index) => {
-                const pokemon = myTeam[index]
-
-                return (
-                  <div className="battle-slot-wrap" key={`my-${index}`}>
-                    <button
-                      className={`battle-pokemon-slot ${pokemon ? 'filled' : ''}`}
-                      type="button"
-                      aria-label={pokemon ? pokemon.speciesName : `Add my Pokémon ${index + 1}`}
-                      onClick={() => {
-                        if (pokemon) {
-                          setMatchupMyPokemon(pokemon)
-                        } else {
-                          setActiveMySlot(index)
-                        }
-                      }}
-                      onDoubleClick={(event) => {
-                        if (!pokemon) return
-                        event.preventDefault()
-                        removeMyPokemon(index)
-                      }}
-                    >
-                      {pokemon ? (
-                        <img src={spritePath(pokemon)} alt={pokemon.speciesName} />
-                      ) : (
-                        '+'
-                      )}
-                    </button>
-
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-
-          <div className="battle-team-divider" />
-
-          <div className="battle-team-side">
-            <span className="battle-team-label">Opponent</span>
-            <div className="battle-team-slots">
-              {Array.from({ length: teamSize }).map((_, index) => {
-                const pokemon = opponentTeam[index]
-
-                return (
-                  <div className="battle-slot-wrap" key={`opponent-${index}`}>
-                    <button
-                      className={`battle-pokemon-slot ${pokemon ? 'filled' : ''}`}
-                      type="button"
-                      aria-label={pokemon ? `${pokemon.species} ${pokemon.instance}` : `Add opponent Pokémon ${index + 1}`}
-                      onClick={() => {
-                        if (pokemon) {
-                          setMatchupOpponentPokemon(pokemon)
-                        } else {
-                          setActiveOpponentSlot(index)
-                          setOpponentSearch('')
-                          setHiddenOpponentSetIds(new Set())
-                        }
-                      }}
-                      onDoubleClick={(event) => {
-                        if (!pokemon) return
-                        event.preventDefault()
-                        removeOpponentPokemon(index)
-                      }}
-                    >
-                      {pokemon ? (
-                        <img src={frontierSpritePath(pokemon)} alt={pokemon.species} />
-                      ) : (
-                        '+'
-                      )}
-                    </button>
-
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        </div>
-
-        {activeMySlot !== null && (
-          <div className="battle-picker-backdrop" onClick={() => setActiveMySlot(null)}>
-            <div className="battle-picker my-pokemon-picker" onClick={(event) => event.stopPropagation()}>
-              <div className="battle-picker-title">
-                <strong>My Battle Frontier Pokémon</strong>
-                <button type="button" onClick={() => setActiveMySlot(null)}>×</button>
-              </div>
-
-              <div className="my-picker-grid">
-                {battleFrontierPokemon.length ? (
-                  battleFrontierPokemon.map((pokemon) => (
-                    <button
-                      className="my-picker-pokemon"
-                      type="button"
-                      key={pokemon.companionId}
-                      onClick={() => chooseMyPokemon(pokemon)}
-                    >
-                      <img src={spritePath(pokemon)} alt={pokemon.speciesName} />
-                      <span>{pokemon.nickname || pokemon.speciesName}</span>
-                    </button>
-                  ))
-                ) : (
-                  <div className="trainer-search-empty">No BF Trained Pokémon</div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeOpponentSlot !== null && (
-          <div className="battle-picker-backdrop" onClick={closeOpponentPicker}>
-            <div className="battle-picker opponent-picker" onClick={(event) => event.stopPropagation()}>
-              <div className="battle-picker-title">
-                <strong>Opponent Pokémon</strong>
-                <button type="button" onClick={closeOpponentPicker}>×</button>
-              </div>
-
-              <div className="opponent-search-wrap picker-search-wrap">
-                <input
-                  className="pokemon-search opponent-search battle-search-input"
-                  type="search"
-            spellCheck={false}
-            autoCorrect="off"
-            autoCapitalize="none"
-                  placeholder={
-                    selectedTrainer
-                      ? `Search ${selectedTrainer.name}'s Pokémon...`
-                      : 'Search all Frontier Pokémon...'
-                  }
-                  value={opponentSearch}
-                  autoComplete="off"
-                  autoFocus
-                  onChange={(event) => {
-                    setOpponentSearch(event.target.value)
-                    setHiddenOpponentSetIds(new Set())
-                  }}
-                />
-
-                {opponentSearch.trim() && (
-                  <div className="opponent-search-popup picker-results">
-                    {opponentMatches.length ? (
-                      opponentMatches.map((pokemon) => (
-                        <div
-                          className="opponent-search-result"
-                          role="button"
-                          tabIndex="0"
-                          key={pokemon.id}
-                          onClick={() => chooseOpponent(pokemon)}
-                          onKeyDown={(event) => {
-                            if (event.key === 'Enter') chooseOpponent(pokemon)
-                          }}
-                        >
-                          <span className="opponent-result-name">
-                            {pokemon.species} {pokemon.instance}
-                          </span>
-
-                          <span className="opponent-result-item">
-                            {pokemon.item || 'No Item'}
-                          </span>
-
-                          <span className="opponent-result-moves">
-                            {pokemon.moves.map((move, moveIndex) => {
-                              const duplicateClass =
-                                duplicateMoveColors.get(move) || ''
-
-                              return (
-                                <span
-                                  className={`opponent-move ${duplicateClass}`}
-                                  key={`${pokemon.id}-${move}-${moveIndex}`}
-                                >
-                                  {move}
-                                </span>
-                              )
-                            })}
-                          </span>
-
-                          <button
-                            className="opponent-result-dismiss"
-                            type="button"
-                            aria-label={`Temporarily hide ${pokemon.species} ${pokemon.instance}`}
-                            onClick={(event) => hideOpponentSet(event, pokemon.id)}
-                          >
-                            ×
-                          </button>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="trainer-search-empty">No results.</div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-      </section>
-
-      <h3 className="matchup-header">Matchup</h3>
-
-      <section className="matchup-section">
-        <div className="matchup-side matchup-my-side">
-          {matchupMyPokemon ? (
-            <>
-              <img
-                className="matchup-sprite"
-                src={artworkSpritePath(matchupMyPokemon)}
-                alt={matchupMyPokemon.speciesName}
-                onDoubleClick={() => setMatchupMyPokemon(null)}
-              />
-              <strong className="matchup-pokemon-name">
-                {matchupMyPokemon.nickname || matchupMyPokemon.speciesName}
-              </strong>
-              <div className="matchup-types">
-                {(pokemonMeta[matchupMyPokemon.species]?.types || []).map((type) => (
-                  <span className="matchup-type-icon-only" key={type}>
-                    <TypeIcon type={type} compact />
-                  </span>
-                ))}
-              </div>
-              <div className="matchup-info matchup-ring-section">
-                <div><span>Level</span><b>{matchupMyLevel ?? '—'}</b></div>
-                <div><span>Nature</span><b>{matchupMyPokemon.nature || '—'}</b></div>
-                <div><span>Ability</span><b>{matchupMyPokemon.ability || '—'}</b></div>
-                <div>
-                  <span>Held Item</span>
-                  <b className="matchup-held-item">
-                    <ItemIcon
-                      name={
-                        !matchupMyPokemon.heldItem
-                          ? 'None'
-                          : (itemNames?.[matchupMyPokemon.heldItem] ||
-                             matchupMyPokemon.heldItemName ||
-                             `Item ${matchupMyPokemon.heldItem}`)
-                      }
-                    />
-                    <span>
-                      {!matchupMyPokemon.heldItem
-                        ? 'None'
-                        : (itemNames?.[matchupMyPokemon.heldItem] ||
-                           matchupMyPokemon.heldItemName ||
-                           `Item ${matchupMyPokemon.heldItem}`)}
-                    </span>
-                  </b>
-                </div>
-              </div>
-              {matchupMyStats && (
-                <>
-                  <h4 className="matchup-section-heading">Stats</h4>
-                  <div className="matchup-stats-section matchup-ring-section">
-                    <div className="matchup-stats">
-                    {[
-                      ['HP', 'hp'], ['Atk', 'attack'], ['Def', 'defense'],
-                      ['SpA', 'spAttack'], ['SpD', 'spDefense'], ['Spe', 'speed'],
-                    ].map(([label, key]) => (
-                      <div className="matchup-stat" key={key}>
-                        <span>{label}</span>
-                        <b className={key === 'speed' && matchupSpeedWinner === 'my' ? 'speed-winner' : ''}>
-                          {matchupMyStats[key] ?? '—'}
-                        </b>
-                      </div>
-                    ))}
-                    </div>
-                    <div className="matchup-stats-evs">
-                      <span>EVs</span>
-                      <b>{formatMatchupEvs(matchupMyPokemon.evs)}</b>
-                    </div>
-                  </div>
-                </>
-              )}
-              <h4 className="matchup-section-heading">Moves</h4>
-              <div className="matchup-moves matchup-ring-section">
-                {(matchupMyPokemon.moves || []).slice(0, 4).map((move, index) => {
-                  const info = moveInfo?.[move.id] ?? {}
-                  const type = info.type ?? move.type ?? 'NORMAL'
-                  const maxPp = getMoveMaxPp(
-                    info.pp ?? move.maxPp,
-                    matchupMyPokemon.ppBonuses,
-                    index
-                  )
-                  return (
-                    <div className="matchup-move" key={`${move.id}-${index}`}>
-                      <TypeIcon type={type} compact />
-                      <b>{move.name}</b>
-                      <span>PP {maxPp ?? '—'}</span>
-                    </div>
-                  )
-                })}
-              </div>
-              <h4 className="matchup-section-heading">Type Matchups</h4>
-              <MatchupTypeAdvantages types={matchupMyTypes} />
-            </>
-          ) : null}
-        </div>
-
-        <div className="matchup-vs">VS</div>
-
-        <div className="matchup-side matchup-opponent-side">
-          {matchupOpponentPokemon ? (
-            <>
-              <img
-                className="matchup-sprite"
-                src={frontierArtworkSpritePath(matchupOpponentPokemon)}
-                alt={`${matchupOpponentPokemon.species} ${matchupOpponentPokemon.instance}`}
-                onDoubleClick={() => setMatchupOpponentPokemon(null)}
-              />
-              <strong className="matchup-pokemon-name">
-                {matchupOpponentPokemon.species} {matchupOpponentPokemon.instance}
-              </strong>
-              <div className="matchup-types">
-                {(Object.values(pokemonMeta).find(
-                  (entry) =>
-                    entry.name.toLowerCase() ===
-                    matchupOpponentPokemon.species.toLowerCase()
-                )?.types || []).map((type) => (
-                  <span className="matchup-type-icon-only" key={type}>
-                    <TypeIcon type={type} compact />
-                  </span>
-                ))}
-              </div>
-              <div className="matchup-info matchup-ring-section">
-                <div><span>Level</span><b>{battleSettings.level}</b></div>
-                <div><span>Nature</span><b>{matchupOpponentPokemon.nature || '—'}</b></div>
-                <div><span>Ability</span><b>{matchupOpponentPokemon.possibleAbility || '—'}</b></div>
-                <div>
-                  <span>Held Item</span>
-                  <b className="matchup-held-item">
-                    {matchupOpponentPokemon.item && (
-                      <ItemIcon name={matchupOpponentPokemon.item} />
-                    )}
-                    <span>{matchupOpponentPokemon.item || 'None'}</span>
-                  </b>
-                </div>
-              </div>
-              {matchupOpponentStats && (
-                <>
-                  <h4 className="matchup-section-heading">Stats</h4>
-                  <div className="matchup-stats-section matchup-ring-section">
-                    <div className="matchup-stats">
-                    {[
-                      ['HP', 'hp'], ['Atk', 'attack'], ['Def', 'defense'],
-                      ['SpA', 'spAttack'], ['SpD', 'spDefense'], ['Spe', 'speed'],
-                    ].map(([label, key]) => (
-                      <div className="matchup-stat" key={key}>
-                        <span>{label}</span>
-                        <b className={key === 'speed' && matchupSpeedWinner === 'opponent' ? 'speed-winner' : ''}>
-                          {matchupOpponentStats[key] ?? '—'}
-                        </b>
-                      </div>
-                    ))}
-                    </div>
-                    <div className="matchup-stats-evs">
-                      <span>EVs</span>
-                      <b>{formatMatchupEvs(matchupOpponentPokemon.evs, true)}</b>
-                    </div>
-                  </div>
-                </>
-              )}
-              <h4 className="matchup-section-heading">Moves</h4>
-              <div className="matchup-moves matchup-ring-section">
-                {(matchupOpponentPokemon.moves || []).slice(0, 4).map((move, index) => {
-                  const info = getFrontierMoveInfo(move) || {}
-                  return (
-                    <div className="matchup-move" key={`${move}-${index}`}>
-                      <TypeIcon type={info.type ?? 'NORMAL'} compact />
-                      <b>{move}</b>
-                      <span>PP {info.pp ?? '—'}</span>
-                    </div>
-                  )
-                })}
-              </div>
-              <h4 className="matchup-section-heading">Type Matchups</h4>
-              <MatchupTypeAdvantages types={matchupOpponentTypes} />
-            </>
-          ) : null}
-        </div>
-      </section>
     </div>
   )
 }
@@ -2433,18 +1024,21 @@ function App() {
   }
 
   function handlePokemonSave(pokemon) {
-    if (pokemon.experience == null) pokemon = { ...pokemon, experience: expForLevel(pokemon.level, speciesInfo[pokemon.species]?.growthRate) }
+    const isNew=!pokemon.companionId && !pokemon.manualId
+    const id=pokemon.companionId ?? pokemon.manualId ?? createCollectionId()
+    pokemon={...pokemon,companionId:id,...(!pokemon.companionId && !pokemon.manualId ? {manualId:id} : {})}
     setSaveData(current => {
       const save = current ?? {}
       const id = pokemon.companionId
       const replace = entry => getPokemonId(entry) === id ? pokemon : entry
-      if (!id) return { ...save, manualPokemon: [...(save.manualPokemon ?? []), { ...pokemon, manualId: crypto.randomUUID() }] }
+      if (isNew) return { ...save, manualPokemon: [...(save.manualPokemon ?? []), pokemon] }
       return { ...save,
         manualPokemon: (save.manualPokemon ?? []).map(replace),
         party: save.party ? { ...save.party, pokemon: save.party.pokemon?.map(replace) } : save.party,
         pcStorage: save.pcStorage ? { ...save.pcStorage, boxes: save.pcStorage.boxes?.map(box => ({ ...box, pokemon: box.pokemon.map(replace) })) } : save.pcStorage,
       }
     })
+    return pokemon
   }
 
   function handleRoleChange(
@@ -2483,14 +1077,14 @@ function App() {
         )}
 
         {activePage === 'resources' && (
-          <ResourcesPage key={resourcesVisit} />
+          <ResourcesPage key={resourcesVisit} collection={collection} />
         )}
 
         <div
           className={`persistent-page ${activePage === 'battle' ? 'active' : ''}`}
           aria-hidden={activePage !== 'battle'}
         >
-          <BattlePage collection={collection} designations={designations} />
+          <BattleWorkbench collection={collection} designations={designations} getRole={getRole} saveData={saveData??{}} />
         </div>
       </main>
 
