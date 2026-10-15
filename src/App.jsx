@@ -235,9 +235,6 @@ function HomePage({
   onSaveLoaded,
 }) {
   useEffect(() => {
-    const viewport = document.querySelector('meta[name="viewport"]')
-    const original = viewport?.getAttribute('content')
-    viewport?.setAttribute('content', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover')
     const preventGesture = (event) => event.preventDefault()
     const preventPinch = (event) => {
       if (event.touches.length > 1) event.preventDefault()
@@ -246,7 +243,6 @@ function HomePage({
     document.addEventListener('gesturechange', preventGesture, { passive: false })
     document.addEventListener('touchmove', preventPinch, { passive: false })
     return () => {
-      if (original !== null && original !== undefined) viewport?.setAttribute('content', original)
       document.removeEventListener('gesturestart', preventGesture)
       document.removeEventListener('gesturechange', preventGesture)
       document.removeEventListener('touchmove', preventPinch)

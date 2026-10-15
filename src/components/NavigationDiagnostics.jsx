@@ -14,11 +14,14 @@ export default function NavigationDiagnostics({ children }) {
     const rect = nav.getBoundingClientRect()
     const viewport = window.visualViewport
     const lines = [
-      'Layout check 2 · cache v36',
+      'Layout check 3 · cache v37',
       `Installed: ${Boolean(navigator.standalone || matchMedia('(display-mode: standalone)').matches)}`,
       `Screen: ${screen.width} × ${screen.height}`,
       `Inner: ${innerWidth} × ${innerHeight}`,
       `Document: ${document.documentElement.clientHeight}`,
+      `Root CSS: ${getComputedStyle(document.documentElement).height}`,
+      `Body CSS: ${getComputedStyle(document.body).height}`,
+      `Viewport meta: ${document.querySelector('meta[name="viewport"]')?.content}`,
       `Visual: ${viewport?.height.toFixed(1)} · offset ${viewport?.offsetTop.toFixed(1)}`,
       `100lvh: ${safe.height}`,
       `Safe top/bottom: ${safe.paddingTop} / ${safe.paddingBottom}`,

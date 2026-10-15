@@ -429,16 +429,14 @@
    Keep the existing safe-area padding below its labels. */
 .bottom-nav.home97-nav { position:fixed!important; top:auto!important; bottom:0!important; }
 
-/* iOS standalone can resolve bottom:0 against a safe-area-shortened viewport.
-   Its large viewport retains the full screen height (WebKit #254868). Anchor
-   the footer's lower edge from that height without changing its safe padding. */
-@supports (-webkit-touch-callout:none) {
- @media(display-mode:standalone) {
-  .bottom-nav.home97-nav {
-   top:100vh!important;
-   top:100lvh!important;
-   bottom:auto!important;
-   transform:translateY(-100%);
-  }
+/* Size the installed document itself to the full viewport. Applying a large
+   viewport only to the footer leaves it clipped by iOS's shorter root surface. */
+@media(display-mode:standalone) {
+ html:root, body, #root {
+  height:100vh!important;
+  min-height:100vh!important;
+  height:100lvh!important;
+  min-height:100lvh!important;
  }
+ .bottom-nav.home97-nav { top:auto!important; bottom:0!important; transform:none; }
 }
