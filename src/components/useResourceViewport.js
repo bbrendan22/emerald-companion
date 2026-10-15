@@ -6,7 +6,7 @@ export default function useResourceViewport() {
   useEffect(() => {
     const viewport = window.visualViewport
     const updateSize = () => {
-      if(document.querySelector('.resource-stats-tool,.battle-workbench') && document.documentElement.style.getPropertyValue('--resource-viewport-height')) return
+      if(document.querySelector('.resource-stats-tool,.persistent-page.active .battle-workbench') && document.activeElement?.matches('input,textarea,[contenteditable="true"]') && document.documentElement.style.getPropertyValue('--resource-viewport-height')) return
       // dvh alone does not shrink with the iPhone's on-screen keyboard.
       document.documentElement.style.setProperty('--resource-viewport-height', `${viewport?.height ?? window.innerHeight}px`)
     }
@@ -36,11 +36,15 @@ export default function useResourceViewport() {
     updateSize()
     viewport?.addEventListener('resize', updateSize)
     window.addEventListener('resize', updateSize)
+    window.addEventListener('pageshow', updateSize)
+    document.addEventListener('visibilitychange', updateSize)
     document.addEventListener('touchstart', startTouch, { passive:true })
     document.addEventListener('touchmove', containTouch, { passive:false })
     return () => {
       viewport?.removeEventListener('resize', updateSize)
       window.removeEventListener('resize', updateSize)
+      window.removeEventListener('pageshow', updateSize)
+      document.removeEventListener('visibilitychange', updateSize)
       document.removeEventListener('touchstart', startTouch)
       document.removeEventListener('touchmove', containTouch)
       document.documentElement.style.removeProperty('--resource-viewport-height')

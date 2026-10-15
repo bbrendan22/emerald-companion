@@ -124,7 +124,26 @@ export default function BattleWorkbench({collection,designations,getRole,saveDat
 
  const pageRef=useRef(null)
  const trainerLastTap=useRef(null)
- useEffect(()=>{pageRef.current.style.setProperty('--battle-fixed-height',`${window.visualViewport?.height ?? window.innerHeight}px`)},[])
+ useEffect(()=>{
+  if(!isActive)return
+  const viewport=window.visualViewport
+  const size=()=>{
+   // Refresh after installed-app launch/resume, but keep the layout still while typing.
+   if(document.activeElement?.matches('input,textarea,[contenteditable="true"]'))return
+   pageRef.current?.style.setProperty('--battle-fixed-height',`${viewport?.height??window.innerHeight}px`)
+  }
+  size()
+  viewport?.addEventListener('resize',size)
+  window.addEventListener('resize',size)
+  window.addEventListener('pageshow',size)
+  document.addEventListener('visibilitychange',size)
+  return()=>{
+   viewport?.removeEventListener('resize',size)
+   window.removeEventListener('resize',size)
+   window.removeEventListener('pageshow',size)
+   document.removeEventListener('visibilitychange',size)
+  }
+ },[isActive])
  function focusWithoutPanning(event){const input=event.target;if(event.pointerType!=='touch'||!(input instanceof HTMLInputElement))return;event.preventDefault();input.style.opacity='0';input.focus({preventScroll:true});requestAnimationFrame(()=>requestAnimationFrame(()=>{input.style.opacity=''}))}
  const [state,setState]=useState(()=>{const saved=load();if(!saved.teamInitialized){if(!saved.team.length)saved.team=collection.filter(mon=>getRole(mon,designations)==='bf').slice(0,3).map(mon=>mon.companionId);saved.active=saved.team.includes(saved.active)?saved.active:saved.team[0]??'';saved.teamInitialized=true}return saved})
  useEffect(()=>{

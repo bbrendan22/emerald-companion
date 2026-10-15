@@ -424,3 +424,10 @@
 
 .bottom-nav.home97-nav .nav-icon { display:grid; place-items:center; width:29px; height:29px; }
 .bottom-nav.home97-nav button { min-width:0; text-align:center; }
+
+/* In the installed app, anchor navigation to the full app surface rather than
+   Safari's transient visual viewport during launch and toolbar transitions. */
+@media(display-mode:standalone) {
+ .app-shell { position:fixed; inset:0; height:100%; min-height:0; box-sizing:border-box; }
+ .bottom-nav.home97-nav { position:absolute!important; bottom:0!important; }
+}

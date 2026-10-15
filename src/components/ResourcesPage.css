@@ -980,7 +980,7 @@ body:has(.resource-home-scroll-page) { position:fixed; inset:0; width:100%; heig
     left:0;
     right:0;
     height:env(safe-area-inset-top);
-    background:#f3f4f6;
+    background:var(--app-page-background,#f3f4f6);
     z-index:1000;
     pointer-events:none;
   }
