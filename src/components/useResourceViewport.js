@@ -6,7 +6,7 @@ export default function useResourceViewport() {
   useEffect(() => {
     const viewport = window.visualViewport
     const updateSize = () => {
-      if(document.querySelector('.resource-stats-tool') && document.documentElement.style.getPropertyValue('--resource-viewport-height')) return
+      if(document.querySelector('.resource-stats-tool,.battle-workbench') && document.documentElement.style.getPropertyValue('--resource-viewport-height')) return
       // dvh alone does not shrink with the iPhone's on-screen keyboard.
       document.documentElement.style.setProperty('--resource-viewport-height', `${viewport?.height ?? window.innerHeight}px`)
     }
