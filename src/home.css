@@ -428,3 +428,17 @@
 /* Navigation lives directly on the document, outside bounded page containers.
    Keep the existing safe-area padding below its labels. */
 .bottom-nav.home97-nav { position:fixed!important; top:auto!important; bottom:0!important; }
+
+/* iOS standalone can resolve bottom:0 against a safe-area-shortened viewport.
+   Its large viewport retains the full screen height (WebKit #254868). Anchor
+   the footer's lower edge from that height without changing its safe padding. */
+@supports (-webkit-touch-callout:none) {
+ @media(display-mode:standalone) {
+  .bottom-nav.home97-nav {
+   top:100vh!important;
+   top:100lvh!important;
+   bottom:auto!important;
+   transform:translateY(-100%);
+  }
+ }
+}
