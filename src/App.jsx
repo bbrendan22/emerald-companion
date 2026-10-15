@@ -2,6 +2,7 @@ import BattleWorkbench from './components/BattleWorkbench'
 import {
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react'
 
@@ -950,6 +951,7 @@ function MyPokemonPage({
 }
 
 function App() {
+  const battleLastTap=useRef(null)
   const [
     saveData,
     setSaveData,
@@ -1084,14 +1086,14 @@ function App() {
           className={`persistent-page ${activePage === 'battle' ? 'active' : ''}`}
           aria-hidden={activePage !== 'battle'}
         >
-          <BattleWorkbench collection={collection} designations={designations} getRole={getRole} saveData={saveData??{}} />
+          <BattleWorkbench isActive={activePage === 'battle'} collection={collection} designations={designations} getRole={getRole} saveData={saveData??{}} />
         </div>
       </main>
 
       <nav className="bottom-nav home97-nav">
         <button className={activePage === 'home' ? 'active' : ''} onClick={() => setActivePage('home')}><span className="nav-icon nav-home-icon"><HomeIcon kind="home" /></span><span>Home</span></button>
         <button className={activePage === 'pokemon' ? 'active' : ''} onClick={() => setActivePage('pokemon')}><span className="nav-icon nav-pokemon-icon"><HomeIcon kind="pokemon" /></span><span>My Pokémon</span></button>
-        <button className={activePage === 'battle' ? 'active' : ''} onClick={() => setActivePage('battle')}><span className="nav-icon nav-battle-icon"><HomeIcon kind="battle" /></span><span>Battle</span></button>
+        <button className={activePage === 'battle' ? 'active' : ''} onClick={event => {setActivePage('battle');const now=event.timeStamp;if(battleLastTap.current!==null&&now-battleLastTap.current<350){battleLastTap.current=null;window.dispatchEvent(new Event('emerald-reset-battle'))}else{battleLastTap.current=now}}} onDoubleClick={event=>event.preventDefault()}><span className="nav-icon nav-battle-icon"><HomeIcon kind="battle" /></span><span>Battle</span></button>
         <button className={activePage === 'resources' ? 'active' : ''} onClick={() => { setResourcesVisit(visit => visit + 1); setActivePage('resources') }}><span className="nav-icon nav-resources-icon"><HomeIcon kind="resources" /></span><span>Resources</span></button>
       </nav>
     </div>
