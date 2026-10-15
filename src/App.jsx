@@ -1,5 +1,4 @@
 import { createPortal } from 'react-dom'
-import NavigationDiagnostics from './components/NavigationDiagnostics'
 import BattleWorkbench from './components/BattleWorkbench'
 import {
   useEffect,
@@ -1088,12 +1087,12 @@ function App() {
         </div>
       </main>
 
-      {createPortal(<NavigationDiagnostics><nav className="bottom-nav home97-nav">
+      {createPortal(<nav className="bottom-nav home97-nav">
         <button className={activePage === 'home' ? 'active' : ''} onClick={() => setActivePage('home')}><span className="nav-icon nav-home-icon"><HomeIcon kind="home" /></span><span>Home</span></button>
         <button className={activePage === 'pokemon' ? 'active' : ''} onClick={() => setActivePage('pokemon')}><span className="nav-icon nav-pokemon-icon"><HomeIcon kind="pokemon" /></span><span>My Pokémon</span></button>
         <button className={activePage === 'battle' ? 'active' : ''} onClick={event => {setActivePage('battle');const now=event.timeStamp;if(battleLastTap.current!==null&&now-battleLastTap.current<350){battleLastTap.current=null;window.dispatchEvent(new Event('emerald-reset-battle'))}else{battleLastTap.current=now}}} onDoubleClick={event=>event.preventDefault()}><span className="nav-icon nav-battle-icon"><HomeIcon kind="battle" /></span><span>Battle</span></button>
         <button className={activePage === 'resources' ? 'active' : ''} onClick={() => { setResourcesVisit(visit => visit + 1); setActivePage('resources') }}><span className="nav-icon nav-resources-icon"><HomeIcon kind="resources" /></span><span>Resources</span></button>
-      </nav></NavigationDiagnostics>, document.body)}
+      </nav>, document.body)}
     </div>
   )
 }

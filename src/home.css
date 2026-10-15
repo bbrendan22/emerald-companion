@@ -425,12 +425,9 @@
 .bottom-nav.home97-nav .nav-icon { display:grid; place-items:center; width:29px; height:29px; }
 .bottom-nav.home97-nav button { min-width:0; text-align:center; }
 
-/* Navigation lives directly on the document, outside bounded page containers.
-   Keep the existing safe-area padding below its labels. */
-.bottom-nav.home97-nav { position:fixed!important; top:auto!important; bottom:0!important; }
-
-/* Size the installed document itself to the full viewport. Applying a large
-   viewport only to the footer leaves it clipped by iOS's shorter root surface. */
+/* Keep the installed document at full-screen height. Percentage-based root
+   heights can lose the iPhone status-bar area and leave a gap below navigation.
+   Navigation is rendered on document.body, outside bounded page containers. */
 @media(display-mode:standalone) {
  html:root, body, #root {
   height:100vh!important;
@@ -438,5 +435,4 @@
   height:100lvh!important;
   min-height:100lvh!important;
  }
- .bottom-nav.home97-nav { top:auto!important; bottom:0!important; transform:none; }
 }
