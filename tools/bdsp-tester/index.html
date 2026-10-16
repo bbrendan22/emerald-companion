@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Emerald • Animation Lab</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#071a18;color:#edf9ec;font:16px system-ui,sans-serif}main{max-width:1000px;margin:auto;padding:24px 16px}h1{font-size:clamp(24px,5vw,36px);margin:8px 0}p{color:#afc9be;line-height:1.5}.eyebrow{color:#9ddd90;text-transform:uppercase;letter-spacing:.2em;font-size:12px}.arena{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:0;background:radial-gradient(ellipse at 50% 95%,#608261 0, #244c41 35%,#102e2c 70%);border:1px solid #487662;border-radius:24px;overflow:hidden;margin:22px 0}.fighter{min-width:0;padding:20px 8px 8px;text-align:center}.fighter h2{font-size:18px;margin:0}.art{aspect-ratio:1;display:grid;place-items:center;position:relative}.art:before{content:'';position:absolute;bottom:14%;width:70%;height:12%;border-radius:50%;background:#081f18aa;filter:blur(8px)}img{width:100%;height:100%;object-fit:contain;position:relative;filter:drop-shadow(0 8px 8px #0003)}.vs{position:absolute;left:50%;top:48%;transform:translate(-50%,-50%) rotate(-10deg);font-size:clamp(24px,6vw,52px);font-weight:950;color:#ffdf83;text-shadow:0 0 20px #ffbd4c88;pointer-events:none}.controls{display:grid;grid-template-columns:1fr 1fr;gap:16px}.panel{background:#102c27;border:1px solid #315348;border-radius:16px;padding:16px}label{display:block;margin:10px 0;color:#ccded2}select,button{font:inherit;color:#f1ffef;background:#173e32;border:1px solid #53765f;border-radius:9px;padding:10px}select{width:100%}input{accent-color:#99dc7e}button{cursor:pointer}button:hover{background:#28583d}.actions{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0}.status{min-height:36px;font-size:13px;color:#b8d9bf}.note{font-size:13px}.hidden img{visibility:hidden}@media(max-width:520px){main{padding:18px 10px}.panel{padding:12px}.controls{gap:8px}.fighter{padding-top:16px}.fighter h2{font-size:15px}}
+</style>
+<style>body:not(.effects) img{filter:none}body:not(.effects) .art:before{filter:none}body:not(.effects) .vs{text-shadow:none}</style>
+<main>
+<div class="eyebrow">Emerald Companion · Local test</div>
+<h1>Matchup Animation Lab</h1>
+<p>Try the BDSP artwork on your phone. Only the two selected images load. All 386 Pokémon now have full-resolution first-frame stills in all four variants. This preview does not access your app’s save data.</p>
+<div class="arena"><section class="fighter"><h2 id="name0">Your Pokémon</h2><div class="art" id="art0"></div></section><section class="fighter"><h2 id="name1">Opponent</h2><div class="art" id="art1"></div></section><div class="vs">VS</div></div>
+<label>Still image format<select id="still-format"><option value="still">Static WebP · lossless, smaller download</option><option value="png">PNG · full-resolution master</option></select></label>
+<label>Playback version<select id="version"><option value="assets">Original · 512px, original frame rate</option><option value="optimized">Optimized heavy pair · 320px, up to 12 fps</option><option value="light">Light heavy pair · 256px, up to 8 fps</option><option value="smooth256">Smooth heavy pair · 256px, original frame rate</option><option value="balanced20" selected>Balanced heavy pair · 256px, 20 fps</option><option value="smooth320">Smooth heavy pair · 320px, original frame rate</option></select></label>
+<p class="note" id="version-note">Leave Animation count on Both still to preview the new image collection. Playback version only affects animated comparisons.</p>
+<label>Animation count<select id="count"><option value="none" selected>Both still · baseline</option><option value="player">Only your Pokémon animated</option><option value="opponent">Only opponent animated</option><option value="both">Both animated</option></select></label><label><input id="effects" type="checkbox"> Enable shadow and glow effects</label><p class="note">Stills work for all 386 Pokémon, both views, normal and shiny. Animated optimization comparisons remain limited to shiny Gastly and Torkoal. PNG and static WebP preserve the same first-frame pixels.</p><div class="controls" id="controls"></div>
+<div class="actions"><button id="swampert">Swampert vs. Sceptile</button><button id="heavy">Heavy test: Gastly vs. Torkoal</button><button id="toggle">Hide animations</button><button id="reload">Reload selected files</button></div>
+<p class="note">On iPhone: use Safari while connected to the same Wi-Fi as your Mac. Keep the Mac awake and this server running. Watch for stuttering, slow switches, or warmth during a longer test. Loading time below measures image loading, not animation frame rate. Files are served without persistent caching for this test.</p>
+</main>
+<script type="module">
+const pokemon = await fetch('/pokemon.json').then(r=>r.json())
+const states=[{dex:260,view:'back',shiny:false},{dex:254,view:'front',shiny:false}]
+let hidden=false
+const controls=document.querySelector('#controls')
+for(let i=0;i<2;i++){
+ const panel=document.createElement('section');panel.className='panel'
+ panel.innerHTML=`<strong>${i?'Opponent':'Your Pokémon'}</strong><label>Pokémon<select class="species" aria-label="${i?'Opponent':'Your'} Pokémon">${pokemon.map(p=>`<option value="${p.dex}">${p.dex}. ${p.name}</option>`).join('')}</select></label><label>View<select class="view" aria-label="${i?'Opponent':'Your'} view"><option value="back">Back</option><option value="front">Front</option></select></label><label><input type="checkbox"> Shiny</label><div class="status" role="status"></div>`
+ controls.append(panel)
+ panel.querySelector('.species').value=states[i].dex
+ panel.querySelector('.view').value=states[i].view
+ panel.querySelector('input').checked=states[i].shiny
+ panel.addEventListener('change',()=>{states[i]={dex:Number(panel.querySelector('.species').value),view:panel.querySelector('.view').value,shiny:panel.querySelector('input').checked};render(i)})
+}
+function render(i){
+ const state=states[i],panel=controls.children[i],art=document.querySelector(`#art${i}`),status=panel.querySelector('.status')
+ art.replaceChildren()
+ document.querySelector(`#name${i}`).textContent=pokemon.find(p=>p.dex===state.dex)?.name || `Pokémon ${state.dex}`
+ if(hidden){status.textContent='Animation unloaded';return}
+ const image=new Image();image.alt=`${state.shiny?'Shiny ':''}${document.querySelector(`#name${i}`).textContent}, ${state.view} view`;image.width=512;image.height=512
+ const version=document.querySelector('#version').value
+ const count=document.querySelector('#count').value
+ const animated=count==='both'||(count==='player'&&i===0)||(count==='opponent'&&i===1)
+ const profile=animated?version:document.querySelector('#still-format').value
+ const supported=state.shiny && [92,324].includes(state.dex)
+ if(!['assets','still','png'].includes(profile)&&!supported){status.textContent='Select shiny Gastly/Torkoal for this comparison.';return}
+ const label=profile==='png'?'PNG still':profile==='balanced20'?'Balanced 256px · 20 fps':profile==='still'?'Still':profile==='light'?'Light 256px':profile==='optimized'?'Optimized 320px':profile==='smooth256'?'Smooth 256px':profile==='smooth320'?'Smooth 320px':'Original'
+ const url=`/${profile}/${state.view}${state.shiny?'_shiny':''}/${state.dex}.${profile==='png'?'png':'webp'}`
+ const started=performance.now();status.textContent='Loading…'
+ image.onload=async()=>{
+   const elapsed=Math.round(performance.now()-started)
+   if(art.firstChild!==image)return
+   status.textContent=`${label} · loaded in ${elapsed} ms`
+   try{const response=await fetch(url,{method:'HEAD'});if(art.firstChild===image)status.textContent=`${label} · ${(Number(response.headers.get('Content-Length'))/1048576).toFixed(2)} MB · ${elapsed} ms`}catch{/* Loading remains usable without size metadata. */}
+ }
+ image.onerror=()=>{status.textContent='Could not load this animation.'}
+ image.src=url;art.append(image)
+}
+function preset(a,b,shiny){[a,b].forEach((dex,i)=>{states[i]={dex,view:i?'front':'back',shiny};const panel=controls.children[i];panel.querySelector('.species').value=dex;panel.querySelector('.view').value=states[i].view;panel.querySelector('input').checked=shiny;render(i)})}
+document.querySelector('#swampert').onclick=()=>{document.querySelector('#version').value='assets';document.querySelector('#count').value='none';preset(260,254,false)}
+document.querySelector('#heavy').onclick=()=>preset(92,324,true)
+document.querySelector('#version').onchange=()=>{preset(92,324,true)}
+document.querySelector('#still-format').onchange=()=>states.forEach((_,i)=>render(i))
+document.querySelector('#count').onchange=()=>states.forEach((_,i)=>render(i))
+document.querySelector('#effects').onchange=event=>document.body.classList.toggle('effects',event.target.checked)
+document.addEventListener('visibilitychange',()=>{if(document.hidden){hidden=true;document.querySelector('#toggle').textContent='Show animations';states.forEach((_,i)=>render(i))}})
+document.querySelector('#toggle').onclick=event=>{hidden=!hidden;event.target.textContent=hidden?'Show animations':'Hide animations';states.forEach((_,i)=>render(i))}
+document.querySelector('#reload').onclick=()=>states.forEach((_,i)=>render(i))
+states.forEach((_,i)=>render(i))
+</script>
+</html>

@@ -1,5 +1,7 @@
 import { createPortal } from 'react-dom'
 import BattleWorkbench from './components/BattleWorkbench'
+import AppNavigation from './components/AppNavigation'
+import './matchupPreview.css'
 import {
   useEffect,
   useMemo,
@@ -22,7 +24,7 @@ import SpeciesFacts from './components/SpeciesFacts'
 import { collectionRibbonCatalog, ribbonEarned, friendshipDisplay, pokerusDisplay, expForLevel, levelFromExperience } from './utils/collectionDetails'
 import { deoxysForms } from './data/deoxysForms'
 import HomeSaveDialog from './components/HomeSaveDialog'
-import { Pokeball, FrontierEmblem, HomeIcon, TrainerStatIcon } from './components/HomeArtwork'
+import { Pokeball, FrontierEmblem, TrainerStatIcon } from './components/HomeArtwork'
 import { pokemonMeta } from './data/pokemonMeta'
 import { speciesInfo, moveInfo, itemNames } from './data/emeraldData'
 
@@ -56,15 +58,6 @@ const ROLE_ORDER = {
 }
 
 function loadStoredSave() {
-  // Local design preview does not overwrite the user's stored save.
-  if (import.meta.env.DEV && new URLSearchParams(window.location.search).has('preview')) {
-    return {
-      designPreview: true, trainerName: 'Brendan', trainerId: 12345, secretId: 54321,
-      playTime: { hours: 124, minutes: 28 }, money: 302416,
-      badgeData: { count: 8 }, pokedex: { caughtCount: 73 },
-      frontierSymbols: { tower: 'gold', dome: 'silver', factory: 'gold' },
-    }
-  }
   try {
     const stored =
       localStorage.getItem(
@@ -947,7 +940,7 @@ function MyPokemonPage({
   )
 }
 
-function App() {
+function App({battleDesign=true,initialPage='home'}={}) {
   const battleLastTap=useRef(null)
   const [
     saveData,
@@ -966,7 +959,7 @@ function App() {
   const [
     activePage,
     setActivePage,
-  ] = useState('home')
+  ] = useState(initialPage)
   const [resourcesVisit, setResourcesVisit] = useState(0)
 
   const collection =
@@ -1054,8 +1047,25 @@ function App() {
   }
 
 
+  function navigatePage(page, event) {
+    if (page === 'battle') {
+      const lastTap = battleLastTap.current
+      if (activePage === 'battle' && lastTap !== null && event.timeStamp - lastTap < 350) {
+        battleLastTap.current = null
+        window.dispatchEvent(new Event('emerald-reset-battle'))
+      } else {
+        battleLastTap.current = event.timeStamp
+      }
+    } else {
+      battleLastTap.current = null
+    }
+    if (page === 'resources') setResourcesVisit(visit => visit + 1)
+    setActivePage(page)
+  }
+
+
   return (
-    <div className="app-shell">
+    <div className={`app-shell${battleDesign&&activePage==='battle'?' battle-design-app':''}`}>
       <main className="app-content">
         {activePage === 'home' && (
           <HomePage
@@ -1080,19 +1090,18 @@ function App() {
         )}
 
         <div
-          className={`persistent-page ${activePage === 'battle' ? 'active' : ''}`}
+          className={`persistent-page ${activePage === 'battle' ? 'active' : ''}${battleDesign&&activePage==='battle'?' matchup-design-shell':''}`}
           aria-hidden={activePage !== 'battle'}
         >
-          <BattleWorkbench isActive={activePage === 'battle'} collection={collection} designations={designations} getRole={getRole} saveData={saveData??{}} />
+          <BattleWorkbench artworkPreview={battleDesign} isActive={activePage === 'battle'} collection={collection} designations={designations} getRole={getRole} saveData={saveData??{}} />
         </div>
       </main>
 
-      {createPortal(<nav className="bottom-nav home97-nav">
-        <button className={activePage === 'home' ? 'active' : ''} onClick={() => setActivePage('home')}><span className="nav-icon nav-home-icon"><HomeIcon kind="home" /></span><span>Home</span></button>
-        <button className={activePage === 'pokemon' ? 'active' : ''} onClick={() => setActivePage('pokemon')}><span className="nav-icon nav-pokemon-icon"><HomeIcon kind="pokemon" /></span><span>My Pokémon</span></button>
-        <button className={activePage === 'battle' ? 'active' : ''} onClick={event => {setActivePage('battle');const now=event.timeStamp;if(battleLastTap.current!==null&&now-battleLastTap.current<350){battleLastTap.current=null;window.dispatchEvent(new Event('emerald-reset-battle'))}else{battleLastTap.current=now}}} onDoubleClick={event=>event.preventDefault()}><span className="nav-icon nav-battle-icon"><HomeIcon kind="battle" /></span><span>Battle</span></button>
-        <button className={activePage === 'resources' ? 'active' : ''} onClick={() => { setResourcesVisit(visit => visit + 1); setActivePage('resources') }}><span className="nav-icon nav-resources-icon"><HomeIcon kind="resources" /></span><span>Resources</span></button>
-      </nav>, document.body)}
+      {createPortal(<AppNavigation
+        activePage={activePage}
+        battleDesign={battleDesign}
+        onNavigate={navigatePage}
+      />, document.body)}
     </div>
   )
 }

@@ -2,8 +2,9 @@ import { useEffect } from 'react'
 
 const lockedPages = '.collection-database-page,.resource-pokemon-database-page,.resource-pokemon-detail-page,.resource-scroll-database-page,.resource-items-scroll-page,.resource-frontier-page,.resource-home-scroll-page'
 
-export default function useResourceViewport() {
+export default function useResourceViewport(enabled = true) {
   useEffect(() => {
+    if (!enabled) return
     const viewport = window.visualViewport
     const updateSize = () => {
       const anchoredTool = document.querySelector('.resource-stats-tool,.persistent-page.active .battle-workbench')
@@ -52,5 +53,5 @@ export default function useResourceViewport() {
       document.removeEventListener('touchmove', containTouch)
       document.documentElement.style.removeProperty('--resource-viewport-height')
     }
-  }, [])
+  }, [enabled])
 }

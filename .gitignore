@@ -22,3 +22,17 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local visual review snapshots and generated animation experiments
+/homepage-*.jpg
+/shared-navigation-preview.jpg
+/outputs/
+/tools/bdsp-tester/*.png
+/tools/bdsp-tester/sizing-audit/
+/tools/bdsp-tester/stills/
+/tools/bdsp-tester/optimized/
+/tools/bdsp-tester/light/
+/tools/bdsp-tester/still/
+/tools/bdsp-tester/balanced20/
+/tools/bdsp-tester/smooth256/
+/tools/bdsp-tester/smooth320/

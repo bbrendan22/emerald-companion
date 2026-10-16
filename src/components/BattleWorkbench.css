@@ -558,3 +558,25 @@ html:has(.persistent-page.active .battle-workbench) { --app-page-background:#091
 .battle-workbench .battle-combined-conditions>label .collection-fit-select select { height:20px; }
 .battle-workbench .battle-condition-fields .collection-fit-select select,
 .battle-workbench .battle-combined-conditions>label .collection-fit-select select { padding-top:0; padding-bottom:0; }
+
+/* Small native checkboxes with modest padding on their clickable labels. */
+.battle-workbench .battle-screen-fields label,
+.battle-workbench .battle-combined-conditions>.battle-critical-control {
+ min-height:30px;
+ padding:4px 6px;
+ box-sizing:border-box;
+ gap:6px;
+ cursor:pointer;
+ touch-action:manipulation;
+ user-select:none;
+}
+.battle-workbench .battle-screen-fields input[type="checkbox"],
+.battle-workbench .battle-critical-control input[type="checkbox"] {
+ width:13px;
+ height:13px;
+ flex:0 0 13px;
+ margin:0;
+ cursor:pointer;
+}
+
+.battle-workbench [hidden] { display:none!important; }
