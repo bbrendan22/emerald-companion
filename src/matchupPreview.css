@@ -866,9 +866,9 @@ html:has(.matchup-design-shell),body:has(.matchup-design-shell),#root:has(.match
   column-gap: 0;
   isolation: isolate;
   row-gap: 6px;
-  height: 100%;
-  min-height: 100%;
-  grid-template-rows: 22px minmax(min-content,1fr) 34px;
+  height: auto;
+  min-height: 0;
+  grid-template-rows: 22px auto auto;
   overflow-anchor: none;
 }
 
@@ -952,40 +952,31 @@ html:has(.matchup-design-shell),body:has(.matchup-design-shell),#root:has(.match
   height: 26px;
 }
 
-/* Closing conditions restores the fitted matchup instead of retaining its scroll range. */
-.matchup-design-shell .battle-tab-content:has(>.battle-matchup:not([hidden]) .battle-combined-conditions:not([open])) {
+/* The content below the tabs is the only page scroller. Conditions remain
+   in normal document flow immediately after the two matchup panels. */
+.battle-artwork-preview .battle-combined-conditions {
+  position: relative;
+  margin-top: 3px;
+}
+.matchup-design-shell .battle-tab-content:has(>.battle-search-tab:not([hidden])) {
   overflow-y: hidden;
 }
-@media(max-height:640px) {
-  .matchup-design-shell .battle-tab-content:has(>.battle-matchup:not([hidden]) .battle-combined-conditions:not([open])) {
-    overflow-y: auto;
-  }
+.battle-workbench .battle-search-tab {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
 }
-
-/* The installed app and browser can report different content heights. Anchor
-   the conditions handle to the same viewport edge as the navigation itself. */
-.battle-design-app .battle-combined-conditions>summary {
-  position: fixed;
-  z-index: 25;
-  bottom: 68px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(calc(100% - 16px),744px);
-  min-height: 34px;
-  box-sizing: border-box;
-  margin: 0;
-  padding: 8px 11px;
-  border: 1px solid #32627f;
-  border-radius: 9px;
-  background: linear-gradient(145deg,#0a2b43,#0a1827);
+.battle-workbench .battle-search-tab>.battle-set-search {
+  flex: 0 0 auto;
+  margin-bottom: 8px;
 }
-.battle-design-app .battle-combined-conditions {
-  padding-top: 32px;
-}
-.battle-design-app .battle-combined-conditions>.battle-conditions-reset {
-  position: fixed;
-  z-index: 26;
-  top: auto;
-  bottom: 74px;
-  right: max(16px,calc((100vw - 744px) / 2 + 8px));
+.battle-workbench .battle-search-tab>.battle-trainer-list,
+.battle-workbench .battle-search-tab>.battle-opponent-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  padding-bottom: 12px;
 }
