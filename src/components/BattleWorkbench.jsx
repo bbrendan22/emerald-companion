@@ -152,7 +152,9 @@ export default function BattleWorkbench({collection,designations,getRole,saveDat
   const size=()=>{
    // Refresh after installed-app launch/resume, but keep the layout still while typing.
    if(document.activeElement?.matches('input,textarea,[contenteditable="true"]'))return
-   pageRef.current?.style.setProperty('--battle-fixed-height',`${viewport?.height??window.innerHeight}px`)
+   const height=`${viewport?.height??window.innerHeight}px`
+   pageRef.current?.style.setProperty('--battle-fixed-height',height)
+   pageRef.current?.closest('.matchup-design-shell')?.style.setProperty('--battle-visible-height',height)
   }
   size()
   viewport?.addEventListener('resize',size)

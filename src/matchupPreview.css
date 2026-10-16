@@ -703,14 +703,15 @@ html:has(.matchup-design-shell),body:has(.matchup-design-shell),#root:has(.match
 
 .matchup-design-shell .battle-tab-content {
   overflow-x: hidden;
-  padding: 9px 0 0;
+  padding: 6px 0 32px;
+  box-sizing: border-box;
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
   touch-action: pan-y pinch-zoom;
   padding-top: 6px;
-  scroll-padding-bottom: 8px;
+  scroll-padding-bottom: 32px;
 }
 
 .battle-artwork-preview .battle-level-label {
@@ -848,15 +849,20 @@ html:has(.matchup-design-shell),body:has(.matchup-design-shell),#root:has(.match
 }
 
 .battle-design-app .persistent-page.active.matchup-design-shell {
-  position: relative;
-  inset: auto;
+  position: fixed;
+  inset: 0 0 auto;
   width: 100%;
   max-width: 760px;
-  height: 100dvh;
-  margin: auto;
-  padding: 8px 8px 68px;
+  height: var(--battle-visible-height,100dvh);
+  margin: 0 auto;
+  padding: 8px 8px 76px;
   box-sizing: border-box;
   overflow: hidden;
+}
+@media(display-mode:standalone) {
+  .battle-design-app .persistent-page.active.matchup-design-shell {
+    padding-top: max(8px,env(safe-area-inset-top));
+  }
 }
 
 .battle-artwork-preview .battle-matchup-columns {
@@ -867,7 +873,7 @@ html:has(.matchup-design-shell),body:has(.matchup-design-shell),#root:has(.match
   isolation: isolate;
   row-gap: 6px;
   height: auto;
-  min-height: 0;
+  min-height: calc(100% + 24px);
   grid-template-rows: 22px auto auto;
   overflow-anchor: none;
 }
@@ -978,5 +984,6 @@ html:has(.matchup-design-shell),body:has(.matchup-design-shell),#root:has(.match
   overflow-y: auto;
   overflow-x: hidden;
   overscroll-behavior: contain;
-  padding-bottom: 12px;
+  padding-bottom: 32px;
+  scroll-padding-bottom: 32px;
 }
