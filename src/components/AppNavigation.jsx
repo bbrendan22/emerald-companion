@@ -20,7 +20,7 @@ export default function AppNavigation({activePage, battleDesign, onNavigate}) {
       onClick={event => onNavigate(page, event)}
       onDoubleClick={page === 'battle' ? event => event.preventDefault() : undefined}
     >
-      <span className={`nav-icon nav-${page}-icon`}><HomeIcon kind={page}/></span>
+      {!battleDesign && <span className={`nav-icon nav-${page}-icon`}><HomeIcon kind={page}/></span>}
       <span>{label}</span>
     </button>)}
   </nav>
