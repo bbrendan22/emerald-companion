@@ -961,3 +961,31 @@ html:has(.matchup-design-shell),body:has(.matchup-design-shell),#root:has(.match
     overflow-y: auto;
   }
 }
+
+/* The installed app and browser can report different content heights. Anchor
+   the conditions handle to the same viewport edge as the navigation itself. */
+.battle-design-app .battle-combined-conditions>summary {
+  position: fixed;
+  z-index: 25;
+  bottom: 68px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(calc(100% - 16px),744px);
+  min-height: 34px;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 8px 11px;
+  border: 1px solid #32627f;
+  border-radius: 9px;
+  background: linear-gradient(145deg,#0a2b43,#0a1827);
+}
+.battle-design-app .battle-combined-conditions {
+  padding-top: 32px;
+}
+.battle-design-app .battle-combined-conditions>.battle-conditions-reset {
+  position: fixed;
+  z-index: 26;
+  top: auto;
+  bottom: 74px;
+  right: max(16px,calc((100vw - 744px) / 2 + 8px));
+}
