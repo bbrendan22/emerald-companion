@@ -1,4 +1,30 @@
-const CACHE='emerald-companion-v40',BASE='/emerald-companion/';
-self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll([BASE,BASE+'manifest.webmanifest'])));self.skipWaiting()});
-self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));self.clients.claim()});
-self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;const r=e.request;if(r.mode==='navigate'){e.respondWith(fetch(r).then(x=>{const y=x.clone();caches.open(CACHE).then(c=>c.put(r,y));return x}).catch(()=>caches.match(r).then(x=>x||caches.match(BASE))));return}e.respondWith(caches.match(r).then(x=>x||fetch(r).then(y=>{if(y.ok&&new URL(r.url).origin===self.location.origin){const z=y.clone();caches.open(CACHE).then(c=>c.put(r,z))}return y})))});
+const CACHE='emerald-companion-__BUILD_VERSION__',BASE='/emerald-companion/';
+self.addEventListener('install',event=>{
+ event.waitUntil((async()=>{
+  const cache=await caches.open(CACHE);
+  await cache.addAll([BASE,BASE+'manifest.webmanifest'].map(url=>new Request(url,{cache:'reload'})));
+  await self.skipWaiting();
+ })());
+});
+self.addEventListener('activate',event=>{
+ event.waitUntil((async()=>{
+  const keys=await caches.keys();
+  await Promise.all(keys.filter(key=>key.startsWith('emerald-companion-')&&key!==CACHE).map(key=>caches.delete(key)));
+  await self.clients.claim();
+ })());
+});
+self.addEventListener('fetch',event=>{
+ const request=event.request;
+ if(request.method!=='GET'||new URL(request.url).origin!==self.location.origin)return;
+ if(request.mode==='navigate'){
+  event.respondWith(fetch(new Request(request,{cache:'no-cache'})).then(response=>{
+   if(response.ok){const copy=response.clone();event.waitUntil(caches.open(CACHE).then(cache=>cache.put(request,copy)));}
+   return response;
+  }).catch(()=>caches.match(request).then(cached=>cached||caches.match(BASE))));
+  return;
+ }
+ event.respondWith(caches.match(request).then(cached=>cached||fetch(request).then(response=>{
+  if(response.ok){const copy=response.clone();event.waitUntil(caches.open(CACHE).then(cache=>cache.put(request,copy)));}
+  return response;
+ })));
+});

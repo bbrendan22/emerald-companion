@@ -1,7 +1,8 @@
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import {createReadStream} from 'node:fs'
-import {stat} from 'node:fs/promises'
+import {stat,readFile,writeFile} from 'node:fs/promises'
+import {resolve} from 'node:path'
 import {fileURLToPath} from 'node:url'
 
 // Local design review serves the exported stills without adding 92 MB to deployments.
@@ -30,8 +31,24 @@ const bdspPreviewAssets={
   },
 }
 
+// Every production build changes the worker, even when public assets change.
+const automaticUpdates=()=>{
+  let outputDirectory
+  const version=Date.now().toString(36)
+  return {
+    name:'automatic-app-updates',
+    apply:'build',
+    configResolved(config){outputDirectory=resolve(config.root,config.build.outDir)},
+    async closeBundle(){
+      const path=resolve(outputDirectory,'sw.js')
+      const source=await readFile(path,'utf8')
+      await writeFile(path,source.replace('__BUILD_VERSION__',version))
+    },
+  }
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   base: '/emerald-companion/',
-  plugins: [react(),bdspPreviewAssets],
+  plugins: [react(),bdspPreviewAssets,automaticUpdates()],
 })
